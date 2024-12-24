@@ -30,13 +30,18 @@ TXEngine (Py) is open to contribution. Open a pull-request, and I'll do my best 
 I recommend using Jetbrains PyCharm as your IDE when developing for TXEngine. As such, these instructions will include PyCharm-specific steps.
 
  - Clone the repository to your PC. Using command-line git: `git clone https://github.com/SlappedWithSilence/TXEnginePy`
- - *Optional*: Create a virtual environment. To use `venv`, [see these documents](https://docs.python.org/3/library/venv.html).
- - Install the requirements: `pip install -r requirements.txt`
+ - Set up your virtual environment. We recommend using Poetry, as that's our build system.
+   - Install `pipx`: https://pipx.pypa.io/stable/installation/
+   - Install `poetry`: https://python-poetry.org/docs/#installation
+   - Create a virtual environment and install dependencies: `poetry install`
+ - (Optional) Install pre-commit and the `ruff` hook
+   - Run `pipx install pre-commit` OR install pre-commit via Poetry: `poetry add pre-commit`
+   - 
  - [Install PyCharm](https://www.jetbrains.com/pycharm/)
  - Open TXEnginePy in PyCharm
  - Install the [Pydantic PyCharm plugin](https://docs.pydantic.dev/pycharm_plugin/)
  - Run the application:
-   - `uvicorn --app-dir=src/ main:tx_engine --reload`
+   - `fastapi dev` or `uvicorn --app-dir=src/ main:tx_engine --reload`
    - For more info, [see here](https://fastapi.tiangolo.com/tutorial/first-steps/)
 - Run a TXEnginePY Client
   - TXEnginePY comes bundled with a primitive client, suitable only for debugging. It implements the bare minimum features to simulate what a user of a proper client would see.
