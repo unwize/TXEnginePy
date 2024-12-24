@@ -64,5 +64,4 @@ def root(command: str):
 
 # Begin service logic
 if __name__ == "__main__":
-    logger.info("Starting main...")
-    pass
+    exec("fastapi run")
