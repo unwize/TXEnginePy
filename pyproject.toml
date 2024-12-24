@@ -1,3 +1,7 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "txengine"
 version = "0.1.0"
@@ -17,7 +21,8 @@ textual = "^1.0.0"
 pytest = "*"
 pydantic = "*"
 mypy = "*"
+ruff = "*"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+line-length = 120
+target-version = "py310"
