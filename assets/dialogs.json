@@ -29,6 +29,60 @@
           ]
         }
       ]
+    },
+    {
+      "class" : "Dialog",
+      "id" : 2,
+      "nodes" : [
+        {
+          "class" : "DialogNode",
+          "node_id" : 0,
+          "text" : "Men are such pricks",
+          "options" : {
+            "I'm sorry, do I know you?" : 1
+          }
+        },
+        {
+          "class" : "DialogNode",
+          "node_id" : 1,
+          "text" : "Let's just say I provide a much needed service around here.",
+          "options" : {
+            "Like what?" : 2
+          }
+        },
+        {
+          "class" : "DialogNode",
+          "node_id" : 2,
+          "text" : "You ever punched a guy in the eye so hard he swallowed it?.",
+          "options" : {
+            "No" : 3,
+            "Yes" : -1
+          }
+        },
+        {
+          "class" : "DialogNode",
+          "node_id" : 3,
+          "text" : "Now, these are performance-enhancing supplements. You *might* find that there are some minor side-effects, but trust me, they are *nothing* compared to the results.",
+          "options" : {
+            "And when should I start to see the results?" : 4
+          },
+          "on_enter" : [
+            {
+              "class" : "LearnAbilityEvent",
+              "ability_name" : "Steroids"
+            }
+          ]
+        },
+        {
+          "class" : "DialogNode",
+          "node_id" : 4,
+          "text" : "Almost immediately, *this* is the good stuff.",
+          "options" : {
+            "Thanks" : -1
+          }
+        }
+      ]
+
     }
   ]
 }

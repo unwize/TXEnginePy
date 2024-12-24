@@ -236,6 +236,20 @@
           "target_room" : 3
         }
       ]
+    },
+    {
+      "class" : "Room",
+      "id" : 5,
+      "name" : "Gym-Rat Alley",
+      "enter_text" : "That's the smell of hard work. The smell of determination. That's the smell of-- feet. \nIt does smell like feet.",
+      "actions" : [
+        {
+          "class" : "DialogAction",
+          "menu_name" : "A voice calls out from the dark: \"Men are such pricks!\"",
+          "activation_text" : "You're approached by a woman with a suspiciously deep voice.",
+          "dialog_id" : 2
+        }
+      ]
     }
   ]
 }

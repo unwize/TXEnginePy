@@ -1,3 +1,7 @@
+"""
+A collection of base Action classes and simple utility Action subclasses.
+"""
+
 import enum
 from abc import ABC
 from enum import Enum
@@ -48,7 +52,7 @@ class Action(LoadableMixin, RequirementsMixin, FiniteStateDevice, ABC):
 
 class ExitAction(Action):
     """
-    An Action that signal to the state_device_controller that the containing Room StateDevice should be terminated
+    An Action that signals to the state_device_controller that the containing Room StateDevice should be terminated
     """
 
     class States(Enum):

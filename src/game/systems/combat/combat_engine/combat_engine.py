@@ -62,6 +62,7 @@ class CombatEngine(FiniteStateDevice):
                  override_primary_resource: str = None):
         super().__init__(InputType.ANY, self.States, self.States.DEFAULT)
 
+        # Configure primary resource
         if override_primary_resource is not None:
             self._backup_primary_resource = get_config()['resources'][
                 'primary_resource']
@@ -79,13 +80,13 @@ class CombatEngine(FiniteStateDevice):
                 win_con_found = True
             else:
                 loss_con_found = True
-
         if not (win_con_found and loss_con_found):
             raise ValueError(
                 "CombatEngine must have at least 1 win termination condition "
                 "and 1 loss termination condition!"
             )
 
+        # Validate combat entities
         if len(enemy_entity_ids) < 1:
             raise ValueError("Combat must have at least one enemy entity!")
 

@@ -4,7 +4,7 @@ import requests
 from rich.table import Table
 from textual import on
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Static, DataTable, Input, TabbedContent, TabPane, Label, Button, RichLog
+from textual.widgets import Header, Footer, Static, Input, TabbedContent, TabPane, Label, Button, RichLog
 
 
 # Global helper functions

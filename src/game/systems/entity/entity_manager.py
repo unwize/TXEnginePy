@@ -19,11 +19,20 @@ class EntityManager(manager.Manager):
         self._manifest: dict[int, entities.Entity] = {}
         self.player_entity: entities.Entity = None
 
-    def __getitem__(self, item) -> entities.Entity:
-        return self.get_instance(item)
+    def __getitem__(self, entity_id) -> entities.Entity:
+        """
+        Return a new instance of a given entity by looking it up via the provided ID
 
-    def __contains__(self, item) -> bool:
-        return self._manifest.__contains__(item)
+        Args:
+            entity_id: The id of the entity for which to return an instance
+
+        Returns: A new instance of the given entity
+
+        """
+        return self.get_instance(entity_id)
+
+    def __contains__(self, entity_id) -> bool:
+        return self._manifest.__contains__(entity_id)
 
     def register_entity(self, entity: entities.Entity, override_reserved_ids: bool = False) -> None:
         """
