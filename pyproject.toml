@@ -8,12 +8,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-loguru = "*"
-fastapi = "*"
-pydantic = "*"
-omegaconf = "*"
-requests = "*"
-textual = "*"
+loguru = "^0.7.3"
+fastapi = "^0.115.6"
+textual = "^1.0.0"
+
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
