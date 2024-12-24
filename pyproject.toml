@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "txengine"
+version = "0.1.0"
+description = "A code-free text-based game engine written in Python and configured with JSON"
+authors = ["Aaron Sigal <aaronsigaldev@gmail.com>"]
+license = "LICENSE.md"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+loguru = "*"
+fastapi = "*"
+pydantic = "*"
+omegaconf = "*"
+requests = "*"
+textual = "*"
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+pydantic = "*"
+mypy = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
