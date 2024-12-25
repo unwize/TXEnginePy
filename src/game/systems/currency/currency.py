@@ -13,8 +13,7 @@ class BaseCurrency(ABC):
     A Currency must have a first stage with a value of 1.
     """
 
-    def __init__(self, id: int, name: str, stages: dict[str, int],
-                 quantity: int = 0, allow_negative: bool = False):
+    def __init__(self, id: int, name: str, stages: dict[str, int], quantity: int = 0, allow_negative: bool = False):
         super().__init__()
 
         self.id: int = id
@@ -38,18 +37,16 @@ class Currency(LoadableMixin, BaseCurrency):
     A Currency must have a first stage with a value of 1.
     """
 
-    def __init__(self, id: int, name: str, stages: dict[str, int],
-                 quantity: int = 0, allow_negative: bool = False, **kwargs):
-
-        super().__init__(id=id, name=name, stages=stages, quantity=quantity,
-                         allow_negative=allow_negative, **kwargs)
+    def __init__(
+        self, id: int, name: str, stages: dict[str, int], quantity: int = 0, allow_negative: bool = False, **kwargs
+    ):
+        super().__init__(id=id, name=name, stages=stages, quantity=quantity, allow_negative=allow_negative, **kwargs)
 
     @property
     def key(self) -> tuple[int, str]:
         return self.id, self.name
 
     def __str__(self) -> str:
-
         base: str = ""
         working_quantity: int = self.quantity
         non_zero_stage_found: bool = False
@@ -78,7 +75,6 @@ class Currency(LoadableMixin, BaseCurrency):
         return self.__str__()
 
     def __add__(self, other):
-
         # If (Currency + Currency)
         if isinstance(other, type(self)):
             if self.id != other.id:
@@ -94,7 +90,6 @@ class Currency(LoadableMixin, BaseCurrency):
             raise TypeError(f"Cannot add {type(self)} and {type(other)}!")
 
     def __sub__(self, other):
-
         # If (Currency - Currency)
         if isinstance(other, type(self)):
             if self.name != other.name:
@@ -123,15 +118,15 @@ class Currency(LoadableMixin, BaseCurrency):
             raise TypeError(f"A Currency may only be multiplied by int or float! Got {type(other)}")
 
     def adjust(self, amount: int | float):
-        """ Adjust quantity by 'amount'.
+        """Adjust quantity by 'amount'.
 
-            If amount is an int, simply add it to 'quantity' (flat adjustment).  2 + 3 = 5
-            If amount is a float, multiply 'quantity' by it (percent adjustment). 2 x 0.5 = 1
+        If amount is an int, simply add it to 'quantity' (flat adjustment).  2 + 3 = 5
+        If amount is a float, multiply 'quantity' by it (percent adjustment). 2 x 0.5 = 1
         """
-        if type(amount) == int:
+        if type(amount) is int:
             self.quantity = self.quantity + amount
 
-        elif type(amount) == float:
+        elif type(amount) is float:
             self.quantity = round(self.quantity * amount)
 
         else:
@@ -140,7 +135,7 @@ class Currency(LoadableMixin, BaseCurrency):
     def set(self, quantity: int):
         """Set 'quantity' to the passed value."""
 
-        if type(quantity) == int:
+        if type(quantity) is int:
             self.quantity = quantity
         else:
             raise TypeError(f"Cannot set a Currency's quantity to type {type(quantity)}! Must be of type int.")
@@ -159,25 +154,16 @@ class Currency(LoadableMixin, BaseCurrency):
         - allow_negative: bool = False
         """
 
-        required_fields = [
-            ("id", int), ("name", str), ("stages", dict)
-        ]
+        required_fields = [("id", int), ("name", str), ("stages", dict)]
 
-        optional_fields = [
-            ("quantity", int), ("allow_negative", bool)
-        ]
+        optional_fields = [("quantity", int), ("allow_negative", bool)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
 
-        if json['class'] != "Currency":
+        if json["class"] != "Currency":
             raise ValueError("Invalid class field!")
 
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
-        return Currency(
-            json['id'],
-            json['name'],
-            json['stages'],
-            **kwargs
-        )
+        return Currency(json["id"], json["name"], json["stages"], **kwargs)

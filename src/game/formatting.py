@@ -7,7 +7,7 @@ formatting: dict[str, list[str]] = {}
 def register_arguments(arguments: list[str]):
     """
     Register a string as a supported styling argument
-    
+
     Args:
         arguments: The string to register
 
@@ -17,7 +17,7 @@ def register_arguments(arguments: list[str]):
     global supported_style_arguments
 
     for arg in arguments:
-        if type(arg) == str:
+        if type(arg) is str:
             if arg in supported_style_arguments:
                 logger.warning(f"[formatting.py] Registering duplicate argument: {arg}")
             else:
@@ -39,7 +39,7 @@ def register_style(style_name: str, style_args: list[str]) -> None:
     """
     global formatting
 
-    if type(style_name) != str or len(style_name) < 2:
+    if type(style_name) is not str or len(style_name) < 2:
         raise TypeError(f"style_name must be a str! Got {type(style_name)} instead.")
 
     if len(style_args) < 1:

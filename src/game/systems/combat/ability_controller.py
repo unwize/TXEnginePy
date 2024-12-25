@@ -4,24 +4,21 @@ from game.structures.messages import StringContent
 
 
 class AbilityController:
-
     def __init__(self, abilities: list[str] = None, owner=None):
         from game.systems.entity.entities import CombatEntity
+
         if owner is not None and not isinstance(owner, CombatEntity):
-            raise TypeError(
-                "Cannot assigned an owner to AbilityController that is not of "
-                "type CombatEntity!")
+            raise TypeError("Cannot assigned an owner to AbilityController that is not of type CombatEntity!")
 
         self.owner = owner
 
         # Validate that each str is a real ability
         if abilities is not None:
             for ab in abilities:
-                if not from_cache('managers.AbilityManager').is_ability(ab):
+                if not from_cache("managers.AbilityManager").is_ability(ab):
                     raise ValueError(f"{ab} is not a known Ability!")
 
-        self.abilities: set[str] = set(
-            abilities) if abilities is not None else set()
+        self.abilities: set[str] = set(abilities) if abilities is not None else set()
 
     def is_learnable(self, ability_name: str) -> bool:
         """
@@ -34,8 +31,7 @@ class AbilityController:
             True if the Requirements for the Ability are met by the owning
             CombatEntity, False otherwise.
         """
-        return from_cache("managers.AbilityManager").get_instance(
-            ability_name).is_requirements_fulfilled(self.owner)
+        return from_cache("managers.AbilityManager").get_instance(ability_name).is_requirements_fulfilled(self.owner)
 
     def is_learned(self, ability_name: str) -> bool:
         """
@@ -76,17 +72,14 @@ class AbilityController:
         """
 
         if ability_name is None or type(ability_name) is not str:
-            raise TypeError(
-                f"ability_name must be of type str! Got type {type(ability_name)} instead.")
+            raise TypeError(f"ability_name must be of type str! Got type {type(ability_name)} instead.")
 
         if self.owner is None:
-            raise RuntimeError(
-                f"AbilityController instance {self} has no owner set!")
+            raise RuntimeError(f"AbilityController instance {self} has no owner set!")
 
         inst = from_cache("managers.AbilityManager").get_instance(ability_name)
 
-        return self.is_learned(ability_name) and inst.is_requirements_fulfilled(
-            self.owner)
+        return self.is_learned(ability_name) and inst.is_requirements_fulfilled(self.owner)
 
     def consume_ability_resources(self, ability_name) -> None:
         """
@@ -103,9 +96,7 @@ class AbilityController:
         inst = from_cache("managers.AbilityManager").get_instance(ability_name)
 
         for res, quantity in inst.costs.items():
-            game.add_state_device(
-                ResourceEvent(res, abs(quantity) * -1, self.owner)
-            )
+            game.add_state_device(ResourceEvent(res, abs(quantity) * -1, self.owner))
 
     def _get_ability_as_option(self, ability_name) -> list[str | StringContent]:
         """
@@ -114,7 +105,7 @@ class AbilityController:
 
         Returned formatting is gray if requirements not met, white if met.
         """
-        if not from_cache('managers.AbilityManager').is_ability(ability_name):
+        if not from_cache("managers.AbilityManager").is_ability(ability_name):
             raise ValueError(f"{ability_name} is not a known Ability!")
 
         inst = from_cache("managers.AbilityManager").get_instance(ability_name)
@@ -122,9 +113,7 @@ class AbilityController:
         return [
             StringContent(
                 value=ability_name,
-                formatting="ability_enabled" if
-                inst.is_requirements_fulfilled(self.owner)
-                else "ability_disabled"
+                formatting="ability_enabled" if inst.is_requirements_fulfilled(self.owner) else "ability_disabled",
             )
         ]
 
@@ -140,7 +129,4 @@ class AbilityController:
         Returns: A list of lists that contains formatted learned abilities.
         """
 
-        return [
-            self._get_ability_as_option(ability_name) for ability_name in
-            self.abilities
-        ]
+        return [self._get_ability_as_option(ability_name) for ability_name in self.abilities]

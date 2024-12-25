@@ -18,8 +18,7 @@ class ItemBase(ABC):
     Base class of Item object
     """
 
-    def __init__(self, name: str, iid: int, description: str,
-                 max_quantity: int = 10):
+    def __init__(self, name: str, iid: int, description: str, max_quantity: int = 10):
         self.name: str = name  # Name of item
         self.id: int = iid  # Unique id of item
         self.description: str = description  # Description of the item
@@ -38,10 +37,8 @@ class Item(LoadableMixin, TradeMixin, ItemBase):
         market_values: A map of Currency ID to Currency value
     """
 
-    def __init__(self, name: str, iid: int, description: str,
-                 max_quantity: int = 10, **kwargs):
-        super().__init__(name=name, iid=iid, description=description,
-                         max_quantity=max_quantity, **kwargs)
+    def __init__(self, name: str, iid: int, description: str, max_quantity: int = 10, **kwargs):
+        super().__init__(name=name, iid=iid, description=description, max_quantity=max_quantity, **kwargs)
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "Item", LoadableMixin.ATTR_KEY])
@@ -64,27 +61,18 @@ class Item(LoadableMixin, TradeMixin, ItemBase):
         - market_values: dict[int, int]
         """
 
-        required_fields = [
-            ("name", str), ("id", int), ("description", str)
-        ]
+        required_fields = [("name", str), ("id", int), ("description", str)]
 
-        optional_fields = [
-            ("max_quantity", int), ("market_values", dict)
-        ]
+        optional_fields = [("max_quantity", int), ("market_values", dict)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
         if "market_values" in kwargs:
-            kwargs["market_values"] = {int(k): v for k, v in
-                                      kwargs["market_values"].items()}
+            kwargs["market_values"] = {int(k): v for k, v in kwargs["market_values"].items()}
 
-        return Item(name=json['name'],
-                    iid=json['id'],
-                    description=json['description'],
-                    **kwargs
-                    )
+        return Item(name=json["name"], iid=json["id"], description=json["description"], **kwargs)
 
 
 class Usable(req.RequirementsMixin, Item):
@@ -93,28 +81,32 @@ class Usable(req.RequirementsMixin, Item):
     triggered in sequence.
     """
 
-    def __init__(self, name: str, iid: int,
-                 description: str, functional_description: str,
-                 max_quantity: int = 10, on_use_events: list[Event] = None,
-                 consumable: bool = False, **kwargs):
-        super().__init__(name=name, iid=iid, description=description,
-                         max_quantity=max_quantity, **kwargs)
+    def __init__(
+        self,
+        name: str,
+        iid: int,
+        description: str,
+        functional_description: str,
+        max_quantity: int = 10,
+        on_use_events: list[Event] = None,
+        consumable: bool = False,
+        **kwargs,
+    ):
+        super().__init__(name=name, iid=iid, description=description, max_quantity=max_quantity, **kwargs)
 
-        self.on_use_events: list[
-            Event] = on_use_events or []  # List of Events that trigger when item is used
+        self.on_use_events: list[Event] = on_use_events or []  # List of Events that trigger when item is used
         self.consumable: bool = consumable  # Determines if the item should decrement quantity after each use.
         self.functional_description: str = functional_description
 
     def use(self, target) -> None:
-
         from game.systems.entity.entities import Entity
+
         if not isinstance(target, Entity):
             raise TypeError("Usable target must be an instance of Entity!")
 
         for e in self.on_use_events:
             if not isinstance(e, Event):
-                raise TypeError(
-                    f"Invalid use_event object type! Got type {type(e)}. Expected type Event!")
+                raise TypeError(f"Invalid use_event object type! Got type {type(e)}. Expected type Event!")
 
             dce = copy.deepcopy(e)
             if hasattr(dce, "_target"):
@@ -152,13 +144,17 @@ class Usable(req.RequirementsMixin, Item):
         """
 
         required_fields = [
-            ("name", str), ("id", int), ("description", str),
+            ("name", str),
+            ("id", int),
+            ("description", str),
             ("functional_description", str),
         ]
 
         optional_fields = [
-            ("max_quantity", int), ("on_use_events", list),
-            ("consumable", bool), ("market_values", dict)
+            ("max_quantity", int),
+            ("on_use_events", list),
+            ("consumable", bool),
+            ("market_values", dict),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -167,36 +163,31 @@ class Usable(req.RequirementsMixin, Item):
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
         if "market_values" in kwargs:
-            kwargs["market_values"] = {int(k): v for k, v in
-                                      kwargs["market_values"].items()}
+            kwargs["market_values"] = {int(k): v for k, v in kwargs["market_values"].items()}
 
-        if 'on_use_events' in kwargs:
-            kwargs['on_use_events'] = [LoadableFactory.get(raw_effect) for
-                                       raw_effect in kwargs['on_use_events']]
+        if "on_use_events" in kwargs:
+            kwargs["on_use_events"] = [LoadableFactory.get(raw_effect) for raw_effect in kwargs["on_use_events"]]
 
-        return Usable(json['name'],
-                      json['id'],
-                      json['description'],
-                      json['functional_description'],
-                      **kwargs
-                      )
+        return Usable(json["name"], json["id"], json["description"], json["functional_description"], **kwargs)
 
 
 class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
-
-    def __init__(self, name: str, iid: int, description: str,
-                 functional_description: str, equipment_slot: str,
-                 damage_buff: int, damage_resist: int,
-                 start_of_combat_effects: list[CombatEffect] = None,
-                 **kwargs):
-        super().__init__(name=name,
-                         iid=iid,
-                         description=description, **kwargs)
+    def __init__(
+        self,
+        name: str,
+        iid: int,
+        description: str,
+        functional_description: str,
+        equipment_slot: str,
+        damage_buff: int,
+        damage_resist: int,
+        start_of_combat_effects: list[CombatEffect] = None,
+        **kwargs,
+    ):
+        super().__init__(name=name, iid=iid, description=description, **kwargs)
         self.functional_description: str = functional_description
-        self.slot: str = from_cache(
-            "managers.EquipmentManager").is_valid_slot(equipment_slot)
-        self.start_of_combat_effects: list[
-            CombatEffect] = start_of_combat_effects or []
+        self.slot: str = from_cache("managers.EquipmentManager").is_valid_slot(equipment_slot)
+        self.start_of_combat_effects: list[CombatEffect] = start_of_combat_effects or []
 
         self.damage_buff: int = damage_buff
         self.damage_resist: int = damage_resist
@@ -211,21 +202,20 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
         results = {k: v for k, v in self.resource_mods}
 
         for key, value in results:
-            if type(value) == int:
+            if type(value) is int:
                 if value >= 0:
                     results[key] = f"+{value}"
                 else:
                     results[key] = f"-{value}"
 
-            elif type(value) == float:
+            elif type(value) is float:
                 if value >= 0:
                     results[key] = f"+{value}%"
                 else:
                     results[key] = f"-{value}%"
             else:
                 raise TypeError(
-                    f"Unexpected type in resource_mods dict! Expected type int,"
-                    f" float, got {type(value)} instead!"
+                    f"Unexpected type in resource_mods dict! Expected type int," f" float, got {type(value)} instead!"
                 )
 
         # Insert secondary stats
@@ -238,40 +228,47 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
     @cached([LoadableMixin.LOADER_KEY, "Equipment", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> "Equipment":
         """
-       Instantiate an Equipment object from a JSON blob.
+        Instantiate an Equipment object from a JSON blob.
 
-       Args:
-           json: a dict-form representation of a JSON object
+        Args:
+            json: a dict-form representation of a JSON object
 
-       Returns: An Equipment instance with the properties defined in the JSON
+        Returns: An Equipment instance with the properties defined in the JSON
 
-       Required JSON fields:
-       - name: str
-       - id: int
-       - description: str
-       - functional_description: str
-       - equipment_slot: str
-       - damage_buff: int
-       - damage_resist: int
+        Required JSON fields:
+        - name: str
+        - id: int
+        - description: str
+        - functional_description: str
+        - equipment_slot: str
+        - damage_buff: int
+        - damage_resist: int
 
-       Optional JSON fields:
-       - max_quantity: int (default value 10)
-       - start_of_combat_effects: list[CombatEffect]
-       - requirements: list[Requirement]
-       - resource_modifiers: dict[str, int | float]
-       - tags: dict
-       - market_values: dict[int, int]
-       """
+        Optional JSON fields:
+        - max_quantity: int (default value 10)
+        - start_of_combat_effects: list[CombatEffect]
+        - requirements: list[Requirement]
+        - resource_modifiers: dict[str, int | float]
+        - tags: dict
+        - market_values: dict[int, int]
+        """
 
         required_fields = [
-            ("name", str), ("id", int), ("description", str),
-            ("functional_description", str), ("equipment_slot", str),
-            ("damage_buff", int), ("damage_resist", int)
+            ("name", str),
+            ("id", int),
+            ("description", str),
+            ("functional_description", str),
+            ("equipment_slot", str),
+            ("damage_buff", int),
+            ("damage_resist", int),
         ]
         optional_fields = [
-            ("max_quantity", int), ("start_of_combat_effects", list),
-            ("requirements", list), ("resource_modifiers", dict),
-            ("tags", dict), ("market_values", dict)
+            ("max_quantity", int),
+            ("start_of_combat_effects", list),
+            ("requirements", list),
+            ("resource_modifiers", dict),
+            ("tags", dict),
+            ("market_values", dict),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -281,28 +278,27 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
         if "market_values" in kwargs:
-            kwargs["market_values"] = {int(k): v for k, v in
-                                      kwargs["market_values"].items()}
+            kwargs["market_values"] = {int(k): v for k, v in kwargs["market_values"].items()}
 
         # Overwrite SOCE since its contents must be cast to Python via LoadableFactory
         start_of_combat_effects = []
-        if 'start_of_combat_effects' in json:
-            for effect_json in json['start_of_combat_effects']:
+        if "start_of_combat_effects" in json:
+            for effect_json in json["start_of_combat_effects"]:
                 ef = LoadableFactory.get(effect_json)
                 if not isinstance(ef, CombatEffect):
-                    raise TypeError(
-                        f"Expected effect of type CombatEffect, got {type(ef)} instead!")
+                    raise TypeError(f"Expected effect of type CombatEffect, got {type(ef)} instead!")
 
                 start_of_combat_effects.append(ef)
 
-        kwargs['start_of_combat_effects'] = start_of_combat_effects
+        kwargs["start_of_combat_effects"] = start_of_combat_effects
 
-        return Equipment(json['name'],
-                         json['id'],
-                         json['description'],
-                         json['functional_description'],
-                         json['equipment_slot'],
-                         json['damage_buff'],
-                         json['damage_resist'],
-                         **kwargs
-                         )
+        return Equipment(
+            json["name"],
+            json["id"],
+            json["description"],
+            json["functional_description"],
+            json["equipment_slot"],
+            json["damage_buff"],
+            json["damage_resist"],
+            **kwargs,
+        )

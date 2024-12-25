@@ -5,7 +5,6 @@ from game.util.asset_utils import get_asset
 
 
 class FactionManager(Manager):
-
     FACTION_ASSET_PATH = "factions"
 
     def __init__(self):
@@ -48,7 +47,7 @@ class FactionManager(Manager):
 
     def load(self) -> None:
         raw_asset: dict[str, any] = get_asset(self.FACTION_ASSET_PATH)
-        for raw_faction in raw_asset['content']:
+        for raw_faction in raw_asset["content"]:
             faction = LoadableFactory.get(raw_faction)
             if not isinstance(faction, Faction):
                 raise TypeError(f"Expected object of type Faction, got {type(faction)} instead!")

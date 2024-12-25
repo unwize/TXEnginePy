@@ -51,10 +51,10 @@ class Resource:
             What the Resource's value would be after the adjustment
         """
 
-        if type(amount) == int:
+        if type(amount) is int:
             return max(0, min(self.max, self.value + amount))
 
-        elif type(amount) == float:
+        elif type(amount) is float:
             return round(max(0, min(self.max, self.value + (self.max * amount))))
 
         else:
@@ -86,7 +86,7 @@ class Resource:
             StringContent(value=str(self.value), formatting="resource_value"),
             StringContent(value="/"),
             StringContent(value=str(self.max), formatting="resource_max"),
-            StringContent(value="]")
+            StringContent(value="]"),
         ]
 
     def __repr__(self):
@@ -108,25 +108,21 @@ class Resource:
         - None
         """
 
-        required_fields: list = [
-            ("name", str), ("description", str), ("max", int)
-        ]
+        required_fields: list = [("name", str), ("description", str), ("max", int)]
 
-        optional_fields: list = [
-            ("value", int)
-        ]
+        optional_fields: list = [("value", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
 
-        if json['class'] != "Resource":
+        if json["class"] != "Resource":
             raise TypeError()
 
         return Resource(
-            json['name'],
-            json['max'],
-            json['description'],
-            **LoadableFactory.collect_optional_fields(optional_fields, json)
+            json["name"],
+            json["max"],
+            json["description"],
+            **LoadableFactory.collect_optional_fields(optional_fields, json),
         )
 
 
@@ -149,10 +145,10 @@ class ResourceModifierMixin:
 
     @classmethod
     def validate_modifier(cls, resource_name, modifier):
-        if type(resource_name) != str:
+        if type(resource_name) is not str:
             raise TypeError(f"Invalid resource name: {resource_name}! Must be a str!")
 
-        if type(modifier) != int and type(modifier) != float:
+        if type(modifier) is not int and type(modifier) is not float:
             raise TypeError(f"Invalid resource modifier: {modifier}! Must be an int or float.")
 
         if modifier == 0:
@@ -175,61 +171,63 @@ class ResourceController:
     """
 
     def __init__(self, resources: list[tuple[str, int, int] | Resource] = None):
-
         self.resources: dict[str, dict[str, any]] = {
             r.name: {
                 "instance": r,
                 "modifiers": {
                     "int": [],
                     "float": [],
-                }
-            } for r in from_cache("managers.ResourceManager").all_resources
+                },
+            }
+            for r in from_cache("managers.ResourceManager").all_resources
         }
 
         if resources:
-            if type(resources) != list:
+            if type(resources) is not list:
                 raise TypeError(f"ResourceController.resources must be of type list! Got {type(resources)} instead.")
 
             for overloaded_resource in resources:
-                if type(overloaded_resource) == Resource:
+                if type(overloaded_resource) is Resource:
                     if overloaded_resource.name not in self.resources:
                         raise ValueError(
-                            f"Cannot overload a resource that doesn't exist! Unknown resource: {overloaded_resource.name}")
+                            f"Cannot overload a resource that doesn't exist! Unknown resource: {overloaded_resource.name}"
+                        )
 
                     self.set_instance(copy.deepcopy(overloaded_resource))
 
-                elif type(overloaded_resource) == tuple[str, int, int]:
+                elif type(overloaded_resource) is tuple[str, int, int]:
                     if overloaded_resource[0] not in self.resources:
                         raise ValueError(
-                            f"Cannot overload a resource that doesn't exist! Unknown resource: {overloaded_resource[0]}")
+                            f"Cannot overload a resource that doesn't exist! Unknown resource: {overloaded_resource[0]}"
+                        )
 
                     self.get_instance(overloaded_resource[0]).value = overloaded_resource[1]
                     self.get_instance(overloaded_resource[0]).max = overloaded_resource[2]
 
     def __contains__(self, resource: str | Resource) -> bool:
-        if type(resource) == str:
+        if type(resource) is str:
             return resource in self.resources
-        elif type(resource) == Resource:
+        elif type(resource) is Resource:
             return resource.name in self.resources
 
         return False
 
     def __getitem__(self, item):
-        if type(item) == str:
+        if type(item) is str:
             return self.get_instance(item)
         else:
             raise KeyError("resource_name must be str!")
 
     @property
     def primary_resource(self) -> "Resource":
-        return self[get_config()['resources']['primary_resource']]
+        return self[get_config()["resources"]["primary_resource"]]
 
     def get_instance(self, resource_name) -> Resource:
         """
         Get a live-instance of the Resource object within the ResourceController
         """
         try:
-            return self.resources[resource_name]['instance']
+            return self.resources[resource_name]["instance"]
         except KeyError as e:
             logger.error(f"No resource {resource_name} found!")
             logger.debug(f"Available resources: {self.resources.items()}")
@@ -242,7 +240,7 @@ class ResourceController:
         if resource.name not in self.resources:
             raise ValueError(f"Unknown resource {resource.name}!")
 
-        self.resources[resource.name]['instance'] = resource
+        self.resources[resource.name]["instance"] = resource
 
     def get_modifiers(self, resource_name, modifier_type: str | type) -> list[ResourceModifierMixin]:
         """
@@ -252,7 +250,7 @@ class ResourceController:
         if resource_name not in self.resources:
             raise ValueError(f"Unknown resource: {resource_name}!")
 
-        if type(modifier_type) == str:
+        if type(modifier_type) is str:
             true_modifier_type = modifier_type
         elif inspect.isclass(modifier_type):
             true_modifier_type = modifier_type.__name__
@@ -262,7 +260,7 @@ class ResourceController:
         if true_modifier_type not in ["int", "float"]:
             raise ValueError(f"Unknown modifier type: {modifier_type}!")
 
-        return self.resources[resource_name]['modifiers'][true_modifier_type]
+        return self.resources[resource_name]["modifiers"][true_modifier_type]
 
     def attach_modifier(self, modifier: ResourceModifierMixin) -> None:
         """
@@ -278,10 +276,10 @@ class ResourceController:
                 raise ValueError(f"Unknown resource: {resource_name}!")
 
             # Determine if the modifier is float or int typed and assign it accordingly
-            if type(modifier.resource_modifiers[resource_name]) == int:
+            if type(modifier.resource_modifiers[resource_name]) is int:
                 self.get_modifiers(resource_name, int).append(modifier)
 
-            elif type(modifier.resource_modifiers[resource_name]) == float:
+            elif type(modifier.resource_modifiers[resource_name]) is float:
                 self.get_modifiers(resource_name, float).append(modifier)
             else:
                 raise ValueError(f"Unknown modifier type: {type(modifier.resource_modifiers[resource_name])}!")
@@ -298,13 +296,13 @@ class ResourceController:
                 raise ValueError(f"Unknown resource: {resource_name}!")
 
             # Determine if the modifier is float or int typed and assign it accordingly
-            if type(modifier.resource_modifiers[resource_name]) == int:
+            if type(modifier.resource_modifiers[resource_name]) is int:
                 if modifier in self.get_modifiers(resource_name, int):
                     self.get_modifiers(resource_name, int).remove(modifier)
                 else:
                     raise RuntimeError(f"Unable to detach modifier {str(modifier)}! No such object attached.")
 
-            elif type(modifier.resource_modifiers[resource_name]) == float:
+            elif type(modifier.resource_modifiers[resource_name]) is float:
                 if modifier in self.get_modifiers(resource_name, float):
                     self.get_modifiers(resource_name, float).remove(modifier)
                 else:
@@ -314,7 +312,7 @@ class ResourceController:
                 raise TypeError()
 
             # Recompute the max for the Resource
-            self.resources[resource_name]['instance'].max = self.compute_max(resource_name)
+            self.resources[resource_name]["instance"].max = self.compute_max(resource_name)
 
     def compute_max(self, resource_name: str) -> int:
         """
@@ -334,7 +332,7 @@ class ResourceController:
 
             percent_change += modifier.resource_modifiers[resource_name]
 
-        computed_max += (computed_max * percent_change)
+        computed_max += computed_max * percent_change
 
         # Compute the total flat changed specified by the int-based modifiers
         flat_change: int = 0

@@ -7,7 +7,6 @@ from game.util.asset_utils import get_asset
 
 
 class AbilityManager(Manager):
-
     ABILITY_ASSET_PATH = "abilities"
 
     def __init__(self):
@@ -36,7 +35,7 @@ class AbilityManager(Manager):
         Dispatch dict-form ability data to the 'from_json' assigned to Ability class via LoadableFactory.
         """
         raw_asset: dict[str, any] = get_asset(self.ABILITY_ASSET_PATH)
-        for raw_ability in raw_asset['content']:
+        for raw_ability in raw_asset["content"]:
             ability = LoadableFactory.get(raw_ability)
             if not isinstance(ability, Ability):
                 raise TypeError(f"Expected object of type Ability, got {type(ability)} instead!")

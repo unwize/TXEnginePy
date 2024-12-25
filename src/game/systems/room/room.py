@@ -1,6 +1,7 @@
 """
 Contains the main Room object
 """
+
 import weakref
 from enum import Enum
 
@@ -34,8 +35,15 @@ class Room(LoadableMixin, FiniteStateDevice):
         LEAVE_ROOM = 4
         TERMINATE = -1
 
-    def __init__(self, id: int, name: str, action_list: list[actions.Action], enter_text: str,
-                 first_enter_text: str = "", default_actions_enabled: bool = True):
+    def __init__(
+        self,
+        id: int,
+        name: str,
+        action_list: list[actions.Action],
+        enter_text: str,
+        first_enter_text: str = "",
+        default_actions_enabled: bool = True,
+    ):
         super().__init__(InputType.INT, self.States, self.States.DEFAULT)
 
         self.enter_text: str = enter_text  # Text that is printed each time room is entered
@@ -59,12 +67,13 @@ class Room(LoadableMixin, FiniteStateDevice):
         def logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_OPTIONS)
 
-        @FiniteStateDevice.state_logic(self, self.States.DISPLAY_OPTIONS, InputType.INT, 0,
-                                       lambda: len(self.options) - 1)
+        @FiniteStateDevice.state_logic(
+            self, self.States.DISPLAY_OPTIONS, InputType.INT, 0, lambda: len(self.options) - 1
+        )
         def logic(user_input: int) -> None:
             self._action_index = user_input
 
-            if not self.visible_actions[user_input].is_requirements_fulfilled(from_cache('player')):
+            if not self.visible_actions[user_input].is_requirements_fulfilled(from_cache("player")):
                 logger.warning("Requirements not met!")
                 self.set_state(self.States.REQ_NOT_MET)
                 return
@@ -75,7 +84,7 @@ class Room(LoadableMixin, FiniteStateDevice):
         def content():
             return ComponentFactory.get(
                 [(self.first_enter_text + "\n" if room.room_manager.is_visited(self.id) else "") + self.enter_text],
-                self.options
+                self.options,
             )
 
         @FiniteStateDevice.state_logic(self, self.States.REQ_MET, InputType.SILENT)
@@ -83,9 +92,7 @@ class Room(LoadableMixin, FiniteStateDevice):
             game.add_state_device(self.visible_actions[self._action_index])
 
             if self.visible_actions[self._action_index].activation_text not in [None, ""]:
-                game.add_state_device(
-                    TextEvent([self.visible_actions[self._action_index].activation_text])
-                )
+                game.add_state_device(TextEvent([self.visible_actions[self._action_index].activation_text]))
 
             if isinstance(self.visible_actions[self._action_index], actions.ExitAction):
                 self.set_state(self.States.LEAVE_ROOM)
@@ -111,8 +118,7 @@ class Room(LoadableMixin, FiniteStateDevice):
         @FiniteStateDevice.state_content(self, self.States.REQ_NOT_MET)
         def content():
             return ComponentFactory.get(
-                ["You can't do that!"],
-                self.visible_actions[self._action_index].get_requirements_as_options()
+                ["You can't do that!"], self.visible_actions[self._action_index].get_requirements_as_options()
             )
 
         @FiniteStateDevice.state_logic(self, self.States.LEAVE_ROOM, InputType.ANY)
@@ -150,7 +156,9 @@ class Room(LoadableMixin, FiniteStateDevice):
         """
 
         required_fields: list[tuple[str, type]] = [
-            ("name", str), ("id", int), ("enter_text", str),
+            ("name", str),
+            ("id", int),
+            ("enter_text", str),
             ("actions", list),
         ]
 
@@ -167,18 +175,11 @@ class Room(LoadableMixin, FiniteStateDevice):
             raise ValueError(f"Room loader expected class field value of 'Room', got {json['class']} instead!")
 
         _actions = []
-        for raw_action in json['actions']:
+        for raw_action in json["actions"]:
             action = LoadableFactory.get(raw_action)
             if not isinstance(action, actions.Action):
                 raise TypeError(f"Expected object of type Action, got {type(action)} instead!")
 
             _actions.append(action)
 
-        return Room(
-            json['id'],
-            json['name'],
-            _actions,
-            json['enter_text'],
-            json['name'],
-            **kwargs
-        )
+        return Room(json["id"], json["name"], _actions, json["enter_text"], json["name"], **kwargs)

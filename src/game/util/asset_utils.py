@@ -7,6 +7,7 @@ representations of Item objects.
 For more information about how different classes are loaded from JSON, visit their respective Manager classes or view
 their respective class-defined 'from_json' methods.
 """
+
 import json
 import os
 from os.path import exists
@@ -29,7 +30,6 @@ def asset_handler(file_type: str):
         raise ValueError(f"{file_type} is not a valid file type! Files types may only contain letters and numbers!")
 
     def decorate(fn):
-
         if not callable(fn):
             raise TypeError(f"Cannot register type {type(fn)} as handler! Expected callable!")
 
@@ -58,19 +58,20 @@ def get_asset(asset_name: str, file_type: str = DEFAULT_ASSET_TYPE) -> any:
     full_path = f"{DEFAULT_ASSET_PATH}/{asset_name}.{file_type}"
 
     if not exists(full_path):
-        raise FileNotFoundError(f"Cannot locate asset {asset_name}.{file_type}!\nWorking dir: {os.getcwd()}\nAsset "
-                                f"path: {DEFAULT_ASSET_PATH}")
+        raise FileNotFoundError(
+            f"Cannot locate asset {asset_name}.{file_type}!\nWorking dir: {os.getcwd()}\nAsset "
+            f"path: {DEFAULT_ASSET_PATH}"
+        )
 
-    return asset_handlers[file_type](open(full_path, 'r'))
+    return asset_handlers[file_type](open(full_path, "r"))
 
 
-@asset_handler('json')
+@asset_handler("json")
 def json_handler(raw_file_text: IO) -> dict:
-
     try:
         payload = json.loads(raw_file_text.read())
     except json.decoder.JSONDecodeError as e:
-        logger.error(f"JSON formatting error in file!")
+        logger.error("JSON formatting error in file!")
         raw_file_text.close()
         raise e
 

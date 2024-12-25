@@ -1,7 +1,6 @@
 from abc import ABC
 from random import randint
 
-from loguru import logger
 
 from game.cache import from_cache, cached
 from game.structures.loadable import LoadableMixin
@@ -79,16 +78,14 @@ class LootTable(LoadableMixin):
         - None
         """
 
-        required_fields = [
-            ("id", int), ("item_probabilities", dict), ("drop_probabilities", dict)
-        ]
+        required_fields = [("id", int), ("item_probabilities", dict), ("drop_probabilities", dict)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
         item_probabilities = {int(k): v for k, v in json["item_probabilities"].items()}
         drop_probabilities = {int(k): v for k, v in json["drop_probabilities"].items()}
 
-        return LootTable(json['id'], item_probabilities, drop_probabilities)
+        return LootTable(json["id"], item_probabilities, drop_probabilities)
 
 
 class LootableMixin(ABC):
@@ -103,14 +100,22 @@ class LootableMixin(ABC):
     Choose ONE method. Choosing more than one or none will result in an error being thrown.
     """
 
-    def __init__(self, loot_table_id: int = None,
-                 item_probabilities: dict[int, float] = None, drop_probabilities: dict[int, float] = None,
-                 loot_table_instance: LootTable = None,
-                 **kwargs):
+    def __init__(
+        self,
+        loot_table_id: int = None,
+        item_probabilities: dict[int, float] = None,
+        drop_probabilities: dict[int, float] = None,
+        loot_table_instance: LootTable = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
-        if loot_table_id is None and item_probabilities is None and drop_probabilities is None and \
-                loot_table_instance is None:
+        if (
+            loot_table_id is None
+            and item_probabilities is None
+            and drop_probabilities is None
+            and loot_table_instance is None
+        ):
             pass
 
         elif loot_table_id is not None and (item_probabilities or drop_probabilities or loot_table_instance):

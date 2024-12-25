@@ -47,34 +47,31 @@ class EquipmentManager(Manager):
         if key not in self._slots:
             raise KeyError(f"Unknown slot: {key}!")
 
-        if type(value) == bool:
+        if type(value) is bool:
             self._slots[key].enabled = value
 
-        elif type(value) == int or value is None:
+        elif type(value) is int or value is None:
             self._slots[key].item_id = value
 
         else:
-            raise TypeError(f"Unknown type for value! Expected int, bool, or "
-                            f"None. Got {type(value)}!")
+            raise TypeError(f"Unknown type for value! Expected int, bool, or " f"None. Got {type(value)}!")
 
     def register_slot(self, name: str, enabled=True) -> None:
         """
         Registers a new slot with the EquipmentManager.
         """
         if name in self._slots:
-            raise ValueError(f"Cannot register slot with name {name}, slot "
-                             f"already exists!")
+            raise ValueError(f"Cannot register slot with name {name}, slot " f"already exists!")
 
-        if type(name) != str or len(name) < 1:
+        if type(name) is not str or len(name) < 1:
             logger.error(f"Invalid slot name: {name}")
-            raise TypeError("Invalid name! Equipment slot names must be strings"
-                            " of length > 1!")
+            raise TypeError("Invalid name! Equipment slot names must be strings" " of length > 1!")
 
-        if type(enabled) != bool:
-            raise TypeError(f"Enabled must be of type bool! Got {type(enabled)}"
-                            f" instead.")
+        if type(enabled) is not bool:
+            raise TypeError(f"Enabled must be of type bool! Got {type(enabled)}" f" instead.")
 
         from game.systems.inventory.structures import EquipSlot
+
         self._slots[name] = EquipSlot(name, None, enabled)
 
     def get_slots(self) -> dict:
@@ -96,8 +93,7 @@ class EquipmentManager(Manager):
         if slot in self._slots:
             return slot
 
-        raise ValueError(f"Slot {slot} does not exist! Possible slots are"
-                         f" {','.join(list(self._slots.keys()))}")
+        raise ValueError(f"Slot {slot} does not exist! Possible slots are" f" {','.join(list(self._slots.keys()))}")
 
     def load(self) -> None:
         pass

@@ -6,6 +6,7 @@ StateDevices are executed in LIFO order. Adding a StateDevice to the stack of
 devices mid-state does not interrupt the state (states within FiniteStateDevices
 are atomic).
 """
+
 import dataclasses
 
 from loguru import logger
@@ -24,6 +25,7 @@ class StackState:
     state of the top device matters--extracting these properties and storing
     them independently of the sd.StateDevice class saves on time and memory.
     """
+
     dead: bool = False
     error: bool = False
     recoverable: bool | None = None
@@ -39,11 +41,7 @@ class GameStateController:
 
     def __init__(self):
         self.state_device_stack: list[tuple[sd.StateDevice, StackState]] = []
-        self.add_state_device(
-            room.room_manager.get_room(
-                cache.get_cache()["player_location"]
-            )
-        )
+        self.add_state_device(room.room_manager.get_room(cache.get_cache()["player_location"]))
 
     # Built-ins
 
@@ -53,19 +51,11 @@ class GameStateController:
         """
         Pops the state device stack until a live state device is on top
         """
-        while len(
-                self.state_device_stack
-                ) > 0 and self.state_device_stack[-1][1].dead:
-
-
+        while len(self.state_device_stack) > 0 and self.state_device_stack[-1][1].dead:
             self._pop_state_device()
 
         if len(self.state_device_stack) < 1:
-            self.add_state_device(
-                room.room_manager.get_room(
-                    cache.get_cache()["player_location"]
-                )
-            )
+            self.add_state_device(room.room_manager.get_room(cache.get_cache()["player_location"]))
 
     def _get_state_device(self, idx: int = -1) -> sd.StateDevice:
         """
@@ -97,13 +87,9 @@ class GameStateController:
         return self.state_device_stack.pop()[0]
 
     def _advance_if_silent(self):
-
         # There has got to be a better way to do this.
         while self._get_state_device().input_type == enums.InputType.SILENT:
-            logger.info(
-                f"Detected silent state in device: "
-                f"{self._get_state_device()}. Skipping..."
-            )
+            logger.info(f"Detected silent state in device: " f"{self._get_state_device()}. Skipping...")
             if hasattr(self._get_state_device(), "current_state"):
                 logger.info(f"State: {self._get_state_device().current_state}")
 
@@ -113,8 +99,7 @@ class GameStateController:
                 logger.debug(self._get_state_device().to_frame())
 
                 if hasattr(self._get_state_device(), "current_state"):
-                    logger.info(
-                        f"State: {self._get_state_device().current_state}")
+                    logger.info(f"State: {self._get_state_device().current_state}")
                     logger.debug(self._get_state_device().state_data)
                 raise RuntimeError("Input rejected while in Silent State!")
 

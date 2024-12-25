@@ -76,18 +76,17 @@ class RequirementsMixin:
     @classmethod
     def get_requirements_from_json(cls, json) -> list[Requirement]:
         requirements = []
-        if 'requirements' in json:
-            if not isinstance(json['requirements'], list):
+        if "requirements" in json:
+            if not isinstance(json["requirements"], list):
                 raise TypeError("requirements field must be a list!")
 
-            for raw_requirement in json['requirements']:
-                if 'class' not in raw_requirement:
-                    raise ValueError('Bad or missing class field!')
+            for raw_requirement in json["requirements"]:
+                if "class" not in raw_requirement:
+                    raise ValueError("Bad or missing class field!")
 
-                r = LoadableFactory.get(
-                    raw_requirement)  # Instantiate the Requirement via factory
+                r = LoadableFactory.get(raw_requirement)  # Instantiate the Requirement via factory
                 if not isinstance(r, Requirement):  # Typecheck it
-                    raise TypeError(f'Unsupported class {type(r)} found in requirements field!')
+                    raise TypeError(f"Unsupported class {type(r)} found in requirements field!")
 
                 requirements.append(r)
 
@@ -110,7 +109,6 @@ class SkillRequirement(Requirement):
         from game.systems.entity.mixins.skill_mixin import SkillMixin
 
         if isinstance(entity, SkillMixin):
-
             if self.skill_id not in entity.skill_controller.skills:
                 return False
 
@@ -124,34 +122,27 @@ class SkillRequirement(Requirement):
 
     @property
     def description(self) -> list[str | StringContent]:
-
         if self._skill_name is None:
             self._skill_name = from_cache("managers.SkillManager").get_skill(self.skill_id).name
 
-        return [
-            "Requires ",
-            StringContent(value=self._skill_name),
-            f" level {self.level}"
-        ]
+        return ["Requires ", StringContent(value=self._skill_name), f" level {self.level}"]
 
     @staticmethod
-    @cached([LoadableMixin.LOADER_KEY, 'SkillRequirement', LoadableMixin.ATTR_KEY])
+    @cached([LoadableMixin.LOADER_KEY, "SkillRequirement", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> any:
         """
-                Loads a SkillRequirement object from a JSON blob.
+        Loads a SkillRequirement object from a JSON blob.
 
-                Required JSON fields:
-                - skill_id (int)
-                - level (int)
-                """
+        Required JSON fields:
+        - skill_id (int)
+        - level (int)
+        """
 
-        required_fields = [
-            ("skill_id", int), ("level", int)
-        ]
+        required_fields = [("skill_id", int), ("level", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        return SkillRequirement(json['skill_id'], json['level'])
+        return SkillRequirement(json["skill_id"], json["level"])
 
 
 class ResourceRequirement(Requirement):
@@ -160,8 +151,7 @@ class ResourceRequirement(Requirement):
     value.
     """
 
-    def __init__(self, resource_name: str, adjust_quantity: int | float,
-                 *args, **kwargs):
+    def __init__(self, resource_name: str, adjust_quantity: int | float, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.resource_name: str = resource_name
         self.adjust_quantity: int | float = adjust_quantity
@@ -190,7 +180,7 @@ class ResourceRequirement(Requirement):
             "Requires ",
             StringContent(value=sss, formatting="resource_value"),
             " of ",
-            StringContent(value=self.resource_name, formatting="resource_name")
+            StringContent(value=self.resource_name, formatting="resource_name"),
         ]
 
     @staticmethod
@@ -204,17 +194,15 @@ class ResourceRequirement(Requirement):
         - adjust_quantity (float | int)
         """
 
-        required_fields = [('resource_name', str),
-                           ('adjust_quantity', (int, float))]
+        required_fields = [("resource_name", str), ("adjust_quantity", (int, float))]
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "ResourceRequirement":
-            raise ValueError(f"Invalid class field for ResourceRequirement! Got"
-                             f" {json['class']} instead of ResourceRequirement!"
-                             )
+        if json["class"] != "ResourceRequirement":
+            raise ValueError(
+                f"Invalid class field for ResourceRequirement! Got" f" {json['class']} instead of ResourceRequirement!"
+            )
 
-        return ResourceRequirement(json['resource_name'],
-                                   json['adjust_quantity'])
+        return ResourceRequirement(json["resource_name"], json["adjust_quantity"])
 
 
 class FlagRequirement(Requirement):
@@ -222,9 +210,7 @@ class FlagRequirement(Requirement):
     Fulfilled when the designated flag is set to some expected value.
     """
 
-    def __init__(self, flag_name: str, description: str,
-                 flag_value: bool = True,
-                 *args, **kwargs):
+    def __init__(self, flag_name: str, description: str, flag_value: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if not isinstance(flag_name, str):
@@ -259,16 +245,11 @@ class FlagRequirement(Requirement):
         - description (str)
         """
 
-        required_fields = [
-            ('flag_name', str),
-            ('flag_value', bool),
-            ('description', str)
-        ]
+        required_fields = [("flag_name", str), ("flag_value", bool), ("description", str)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        return FlagRequirement(json['flag_name'], json['flag_value'],
-                               json['description'])
+        return FlagRequirement(json["flag_name"], json["flag_value"], json["description"])
 
 
 class FactionRequirement(Requirement):
@@ -276,13 +257,13 @@ class FactionRequirement(Requirement):
     A requirement that checks that the player possesses sufficient reputation
     with a given Faction.
     """
+
     class Mode(Enum):
         GREATER_THAN_EQUAL_TO = "gte"
         LESS_THAN_EQUAL_TO = "lte"
         EQUAL_TO = "eq"
 
-    def __init__(self, faction_id: int, required_affinity: int,
-                 mode: str = "gte", *args, **kwargs):
+    def __init__(self, faction_id: int, required_affinity: int, mode: str = "gte", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.faction_id: int = faction_id
@@ -293,16 +274,13 @@ class FactionRequirement(Requirement):
         faction_manager = from_cache("managers.FactionManager")
 
         if self.mode == self.Mode.GREATER_THAN_EQUAL_TO:
-            return faction_manager.get_affinity(self.faction_id) >= \
-                self.required_affinity
+            return faction_manager.get_affinity(self.faction_id) >= self.required_affinity
 
         elif self.mode == self.Mode.LESS_THAN_EQUAL_TO:
-            return faction_manager.get_affinity(self.faction_id) >= \
-                self.required_affinity
+            return faction_manager.get_affinity(self.faction_id) >= self.required_affinity
 
         elif self.mode == self.Mode.EQUAL_TO:
-            return faction_manager.get_affinity(self.faction_id) == \
-                self.required_affinity
+            return faction_manager.get_affinity(self.faction_id) == self.required_affinity
 
         else:
             raise ValueError(f"Unknown mode {self.mode}")
@@ -313,10 +291,8 @@ class FactionRequirement(Requirement):
 
         return [
             f"Must have an affinity of at least {self.required_affinity} with ",
-            StringContent(
-                value=faction_manager[self.faction_id].name,
-                formatting="faction_name"),
-            "."
+            StringContent(value=faction_manager[self.faction_id].name, formatting="faction_name"),
+            ".",
         ]
 
     @staticmethod
@@ -333,28 +309,20 @@ class FactionRequirement(Requirement):
         mode: (str)
         """
 
-        required_fields = [
-            ("faction_id", int),
-            ("required_affinity", int)
-        ]
+        required_fields = [("faction_id", int), ("required_affinity", int)]
 
-        optional_fields = [
-            ("mode", str)
-        ]
+        optional_fields = [("mode", str)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json)
-        if json['class'] != "FactionRequirement":
+        if json["class"] != "FactionRequirement":
             raise ValueError()
 
         kwargs = {}
-        if 'mode' in json:
-            kwargs['mode'] = json['mode']
+        if "mode" in json:
+            kwargs["mode"] = json["mode"]
 
-        return FactionRequirement(
-            json['faction_id'],
-            json['required_affinity'],
-            **kwargs)
+        return FactionRequirement(json["faction_id"], json["required_affinity"], **kwargs)
 
 
 class CurrencyRequirement(Requirement):
@@ -372,17 +340,13 @@ class CurrencyRequirement(Requirement):
         if not hasattr(entity, "coin_purse"):
             return False
 
-        return entity.coin_purse.balance(self._currency_id) >= \
-            self._currency_quantity
+        return entity.coin_purse.balance(self._currency_id) >= self._currency_quantity
 
     @property
     def description(self) -> list[str | StringContent]:
         return [
             "Must have ",
-            str(from_cache("Managers.CurrencyManager").to_currency(
-                self._currency_id,
-                self._currency_quantity
-            ))
+            str(from_cache("Managers.CurrencyManager").to_currency(self._currency_id, self._currency_quantity)),
         ]
 
     @staticmethod
@@ -399,9 +363,7 @@ class CurrencyRequirement(Requirement):
         - None
         """
 
-        required_fields = [
-            ("currency_id", int), ("currency_quantity", int)
-        ]
+        required_fields = [("currency_id", int), ("currency_quantity", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
-        return CurrencyRequirement(json['currency_id'], json['currency_quantity'])
+        return CurrencyRequirement(json["currency_id"], json["currency_quantity"])

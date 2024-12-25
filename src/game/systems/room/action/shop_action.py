@@ -41,31 +41,36 @@ class ShopAction(Action):
 
         Each enum value is correlated to the states described within the ShopAction docstring.
         """
+
         DEFAULT = 0
-        DISPLAY_WARES = 2,
-        WARE_SELECTED = 3,
-        INSPECT_WARE = 5,
-        CONFIRM_WARE_PURCHASE = 8,
-        PURCHASE_FAILURE = 10,
+        DISPLAY_WARES = (2,)
+        WARE_SELECTED = (3,)
+        INSPECT_WARE = (5,)
+        CONFIRM_WARE_PURCHASE = (8,)
+        PURCHASE_FAILURE = (10,)
         TERMINATE = -1
 
     def get_text_header(self) -> str:
-        cur = from_cache('player').coin_purse[self.default_currency]
+        cur = from_cache("player").coin_purse[self.default_currency]
         return f"Your {cur.name} balance: {cur}\n\n"
 
-    def __init__(self, menu_name: str, wares: list[int],
-                 default_currency: int = 0, activation_text: str = "", *args,
-                 **kwargs):
-        super().__init__(menu_name, activation_text, ShopAction.States,
-                         ShopAction.States.DISPLAY_WARES,
-                         InputType.INT, *args, **kwargs)
-        self.wares: list[
-            int] = wares  # list of tuples where idx[0] == item_id and idx[1] == item_cost
+    def __init__(
+        self, menu_name: str, wares: list[int], default_currency: int = 0, activation_text: str = "", *args, **kwargs
+    ):
+        super().__init__(
+            menu_name,
+            activation_text,
+            ShopAction.States,
+            ShopAction.States.DISPLAY_WARES,
+            InputType.INT,
+            *args,
+            **kwargs,
+        )
+        self.wares: list[int] = wares  # list of tuples where idx[0] == item_id and idx[1] == item_cost
         self._ware_of_interest: Item = None  # The tuple of the ware last selected by the user
         self.default_currency: int = default_currency
 
-        @FiniteStateDevice.state_logic(self, self.States.DISPLAY_WARES,
-                                       InputType.INT, -1, len(self.wares) - 1)
+        @FiniteStateDevice.state_logic(self, self.States.DISPLAY_WARES, InputType.INT, -1, len(self.wares) - 1)
         def logic(user_input: int) -> None:
             if user_input == -1:  # Chose to exit
                 self.set_state(self.States.TERMINATE)
@@ -75,14 +80,11 @@ class ShopAction(Action):
 
         @FiniteStateDevice.state_content(self, self.States.DISPLAY_WARES)
         def content():
-            return ComponentFactory.get(
-                [self.get_text_header(), self.activation_text],
-                self._ware_to_option())
+            return ComponentFactory.get([self.get_text_header(), self.activation_text], self._ware_to_option())
 
-        @FiniteStateDevice.state_logic(self, self.States.WARE_SELECTED,
-                                       InputType.INT, -1,
-                                       lambda:
-                                       len(self._get_ware_options()) - 1)
+        @FiniteStateDevice.state_logic(
+            self, self.States.WARE_SELECTED, InputType.INT, -1, lambda: len(self._get_ware_options()) - 1
+        )
         def logic(user_input: int) -> None:
             # TODO: Handle input dispatching better. Remove hardcoded state transitions
             if user_input == -1:
@@ -98,33 +100,24 @@ class ShopAction(Action):
                 [
                     self.get_text_header(),
                     "What would you like to do with ",
-                    StringContent(value=self.ware_of_interest.name,
-                                  formatting="item_name"),
-                    "?"
+                    StringContent(value=self.ware_of_interest.name, formatting="item_name"),
+                    "?",
                 ],
-                self._get_ware_options()
+                self._get_ware_options(),
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_WARE,
-                                       InputType.SILENT)
+        @FiniteStateDevice.state_logic(self, self.States.INSPECT_WARE, InputType.SILENT)
         def logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self.ware_of_interest.id))
             self.set_state(self.States.WARE_SELECTED)
 
-        @FiniteStateDevice.state_logic(self, self.States.CONFIRM_WARE_PURCHASE,
-                                       InputType.AFFIRMATIVE)
+        @FiniteStateDevice.state_logic(self, self.States.CONFIRM_WARE_PURCHASE, InputType.AFFIRMATIVE)
         def logic(user_input: bool) -> None:
             if user_input:
-
-                player: entities.Player = get_cache()['player']
-                if player.coin_purse.test_purchase(self.ware_of_interest.id,
-                                                   self.default_currency):
-                    player.coin_purse.spend(
-                        self.ware_of_interest.get_market_value(
-                            self.default_currency))
-                    game.add_state_device(
-                        AddItemEvent(
-                            self.ware_of_interest.id))  # Spawn a new AddItemEvent
+                player: entities.Player = get_cache()["player"]
+                if player.coin_purse.test_purchase(self.ware_of_interest.id, self.default_currency):
+                    player.coin_purse.spend(self.ware_of_interest.get_market_value(self.default_currency))
+                    game.add_state_device(AddItemEvent(self.ware_of_interest.id))  # Spawn a new AddItemEvent
                     self.set_state(self.States.DISPLAY_WARES)
 
                 else:
@@ -133,26 +126,22 @@ class ShopAction(Action):
             else:
                 self.set_state(self.States.WARE_SELECTED)
 
-        @FiniteStateDevice.state_content(self,
-                                         self.States.CONFIRM_WARE_PURCHASE)
+        @FiniteStateDevice.state_content(self, self.States.CONFIRM_WARE_PURCHASE)
         def content():
             return ComponentFactory.get(
                 [
                     self.get_text_header(),
                     "Are you sure that you would like to purchase 1x ",
-                    StringContent(value=self.ware_of_interest.name + ":\n",
-                                  formatting="item_name"),
+                    StringContent(value=self.ware_of_interest.name + ":\n", formatting="item_name"),
                     " for ",
-                    StringContent(value=str(
-                        self.ware_of_interest.get_market_value(
-                            self.default_currency)),
-                        formatting="item_cost"),
-                    "?"
+                    StringContent(
+                        value=str(self.ware_of_interest.get_market_value(self.default_currency)), formatting="item_cost"
+                    ),
+                    "?",
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.PURCHASE_FAILURE,
-                                       InputType.ANY)
+        @FiniteStateDevice.state_logic(self, self.States.PURCHASE_FAILURE, InputType.ANY)
         def logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_WARES)
 
@@ -162,14 +151,12 @@ class ShopAction(Action):
                 [
                     self.get_text_header(),
                     "Cannot purchase ",
-                    StringContent(value=self.ware_of_interest.name,
-                                  formatting="item_name"),
+                    StringContent(value=self.ware_of_interest.name, formatting="item_name"),
                     ". Item costs ",
-                    StringContent(value=str(
-                        self.ware_of_interest.get_market_value(
-                            self.default_currency)),
-                        formatting="item_cost"),
-                    ", but you only have RETRIEVE USER CURRENCY.\nYou need USER CURRENCY - COST more to purchase."
+                    StringContent(
+                        value=str(self.ware_of_interest.get_market_value(self.default_currency)), formatting="item_cost"
+                    ),
+                    ", but you only have RETRIEVE USER CURRENCY.\nYou need USER CURRENCY - COST more to purchase.",
                 ]
             )
 
@@ -183,33 +170,24 @@ class ShopAction(Action):
 
     @ware_of_interest.setter
     def ware_of_interest(self, i: Item | int) -> None:
-
-        if type(i) == int:
+        if type(i) is int:
             self._ware_of_interest = item.item_manager.get_instance(i)
         elif isinstance(i, Item):
             self._ware_of_interest = i
         else:
-            raise TypeError(
-                f"Ware of interest cannot be set to {type(i)}. Acceptable types are int, Item.")
+            raise TypeError(f"Ware of interest cannot be set to {type(i)}. Acceptable types are int, Item.")
 
     def _get_ware_options(self) -> list[list[StringContent | str]]:
         return [
             [
                 "Purchase ",
-                StringContent(value=self.ware_of_interest.name,
-                              formatting="item_name"),
+                StringContent(value=self.ware_of_interest.name, formatting="item_name"),
                 " for ",
                 StringContent(
-                    value=str(self.ware_of_interest.get_market_value(
-                        self.default_currency)),
-                    formatting="item_cost")
+                    value=str(self.ware_of_interest.get_market_value(self.default_currency)), formatting="item_cost"
+                ),
             ],
-            [
-                "Read ",
-                StringContent(value=self.ware_of_interest.name,
-                              formatting="item_name"),
-                "'s description"
-            ]
+            ["Read ", StringContent(value=self.ware_of_interest.name, formatting="item_name"), "'s description"],
         ]
 
     def _ware_to_option(self) -> list[list[StringContent | str]]:
@@ -220,16 +198,16 @@ class ShopAction(Action):
         purchase at the shop as well as their costs.
         """
         return [
-            [StringContent(
-                value=item.item_manager.get_name(item_id),
-                formatting="item_name"),
+            [
+                StringContent(value=item.item_manager.get_name(item_id), formatting="item_name"),
                 " : ",
                 StringContent(
-                    value=str(item.item_manager.get_currency_value(item_id,
-                                                                   self.default_currency,
-                                                                   True)),
-                    formatting="item_cost")]
-            for item_id in self.wares]
+                    value=str(item.item_manager.get_currency_value(item_id, self.default_currency, True)),
+                    formatting="item_cost",
+                ),
+            ]
+            for item_id in self.wares
+        ]
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "ShopAction", LoadableMixin.ATTR_KEY])
@@ -245,30 +223,19 @@ class ShopAction(Action):
         - requirements: list[Requirement] = None
         """
 
-        required_fields: list = [
-            ("menu_name", str), ("default_currency", int), ("wares", list)
-        ]
+        required_fields: list = [("menu_name", str), ("default_currency", int), ("wares", list)]
 
-        optional_fields = [
-            ("activation_text", str), ("requirements", list)
-        ]
+        optional_fields = [("activation_text", str), ("requirements", list)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
 
-        if json['class'] != "ShopAction":
+        if json["class"] != "ShopAction":
             raise ValueError("Invalid class field!")
 
-        kwargs = {
-            "requirements": LoadableFactory.collect_requirements(json)
-        }
+        kwargs = {"requirements": LoadableFactory.collect_requirements(json)}
 
-        if 'activation_text' in json:
-            kwargs['activation_text'] = json['activation_text']
+        if "activation_text" in json:
+            kwargs["activation_text"] = json["activation_text"]
 
-        return ShopAction(
-            json['menu_name'],
-            json['wares'],
-            json['default_currency'],
-            **kwargs
-        )
+        return ShopAction(json["menu_name"], json["wares"], json["default_currency"], **kwargs)

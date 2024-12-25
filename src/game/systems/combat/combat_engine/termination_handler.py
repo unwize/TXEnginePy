@@ -59,10 +59,14 @@ class GroupResourceCondition(TerminationHandler, ABC):
         GREATER_THAN = "greater_than"
         LESS_THAN = "less_than"
 
-    def __init__(self, resource_name: str, resource_value: int | float,
-                 termination_mode: TerminationHandler.TerminationMode,
-                 resource_mode: Mode,
-                 owner=None):
+    def __init__(
+        self,
+        resource_name: str,
+        resource_value: int | float,
+        termination_mode: TerminationHandler.TerminationMode,
+        resource_mode: Mode,
+        owner=None,
+    ):
         super().__init__(owner)
         self.resource_name: str = resource_name
         self.resource_value: int | float = resource_value
@@ -86,41 +90,42 @@ class GroupResourceCondition(TerminationHandler, ABC):
         raise NotImplementedError()
 
     def is_conditions_met(self) -> bool:
-
         resources = [entity.resource_controller[self.resource_name] for entity in self.group]
 
         match self.resource_mode:
             case self.Mode.EQUAL_TO:
-                if type(self.resource_value) != int:
+                if type(self.resource_value) is not int:
                     raise TypeError(f"Invalid resource_value type! Expected float, got {type(self.resource_value)}")
                 return all([res.value == self.resource_value for res in resources])
 
             case self.Mode.LESS_THAN:
-                if type(self.resource_value) == int:
+                if type(self.resource_value) is int:
                     return all([res.value < self.resource_value for res in resources])
 
-                elif type(self.resource_value) == float:
+                elif type(self.resource_value) is float:
                     return all([res.percent_remaining < self.resource_value for res in resources])
                 else:
                     raise TypeError(
-                        f"Invalid resource_value type! Expected int | float, got {type(self.resource_value)}")
+                        f"Invalid resource_value type! Expected int | float, got {type(self.resource_value)}"
+                    )
 
             case self.Mode.GREATER_THAN:
-                if type(self.resource_value) == int:
+                if type(self.resource_value) is int:
                     return all([res.value > self.resource_value for res in resources])
 
-                elif type(self.resource_value) == float:
+                elif type(self.resource_value) is float:
                     return all([res.percent_remaining > self.resource_value for res in resources])
                 else:
                     raise TypeError(
-                        f"Invalid resource_value type! Expected int | float, got {type(self.resource_value)}")
+                        f"Invalid resource_value type! Expected int | float, got {type(self.resource_value)}"
+                    )
 
             case _:
                 raise RuntimeError(f"Unknown operating mode: {self.mode}!")
 
     @property
     def trigger_message(self) -> list[str | StringContent]:
-        if type(self.resource_value) == int:
+        if type(self.resource_value) is int:
             return [f"All {self.group_name} have reached {self.resource_value} {self.resource_name}"]
         else:
             return [f"All {self.group_name} have reached {self.resource_value * 100}% {self.resource_name}"]
@@ -141,7 +146,8 @@ class GroupResourceCondition(TerminationHandler, ABC):
         """
 
         required_fields = [
-            ("resource_name", str), ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str))
+            ("resource_name", str),
+            ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str)),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -149,7 +155,7 @@ class GroupResourceCondition(TerminationHandler, ABC):
             json["resource_name"],
             json["resource_value"],
             GroupResourceCondition.TerminationMode(json["termination_mode"]),
-            GroupResourceCondition.Mode(json["resource_mode"])
+            GroupResourceCondition.Mode(json["resource_mode"]),
         )
 
 
@@ -182,7 +188,8 @@ class AllyResourceCondition(GroupResourceCondition):
         """
 
         required_fields = [
-            ("resource_name", str), ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str))
+            ("resource_name", str),
+            ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str)),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -190,12 +197,11 @@ class AllyResourceCondition(GroupResourceCondition):
             json["resource_name"],
             json["resource_value"],
             AllyResourceCondition.TerminationMode(json["termination_mode"]),
-            GroupResourceCondition.Mode(json["resource_mode"])
+            GroupResourceCondition.Mode(json["resource_mode"]),
         )
 
 
 class EnemyResourceCondition(GroupResourceCondition):
-
     @property
     def group_name(self) -> str:
         return "enemies"
@@ -220,7 +226,8 @@ class EnemyResourceCondition(GroupResourceCondition):
         """
 
         required_fields = [
-            ("resource_name", str), ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str))
+            ("resource_name", str),
+            ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str)),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -228,7 +235,7 @@ class EnemyResourceCondition(GroupResourceCondition):
             json["resource_name"],
             json["resource_value"],
             GroupResourceCondition.TerminationMode(json["termination_mode"]),
-            GroupResourceCondition.Mode(json["resource_mode"])
+            GroupResourceCondition.Mode(json["resource_mode"]),
         )
 
 
@@ -247,7 +254,7 @@ class PlayerResourceCondition(GroupResourceCondition):
 
     @property
     def trigger_message(self) -> list[str | StringContent]:
-        if type(self.resource_value) == int:
+        if type(self.resource_value) is int:
             return [f"You have reached {self.resource_value} {self.resource_name}"]
         else:
             return [f"You have reached {self.resource_value * 100}% {self.resource_name}"]
@@ -268,7 +275,8 @@ class PlayerResourceCondition(GroupResourceCondition):
         """
 
         required_fields = [
-            ("resource_name", str), ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str))
+            ("resource_name", str),
+            ("resource_value", (int, float), ("termination_mode", str), ("resource_mode", str)),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -276,5 +284,5 @@ class PlayerResourceCondition(GroupResourceCondition):
             json["resource_name"],
             json["resource_value"],
             PlayerResourceCondition.TerminationMode(json["termination_mode"]),
-            GroupResourceCondition.Mode(json["resource_mode"])
+            GroupResourceCondition.Mode(json["resource_mode"]),
         )

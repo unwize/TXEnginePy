@@ -7,7 +7,6 @@ from game.structures.errors import CombatError
 
 
 class PhaseHandler(ABC):
-
     def __init__(self):
         pass
 
@@ -26,7 +25,7 @@ class PhaseHandler(ABC):
         if ce.active_entity is None or not isinstance(ce.active_entity, entities.CombatEntity):
             raise CombatError(
                 f"Active entity must be instance of CombatEntity! Got {type(ce.active_entity)} instead!",
-                {TypeError: "Invalid active_entity type"}
+                {TypeError: "Invalid active_entity type"},
             )
 
         self._phase_logic()

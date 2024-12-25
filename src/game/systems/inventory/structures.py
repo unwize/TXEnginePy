@@ -6,6 +6,7 @@ from game.structures.messages import StringContent
 from loguru import logger
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from game.systems.item.item import Equipment
 
@@ -15,6 +16,7 @@ class EquipSlot:
     """
     A simple dataclass for storing the properties of an equipment slot.
     """
+
     name: str  # Name of the slot
     item_id: int | None  # ID of the item placed in the slot
     enabled: bool  # If the slot is allowed to be used
@@ -34,11 +36,9 @@ class EquipSlot:
          slot.
         """
         return [
-            self.name, ": ",
-            from_cache(
-                "managers.ItemManager"
-            ).get_instance(
-                self.item_id).name if self.item_id is not None else "Empty"
+            self.name,
+            ": ",
+            from_cache("managers.ItemManager").get_instance(self.item_id).name if self.item_id is not None else "Empty",
         ]
 
     @property

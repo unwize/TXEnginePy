@@ -22,15 +22,24 @@ class Action(LoadableMixin, RequirementsMixin, FiniteStateDevice, ABC):
     Base class for all actions.
     """
 
-    def __init__(self, menu_name: str, activation_text: str,
-                 states: type[enum.Enum], default_state, default_input_type: InputType,
-                 visible: bool = True, reveal_after_use: list[str] = None,
-                 hide_after_use: bool = False,
-                 persistent: bool = False,
-                 tags: list[str] = None,
-                 *args, **kwargs):
-        super().__init__(default_input_type=default_input_type, states=states, default_state=default_state, *args,
-                         **kwargs)
+    def __init__(
+        self,
+        menu_name: str,
+        activation_text: str,
+        states: type[enum.Enum],
+        default_state,
+        default_input_type: InputType,
+        visible: bool = True,
+        reveal_after_use: list[str] = None,
+        hide_after_use: bool = False,
+        persistent: bool = False,
+        tags: list[str] = None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            default_input_type=default_input_type, states=states, default_state=default_state, *args, **kwargs
+        )
 
         self._menu_name: str = menu_name  # Name of the Action when viewed from a room
         self.activation_text: str = activation_text  # Text that is printed when the Action is run
@@ -59,12 +68,30 @@ class ExitAction(Action):
         DEFAULT = 0
         TERMINATE = -1
 
-    def __init__(self, target_room: int, menu_name: str = None, activation_text: str = None, visible: bool = True,
-                 reveal_after_use: list[str] = None, hide_after_use: bool = False,
-                 on_exit: list[events.Event] = None, *args, **kwargs):
-        super().__init__(menu_name, activation_text or "", ExitAction.States, ExitAction.States.DEFAULT,
-                         InputType.SILENT,
-                         visible, reveal_after_use, hide_after_use, *args, **kwargs)
+    def __init__(
+        self,
+        target_room: int,
+        menu_name: str = None,
+        activation_text: str = None,
+        visible: bool = True,
+        reveal_after_use: list[str] = None,
+        hide_after_use: bool = False,
+        on_exit: list[events.Event] = None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            menu_name,
+            activation_text or "",
+            ExitAction.States,
+            ExitAction.States.DEFAULT,
+            InputType.SILENT,
+            visible,
+            reveal_after_use,
+            hide_after_use,
+            *args,
+            **kwargs,
+        )
 
         # Set instance variables
         self.target_room = target_room
@@ -87,20 +114,23 @@ class ExitAction(Action):
     @staticmethod
     @cache.cached([LoadableMixin.LOADER_KEY, "ExitAction", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> any:
-        required_fields = [
-            ("target_room", int)
-        ]
+        required_fields = [("target_room", int)]
 
         optional_fields = [
-            ("menu_name", str), ("visible", bool), ("reveal_after_use", list),
-            ("hide_after_use", bool), ("requirements", list), ("on_exit", list), ("tags", list)
+            ("menu_name", str),
+            ("visible", bool),
+            ("reveal_after_use", list),
+            ("hide_after_use", bool),
+            ("requirements", list),
+            ("on_exit", list),
+            ("tags", list),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
-        return ExitAction(json['target_room'], **kwargs)
+        return ExitAction(json["target_room"], **kwargs)
 
 
 class WrapperAction(Action):
@@ -111,8 +141,15 @@ class WrapperAction(Action):
         TERMINATE = -1
 
     def __init__(self, menu_name: str, activation_text: str, wrap: StateDevice | list[StateDevice], *args, **kwargs):
-        super().__init__(menu_name, activation_text, WrapperAction.States, WrapperAction.States.DEFAULT,
-                         InputType.SILENT, *args, **kwargs)
+        super().__init__(
+            menu_name,
+            activation_text,
+            WrapperAction.States,
+            WrapperAction.States.DEFAULT,
+            InputType.SILENT,
+            *args,
+            **kwargs,
+        )
 
         if not isinstance(wrap, StateDevice) and not isinstance(wrap, list):
             raise TypeError(f"Cannot wrap object of type {type(wrap)}! Must be a subclass of StateDevice!")
@@ -124,7 +161,7 @@ class WrapperAction(Action):
             if self.wrapped_device is None:
                 raise TypeError("Cannot launch WrapperAction, wrapped_device is None!")
 
-            if type(self.wrapped_device) == list:
+            if type(self.wrapped_device) is list:
                 for device in self.wrapped_device:
                     game.add_state_device(device)
 
@@ -153,28 +190,25 @@ class WrapperAction(Action):
         - requirements: list[Requirement]
         """
 
-        required_fields = [
-            ("menu_name", str), ("activation_text", str), ("wrap", (dict, list))
-        ]
+        required_fields = [("menu_name", str), ("activation_text", str), ("wrap", (dict, list))]
 
         optional_fields = [
-            ("visible", bool), ("reveal_after_use", list),
-            ("hide_after_use", bool), ("requirements", list), ("on_exit", list), ("tags", list)
+            ("visible", bool),
+            ("reveal_after_use", list),
+            ("hide_after_use", bool),
+            ("requirements", list),
+            ("on_exit", list),
+            ("tags", list),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
         kw = LoadableFactory.collect_optional_fields(optional_fields, json)
 
-        if type(json['wrap']) == dict:
-            wrap = LoadableFactory.get(json['wrap'])
-        elif type(json['wrap']) == list:
-            wrap = [LoadableFactory.get(j) for j in json['wrap']]
+        if type(json["wrap"]) is dict:
+            wrap = LoadableFactory.get(json["wrap"])
+        elif type(json["wrap"]) is list:
+            wrap = [LoadableFactory.get(j) for j in json["wrap"]]
         else:
             raise TypeError("Unknown type for field 'wrap'")
 
-        return WrapperAction(
-            json['menu_name'],
-            json['activation_text'],
-            wrap,
-            **kw
-        )
+        return WrapperAction(json["menu_name"], json["activation_text"], wrap, **kw)

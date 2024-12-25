@@ -13,10 +13,7 @@ def test_trivial():
     assert skill_instance.id == 1
 
     # Test entity
-    ce = CombatEntity(
-        id=-1,
-        name="Test Entity"
-    )
+    ce = CombatEntity(id=-1, name="Test Entity")
 
     # Make sure it correctly obtained the Skill with id 1
     assert 1 in ce.skill_controller

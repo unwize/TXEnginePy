@@ -18,6 +18,7 @@ class CraftingController:
     @owner.setter
     def owner(self, entity) -> None:
         from game.systems.entity.entities import Entity
+
         if entity is not None and not isinstance(entity, Entity):
             raise TypeError(f"Cannot assign object of type {type(entity)} as owner!")
         self._owner = entity
@@ -124,7 +125,7 @@ class CraftingController:
             opt = [
                 StringContent(value=from_cache("managers.ItemManager").get_name(ingredient_id), fomatting="item_name"),
                 f"\tx{ingredient_quantity}",
-                f"\t({self.get_max_crafts(recipe_id)})"
+                f"\t({self.get_max_crafts(recipe_id)})",
             ]
             payload.append(opt)
 
@@ -143,11 +144,9 @@ class CraftingController:
         """
 
         if num_crafts > self.get_max_crafts(recipe_id):
-            raise ValueError(f"Cannot execute recipe:{recipe_id} {num_crafts} "
-                             f"times! Insufficient ingredients!")
+            raise ValueError(f"Cannot execute recipe:{recipe_id} {num_crafts} " f"times! Insufficient ingredients!")
 
-        if not recipe_manager.get_recipe(
-                recipe_id).is_requirements_fulfilled(self._owner):
+        if not recipe_manager.get_recipe(recipe_id).is_requirements_fulfilled(self._owner):
             raise RuntimeError("Cannot perform recipe, requirements not met!")
 
         from game.systems.event.add_item_event import AddItemEvent
@@ -159,9 +158,7 @@ class CraftingController:
         # Insert each product of the recipe into the player's inventory 'n'
         # times, where 'n' is num_crafts
         for item_id, quantity in recipe_manager.get_recipe(recipe_id).items_out:
-            game.add_state_device(
-                AddItemEvent(item_id, quantity * num_crafts)
-            )
+            game.add_state_device(AddItemEvent(item_id, quantity * num_crafts))
 
         from game.systems.event.events import SkillXPEvent
 

@@ -29,8 +29,7 @@ class UseItemEvent(Event):
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
-
-            self._item_instance = from_cache('managers.ItemManager').get_instance(item_id)
+            self._item_instance = from_cache("managers.ItemManager").get_instance(item_id)
 
             # Check that the entity actually owns enough of the item to use it.
             # If not, raise and Error since it
@@ -41,8 +40,8 @@ class UseItemEvent(Event):
                 )
 
             from game.systems.item.item import Usable
-            if isinstance(self._item_instance, Usable):
 
+            if isinstance(self._item_instance, Usable):
                 if self._item_instance.is_requirements_fulfilled(self.target):
                     self.set_state(self.States.USE_ITEM)
                 else:
@@ -60,7 +59,7 @@ class UseItemEvent(Event):
             c = [
                 "Failed to use ",
                 StringContent(value=self._item_instance.name, formatting="item_name"),
-                ". Requirements are not met."
+                ". Requirements are not met.",
             ]
             return ComponentFactory.get(c, self._item_instance.get_requirements_as_options())
 
@@ -71,11 +70,7 @@ class UseItemEvent(Event):
         @FiniteStateDevice.state_content(self, self.States.NOT_USABLE)
         def content() -> dict:
             return ComponentFactory.get(
-                [
-                    StringContent(value=self._item_instance.name,
-                                  formatting="item_name"),
-                    " cannot be used."
-                ]
+                [StringContent(value=self._item_instance.name, formatting="item_name"), " cannot be used."]
             )
 
         @FiniteStateDevice.state_logic(self, self.States.USE_ITEM, InputType.ANY)
@@ -89,18 +84,11 @@ class UseItemEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.USE_ITEM)
         def content() -> dict:
-
-            return ComponentFactory.get(
-                [
-                    "You used ",
-                    self._item_instance.name,
-                    "."
-                ]
-            )
+            return ComponentFactory.get(["You used ", self._item_instance.name, "."])
 
     @property
     def target(self):
-        return self._target or from_cache('player')
+        return self._target or from_cache("player")
 
     def __copy__(self):
         return UseItemEvent(self.item_id, target=self._target)

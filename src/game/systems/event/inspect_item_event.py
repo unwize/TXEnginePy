@@ -34,13 +34,11 @@ class InspectItemEvent(Event):
         self.item_id = item_id
         self.ref = from_cache("managers.ItemManager").get_instance(self.item_id)
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT,
-                                       InputType.SILENT)
+        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
             self.set_state(self.States.CHECK_TYPE)
 
-        @FiniteStateDevice.state_logic(self, self.States.CHECK_TYPE,
-                                       InputType.SILENT)
+        @FiniteStateDevice.state_logic(self, self.States.CHECK_TYPE, InputType.SILENT)
         def logic(_: any) -> None:
             from game.systems.item.item import Item, Usable, Equipment
 
@@ -53,8 +51,7 @@ class InspectItemEvent(Event):
             else:
                 raise TypeError("ref did not fetch an Item instance!")
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ITEM,
-                                       InputType.ANY)
+        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ITEM, InputType.ANY)
         def logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
@@ -62,19 +59,18 @@ class InspectItemEvent(Event):
         def content() -> dict:
             return ComponentFactory.get(
                 [
-                    self.ref.name, "'s Summary",
+                    self.ref.name,
+                    "'s Summary",
                     "\n",
                     self.ref.description,
                     "\n\n",
                     "Market Values:",
                     "\n",
-                    "\n".join([f" - {c.name}: {str(c)}" for c in
-                               self.ref.market_values])
+                    "\n".join([f" - {c.name}: {str(c)}" for c in self.ref.market_values]),
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_USABLE,
-                                       InputType.ANY)
+        @FiniteStateDevice.state_logic(self, self.States.INSPECT_USABLE, InputType.ANY)
         def logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
@@ -82,7 +78,8 @@ class InspectItemEvent(Event):
         def content() -> dict:
             return ComponentFactory.get(
                 [
-                    self.ref.name, "'s Summary",
+                    self.ref.name,
+                    "'s Summary",
                     "\n",
                     self.ref.functional_description,
                     "\n",
@@ -90,28 +87,27 @@ class InspectItemEvent(Event):
                     "\n\n",
                     "Market Values:",
                     "\n",
-                    "\n".join([f" - {c.name}: {str(c)}" for c in
-                               self.ref.market_values])
+                    "\n".join([f" - {c.name}: {str(c)}" for c in self.ref.market_values]),
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT,
-                                       InputType.ANY)
+        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.ANY)
         def logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSPECT_EQUIPMENT)
         def content() -> dict:
             """
-                        Print in the following format:
-                            * item.name
-                            * Value:
-                            * |cur.name\t|cur.value\t|
-                            * item.desc
-                        """
+            Print in the following format:
+                * item.name
+                * Value:
+                * |cur.name\t|cur.value\t|
+                * item.desc
+            """
             return ComponentFactory.get(
                 [
-                    self.ref.name, "'s Summary",
+                    self.ref.name,
+                    "'s Summary",
                     "\n",
                     self.ref.functional_description,
                     "\n",
@@ -119,18 +115,21 @@ class InspectItemEvent(Event):
                     "\n",
                     "Stats:",
                     "\n",
-                    "\n".join(
-                        [f" - {k}: {v}" for k, v in self.ref.get_stats().items()])
-                ] + ([
-                    "\n\n"
-                    "Type Resistances:",
-                    "\n",
-                    "\n".join([f" - {t}: {v * 100}%" for t, v in self.ref.tags.items()])
-                ] if len(self.ref.tags) else []) + [
+                    "\n".join([f" - {k}: {v}" for k, v in self.ref.get_stats().items()]),
+                ]
+                + (
+                    [
+                        "\n\n" "Type Resistances:",
+                        "\n",
+                        "\n".join([f" - {t}: {v * 100}%" for t, v in self.ref.tags.items()]),
+                    ]
+                    if len(self.ref.tags)
+                    else []
+                )
+                + [
                     "\n\n",
                     "Market Values:",
                     "\n",
-                    "\n".join([f" - {c.name}: {str(c)}" for c in
-                               self.ref.market_values])
+                    "\n".join([f" - {c.name}: {str(c)}" for c in self.ref.market_values]),
                 ]
             )

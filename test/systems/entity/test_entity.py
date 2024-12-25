@@ -15,9 +15,7 @@ def test_init_trivial():
     assert e.coin_purse is not None
 
 
-init_kwargs_cases = [
-    {"inventory": InventoryController(16, [(-110, 1)])}
-]
+init_kwargs_cases = [{"inventory": InventoryController(16, [(-110, 1)])}]
 
 
 @pytest.mark.parametrize("kwargs", init_kwargs_cases)
@@ -63,6 +61,7 @@ def test_load():
     """
 
     import json
+
     j_data = json.loads(j)
     e: Entity = Entity.from_json(j_data)
     assert e

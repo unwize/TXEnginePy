@@ -113,8 +113,7 @@ state_logic_decorator_cases_good = [
     [MockFiniteStateDevice.States.A, InputType.ANY, None, lambda: pow(2, 3), None, 8],  # INT lonely callable max
     [MockFiniteStateDevice.States.A, InputType.STR, None, None, None, "A String"],  # STR Trivial
     [MockFiniteStateDevice.States.A, InputType.STR, None, None, 1, "f"],  # Constant len
-    [MockFiniteStateDevice.States.A, InputType.STR, None, None, lambda: pow(2, 4), "AStringWithLen16"]
-
+    [MockFiniteStateDevice.States.A, InputType.STR, None, None, lambda: pow(2, 4), "AStringWithLen16"],
 ]
 
 
@@ -136,13 +135,22 @@ def test_state_logic_decorator_integration(state, input_type, i_min, i_max, i_le
     assert md.current_state == state  # Assess state
 
     # Verify input domain has changed
-    assert md.input_type == md.state_data[state.value]['input_type']
-    assert md.domain_min == md.state_data[state.value]['min'] if not callable(md.state_data[state.value]['min']) else \
-        md.state_data[state.value]['min']()
-    assert md.domain_max == md.state_data[state.value]['max'] if not callable(md.state_data[state.value]['max']) else \
-        md.state_data[state.value]['max']()
-    assert md.domain_length == md.state_data[state.value]['len'] if not callable(md.state_data[state.value]['len']) else \
-        md.state_data[state.value]['len'](), f"i_len:{md.domain_length}"
+    assert md.input_type == md.state_data[state.value]["input_type"]
+    assert (
+        md.domain_min == md.state_data[state.value]["min"]
+        if not callable(md.state_data[state.value]["min"])
+        else md.state_data[state.value]["min"]()
+    )
+    assert (
+        md.domain_max == md.state_data[state.value]["max"]
+        if not callable(md.state_data[state.value]["max"])
+        else md.state_data[state.value]["max"]()
+    )
+    assert (
+        md.domain_length == md.state_data[state.value]["len"]
+        if not callable(md.state_data[state.value]["len"])
+        else md.state_data[state.value]["len"]()
+    ), f"i_len:{md.domain_length}"
 
     # Assign a valid input
     assert md.input(payload)  # Verify accepted

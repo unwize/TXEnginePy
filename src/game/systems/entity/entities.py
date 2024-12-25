@@ -7,8 +7,7 @@ from game.cache import cached
 from game.structures.enums import CombatPhase
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
-from game.systems.combat.combat_engine.combat_agent import PlayerAgentMixin, \
-    CombatAgentMixin
+from game.systems.combat.combat_engine.combat_agent import PlayerAgentMixin, CombatAgentMixin
 import game.systems.entity.mixins as mixins
 from game.systems.item.loot import LootableMixin, LootTable
 
@@ -17,22 +16,20 @@ if TYPE_CHECKING:
 
 
 class EntityBase(ABC):
-
     def __init__(self, id: int, name: str):
         if not isinstance(id, int):
-            raise TypeError(
-                f"Expected id to be of type int, got {type(id)} instead.")
+            raise TypeError(f"Expected id to be of type int, got {type(id)} instead.")
 
         if not isinstance(name, str):
-            raise TypeError(
-                f"Expected name to be of type str, got {type(name)} instead.")
+            raise TypeError(f"Expected name to be of type str, got {type(name)} instead.")
 
         self.id: int = id
         self.name: str = name
 
 
-class Entity(mixins.SkillMixin, mixins.CurrencyMixin, mixins.InventoryMixin,
-             LoadableMixin, mixins.ResourceMixin, EntityBase):
+class Entity(
+    mixins.SkillMixin, mixins.CurrencyMixin, mixins.InventoryMixin, LoadableMixin, mixins.ResourceMixin, EntityBase
+):
     """
     A basic object that stores an entity's instance attributes such as name,
     ID, inventory, currencies, etc
@@ -64,39 +61,28 @@ class Entity(mixins.SkillMixin, mixins.CurrencyMixin, mixins.InventoryMixin,
 
         # Turn the attributes JSON fields into key-word arguments to be passed
         # to Entity's subclasses
-        required_fields = [
-            ("name", str), ("id", int)
-        ]
+        required_fields = [("name", str), ("id", int)]
 
-        optional_fields = [
-            ("inventory", dict), ("coin_purse", dict), ("skills", dict)
-        ]
+        optional_fields = [("inventory", dict), ("coin_purse", dict), ("skills", dict)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
         kw = LoadableFactory.collect_optional_fields(optional_fields, json)
 
-        return Entity(name=json['name'], id=json['id'], **kw)
+        return Entity(name=json["name"], id=json["id"], **kw)
 
 
-class CombatEntity(mixins.AbilityMixin, mixins.EquipmentMixin,
-                   CombatAgentMixin, LootableMixin, Entity):
+class CombatEntity(mixins.AbilityMixin, mixins.EquipmentMixin, CombatAgentMixin, LootableMixin, Entity):
     """
     A subclass of Entity that contains all the necessary components to
     participate in Combat.
     """
 
-    def __init__(self,
-                 xp_yield: int = 1,
-                 turn_speed: int = 1,
-                 **kwargs):
+    def __init__(self, xp_yield: int = 1, turn_speed: int = 1, **kwargs):
         super().__init__(**kwargs)
         self.xp_yield: int = xp_yield
         self.turn_speed = turn_speed
-        self.active_effects: dict[CombatPhase, list[CombatEffect]] = {phase: []
-                                                                      for phase
-                                                                      in
-                                                                      CombatPhase}
+        self.active_effects: dict[CombatPhase, list[CombatEffect]] = {phase: [] for phase in CombatPhase}
         self.ability_controller.owner = self
         self.equipment_controller.owner = self
 
@@ -155,14 +141,21 @@ class CombatEntity(mixins.AbilityMixin, mixins.EquipmentMixin,
         """
 
         required_fields = [
-            ("name", str), ("id", int), ("xp_yield", int), ("turn_speed", int),
-            ("abilities", list), ("loot_table", object)
+            ("name", str),
+            ("id", int),
+            ("xp_yield", int),
+            ("turn_speed", int),
+            ("abilities", list),
+            ("loot_table", object),
         ]
 
         optional_fields = [
-            ("combat_provider", str), ("inventory_controller", dict),
-            ("resource_controller", dict), ("equipment_controller", dict),
-            ("coin_purse", dict), ("naive", bool)
+            ("combat_provider", str),
+            ("inventory_controller", dict),
+            ("resource_controller", dict),
+            ("equipment_controller", dict),
+            ("coin_purse", dict),
+            ("naive", bool),
         ]
 
         LoadableFactory.validate_fields(required_fields, json)
@@ -174,26 +167,20 @@ class CombatEntity(mixins.AbilityMixin, mixins.EquipmentMixin,
         # If an ID is passed, simply pass it through. If a LootTable JSON blob
         # is passed,
         # transform it via LoadableFactory and pass it back to kw dict.
-        if isinstance(json['loot_table'], int):
-            kw['loot_table_id'] = json['loot_table']
-        elif isinstance(json['loot_table'], dict):
-            res = LoadableFactory.get(json['loot_table'])
+        if isinstance(json["loot_table"], int):
+            kw["loot_table_id"] = json["loot_table"]
+        elif isinstance(json["loot_table"], dict):
+            res = LoadableFactory.get(json["loot_table"])
             if not isinstance(res, LootTable):
-                raise TypeError(
-                    "Expected entity['loot_table'] to be of class LootTable!")
+                raise TypeError("Expected entity['loot_table'] to be of class LootTable!")
 
-            kw['loot_table_instance'] = res
+            kw["loot_table_instance"] = res
         else:
-            raise TypeError(
-                "Unexpected type for json['loot_table'] in CombatEntity JSON!")
+            raise TypeError("Unexpected type for json['loot_table'] in CombatEntity JSON!")
 
         ce = CombatEntity(
-            json['xp_yield'],
-            json['turn_speed'],
-            name=json['name'],
-            id=json['id'],
-            abilities=json['abilities'],
-            **kw)
+            json["xp_yield"], json["turn_speed"], name=json["name"], id=json["id"], abilities=json["abilities"], **kw
+        )
 
         # Post-init fixing
         # Note: since the equipment_controller only gets assigned an owner
@@ -208,7 +195,6 @@ class CombatEntity(mixins.AbilityMixin, mixins.EquipmentMixin,
 
 
 class Player(mixins.CraftingMixin, PlayerAgentMixin, CombatEntity):
-
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "Player", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> any:

@@ -20,7 +20,6 @@ class TagMixin(ABC):
 
         # Type-check the dict and assign it
         elif isinstance(tags, dict):
-
             self.tags = tags
 
             for tag, res in self.tags.items():

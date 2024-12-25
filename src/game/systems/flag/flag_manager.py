@@ -3,7 +3,6 @@ from game.util.asset_utils import get_asset
 
 
 class FlagManager(Manager):
-
     FLAG_ASSET_PATH = "flags"
 
     def __init__(self):
@@ -28,13 +27,13 @@ class FlagManager(Manager):
         """
 
         level: dict | bool = self._manifest
-        for part in key.split('.'):
+        for part in key.split("."):
             if part not in level:
                 return False
 
             level = level[part]
 
-        if type(level) != bool:
+        if type(level) is not bool:
             raise KeyError(f"Flag {key} not found! {key} points to a dict.")
 
         return level
@@ -50,29 +49,28 @@ class FlagManager(Manager):
          - A flag with a key of this.is.a.deep.flag = False would be flags['this']['is']['a']['deep']['flag'] = False
         """
 
-        if type(key) != str:
+        if type(key) is not str:
             raise TypeError(f"Cannot set flag for key of type {type(key)}! key must be a str.")
 
-        if type(value) != bool:
+        if type(value) is not bool:
             raise TypeError(f"Cannot set flag {key} to value of type {type(value)}! Value must be of type bool.")
 
-        if '.' not in key:
+        if "." not in key:
             self._manifest[key] = value
 
         else:
             level = self._manifest  # Record only deepest dict visited so far, starting with the root of the flags dict
-            parts = key.split('.')  # Split the key into sub-keys
+            parts = key.split(".")  # Split the key into sub-keys
 
             # For each sub-key except the last one, traverse through the flags dict, creating new dicts where needed
             for i in range(len(parts) - 1):
-
                 # If a new dict must be made
                 if parts[i] not in level:
                     level[parts[i]] = {}
                     level = level[parts[i]]
 
                 # If a flag exists in the way of creating a new dict, raise an error
-                elif type(level[parts[i]]) != dict:
+                elif type(level[parts[i]]) is not dict:
                     raise KeyError(f'Cannot set flag {key}, a collision with key {".".join(parts[:i])} was found!')
 
                 # If the dict already exists, traverse to it
@@ -85,11 +83,11 @@ class FlagManager(Manager):
     def load(self) -> None:
         raw_asset: dict[str, dict[str, bool]] = get_asset(self.FLAG_ASSET_PATH)
 
-        for flag in raw_asset['content']:
-            if type(raw_asset['content'][flag]) != bool:
+        for flag in raw_asset["content"]:
+            if type(raw_asset["content"][flag]) is not bool:
                 raise TypeError("Flags must be set to a value of type bool!")
 
-            self.set_flag(flag, raw_asset['content'][flag])
+            self.set_flag(flag, raw_asset["content"][flag])
 
     def save(self) -> None:
         pass

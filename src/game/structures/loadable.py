@@ -7,7 +7,7 @@ class LoadableMixin:
     from JSON.
     """
 
-    LOADER_KEY: str = 'loader'
+    LOADER_KEY: str = "loader"
     ATTR_KEY: str = "from_json"
 
     def __init__(self, *args, **kwargs):

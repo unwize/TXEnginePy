@@ -10,7 +10,7 @@ def test_init():
     """
     Test that a CoinPurse object can be trivially initialized
     """
-    cp = CoinPurse()
+    CoinPurse()
 
 
 def test_currency_acquisition():
@@ -37,7 +37,7 @@ def test_contains(cur: int | Currency):
     assert cur in cp
 
 
-contains_bad_cases = [True, False, None, 's', 0.0]
+contains_bad_cases = [True, False, None, "s", 0.0]
 
 
 @pytest.mark.parametrize("cur", contains_bad_cases)
@@ -48,7 +48,7 @@ def test_contains_bad(cur):
 
     cp = CoinPurse()
 
-    with pytest.raises(KeyError) as e_info:
+    with pytest.raises(KeyError):
         assert cur not in cp
 
 
@@ -61,7 +61,7 @@ def test_getitem(cur: int | Currency):
     got = cp[cur]
 
     assert got is not None
-    assert type(got) == Currency
+    assert type(got) is Currency
 
 
 @pytest.mark.parametrize("cur", contains_bad_cases)
@@ -71,7 +71,7 @@ def test_getitem_bad(cur: int | Currency):
     """
     cp = CoinPurse()
 
-    with pytest.raises(KeyError) as e_info:
+    with pytest.raises(KeyError):
         assert cur not in cp
 
 
@@ -154,13 +154,7 @@ def test_balance_bad(cur: int | Currency):
         assert cp.balance(cur) == 0
 
 
-spend_cases_good = [
-    [-110, 1, 1, 0],
-    [-110, 100, 50, 50],
-    [-110, 73, 12, 61],
-    [-111, 1, 1, 0],
-    [-111, 51, 2, 49]
-]
+spend_cases_good = [[-110, 1, 1, 0], [-110, 100, 50, 50], [-110, 73, 12, 61], [-111, 1, 1, 0], [-111, 51, 2, 49]]
 
 
 @pytest.mark.parametrize("cur, start, offset, result", spend_cases_good)
@@ -196,7 +190,7 @@ spend_cases_bad = [
     [-12, 0, 0],
     [None, 0, 0],
     [-110, 0, None],
-    ['a', 100, -101],
+    ["a", 100, -101],
 ]
 
 
@@ -221,7 +215,7 @@ adjust_int_cases_good = [
     [[7, 23], 30],
     [[4, -8], -4],
     [[-4, 8], 4],
-    [[-1, 0], -1]
+    [[-1, 0], -1],
 ]
 
 
@@ -248,7 +242,7 @@ adjust_float_cases_good = [
     [9, [-0.33], -3],
     [-9, [0.33], -3],
     [1, [2.2, 0.5], 1],
-    [100, [0.25, 0.2], 5]
+    [100, [0.25, 0.2], 5],
 ]
 
 
@@ -262,13 +256,11 @@ def test_adjust_float(start: int, offsets: list[int], result: int):
             cp.adjust(cur, offset)
 
 
-adjust_mixed_good = [
-    [1, [1, 2.0], 4]
-]
+adjust_mixed_cases_good = [[1, [1, 2.0], 4]]
 
 
-@pytest.mark.parametrize("start, offsets, result", adjust_float_cases_good)
-def test_adjust_float(start: int, offsets: list[int], result: int):
+@pytest.mark.parametrize("start, offsets, result", adjust_mixed_cases_good)
+def test_adjust_mixed(start: int, offsets: list[int], result: int):
     cp = CoinPurse()
     for cur in cp:
         assert cp.balance(cur) == 0
@@ -289,7 +281,6 @@ def test_test_currency():
 
 
 def test_test_currency_keyerror():
-
     cp = CoinPurse()
 
     with pytest.raises(KeyError):
@@ -309,7 +300,7 @@ test_purchase_cases = [
     [-110, 2, -110, True],
     [-110, 3, -110, True],
     [-111, 3, -110, True],
-    [-111, 4, -110, True]
+    [-111, 4, -110, True],
 ]
 
 
@@ -360,5 +351,3 @@ def test_test_all_purchase(item: int, bal: dict[int, int], results: list[int]):
 
 def test_test_all_purchase_bad():
     pass
-
-

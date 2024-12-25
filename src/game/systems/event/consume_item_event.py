@@ -29,7 +29,7 @@ class ConsumeItemEvent(Event):
         super().__init__(InputType.SILENT, self.States, self.States.DEFAULT)
         self.item_id = item_id
         self.item_quantity = item_quantity
-        self.player_ref: entities.Player = game.cache.get_cache()['player']
+        self.player_ref: entities.Player = game.cache.get_cache()["player"]
 
         if callable(callback):
             self.callback = callback
@@ -58,11 +58,13 @@ class ConsumeItemEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.INSUFFICIENT_QUANTITY)
         def content():
-            return ComponentFactory.get([
-                "Insufficient quantity of ",
-                StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-                "!"
-            ])
+            return ComponentFactory.get(
+                [
+                    "Insufficient quantity of ",
+                    StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
+                    "!",
+                ]
+            )
 
         # PROMPT_CONSUME
 
@@ -75,12 +77,14 @@ class ConsumeItemEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.PROMPT_CONSUME)
         def content():
-            return ComponentFactory.get([
-                "Are you sure that you want to consume ",
-                StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
-                StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-                "?"
-            ])
+            return ComponentFactory.get(
+                [
+                    "Are you sure that you want to consume ",
+                    StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
+                    StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
+                    "?",
+                ]
+            )
 
         # ACCEPTED_CONSUME
 
@@ -93,12 +97,14 @@ class ConsumeItemEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.ACCEPTED_CONSUME)
         def content():
-            return ComponentFactory.get([
-                "You consumed ",
-                StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
-                StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-                "."
-            ])
+            return ComponentFactory.get(
+                [
+                    "You consumed ",
+                    StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
+                    StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
+                    ".",
+                ]
+            )
 
         # REFUSED_CONSUME
 
@@ -110,12 +116,14 @@ class ConsumeItemEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.REFUSED_CONSUME)
         def content():
-            return ComponentFactory.get([
-                "You refused to consume ",
-                StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
-                StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-                "."
-            ])
+            return ComponentFactory.get(
+                [
+                    "You refused to consume ",
+                    StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
+                    StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
+                    ".",
+                ]
+            )
 
     def __copy__(self):
         return ConsumeItemEvent(self.item_id, self.item_quantity, self.callback)
@@ -134,14 +142,11 @@ class ConsumeItemEvent(Event):
         - item_quantity (int)
         """
 
-        required_fields = [
-            ("item_id", int),
-            ("item_quantity", int)
-        ]
+        required_fields = [("item_id", int), ("item_quantity", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "ConsumeItemEvent":
+        if json["class"] != "ConsumeItemEvent":
             raise ValueError()
 
-        return ConsumeItemEvent(json['item_id'], json['item_quantity'])
+        return ConsumeItemEvent(json["item_id"], json["item_quantity"])

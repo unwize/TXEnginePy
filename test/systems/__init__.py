@@ -30,12 +30,7 @@ def pre_collect_setup():
 
     currency_manager.register_currency(Currency(-110, "USD", {"cents": 1, "dollars": 100}))
 
-    currency_manager.register_currency(Currency(-111, "Imperial",
-                                                {
-                                                    "bronze": 1,
-                                                    "silver": 1000,
-                                                    "gold": 1000000
-                                                }))
+    currency_manager.register_currency(Currency(-111, "Imperial", {"bronze": 1, "silver": 1000, "gold": 1000000}))
 
     logger.info("Setting up test items...")
     te1 = Item(f"{TEST_PREFIX} Item 1", -110, "A simple test item", 3, market_values={-110: 2, -111: 3})
@@ -44,31 +39,35 @@ def pre_collect_setup():
     te4 = Item(f"{TEST_PREFIX} Item 4", -113, "Another test item", 3)
 
     te5 = Equipment(f"{TEST_PREFIX} Equipment 1", -114, "", "ring", "ring", 3, 3)
-    te6 = Equipment(f"{TEST_PREFIX} Equipment 2", -115, "", "chest", "chest", 5, 5,
-                    resource_modifiers={f"{TEST_PREFIX}health": 3})
-    te7 = Equipment(f"{TEST_PREFIX} Equipment 3", -116, "", "legs", "legs", 0, 0,
-                    resource_modifiers={f"{TEST_PREFIX}health": 0.1})
-    te8 = Equipment(f"{TEST_PREFIX} Equipment 4", -117, "", "legs", "legs", 0, 0,
-                    resource_modifiers={f"{TEST_PREFIX}health": 0.1})
-    te9 = Equipment(f"{TEST_PREFIX} Equipment 5", -118, "", "legs", "legs", 0, 0,
-                    resource_modifiers={f"{TEST_PREFIX}health": -1})
-    te10 = Equipment(f"{TEST_PREFIX} Equipment 6", -119, "", "legs", "legs", 0, 0,
-                     resource_modifiers={f"{TEST_PREFIX}health": -0.25})
+    te6 = Equipment(
+        f"{TEST_PREFIX} Equipment 2", -115, "", "chest", "chest", 5, 5, resource_modifiers={f"{TEST_PREFIX}health": 3}
+    )
+    te7 = Equipment(
+        f"{TEST_PREFIX} Equipment 3", -116, "", "legs", "legs", 0, 0, resource_modifiers={f"{TEST_PREFIX}health": 0.1}
+    )
+    te8 = Equipment(
+        f"{TEST_PREFIX} Equipment 4", -117, "", "legs", "legs", 0, 0, resource_modifiers={f"{TEST_PREFIX}health": 0.1}
+    )
+    te9 = Equipment(
+        f"{TEST_PREFIX} Equipment 5", -118, "", "legs", "legs", 0, 0, resource_modifiers={f"{TEST_PREFIX}health": -1}
+    )
+    te10 = Equipment(
+        f"{TEST_PREFIX} Equipment 6", -119, "", "legs", "legs", 0, 0, resource_modifiers={f"{TEST_PREFIX}health": -0.25}
+    )
 
-    te11 = Usable(f"{TEST_PREFIX} Usable 1", -120, "", "",
-                  requirements=[ResourceRequirement(f"{TEST_PREFIX}health", 0.2)])
-    te12 = Usable(f"{TEST_PREFIX} Usable 2", -121, "", "",
-                  requirements=[ResourceRequirement(f"{TEST_PREFIX}health", 5)])
+    te11 = Usable(
+        f"{TEST_PREFIX} Usable 1", -120, "", "", requirements=[ResourceRequirement(f"{TEST_PREFIX}health", 0.2)]
+    )
+    te12 = Usable(
+        f"{TEST_PREFIX} Usable 2", -121, "", "", requirements=[ResourceRequirement(f"{TEST_PREFIX}health", 5)]
+    )
 
-    te13 = Usable(f"{TEST_PREFIX} Usable 3", -122, "", "",
-                  on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 0.2)])
+    te13 = Usable(f"{TEST_PREFIX} Usable 3", -122, "", "", on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 0.2)])
 
-    te14 = Usable(f"{TEST_PREFIX} Usable 4", -123, "", "",
-                  on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 5)])
+    te14 = Usable(f"{TEST_PREFIX} Usable 4", -123, "", "", on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 5)])
 
     # test_select_element_event depends on this
-    te15 = Usable(f"{TEST_PREFIX} Usable 4", -124, "", "",
-                  on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 3)])
+    te15 = Usable(f"{TEST_PREFIX} Usable 4", -124, "", "", on_use_events=[ResourceEvent(f"{TEST_PREFIX}health", 3)])
 
     item_manager.register_item([te1, te2, te3, te4, te5, te6, te7, te8, te9, te10, te11, te12, te13, te14, te15])
 
@@ -87,9 +86,10 @@ def pre_collect_setup():
 
     logger.info("Setting up resources...")
     from game.systems.entity import resource_manager
-    tr_health = Resource(f'{TEST_PREFIX}health', 40, 'Needed to live')
-    tr_sta = Resource(f'{TEST_PREFIX}stamina', 35, 'Tired without it')
-    tr_mana = Resource(f'{TEST_PREFIX}mana', 50, 'Magic-dependant')
+
+    tr_health = Resource(f"{TEST_PREFIX}health", 40, "Needed to live")
+    tr_sta = Resource(f"{TEST_PREFIX}stamina", 35, "Tired without it")
+    tr_mana = Resource(f"{TEST_PREFIX}mana", 50, "Magic-dependant")
 
     resource_manager.register_resource(tr_sta)
     resource_manager.register_resource(tr_mana)
@@ -97,22 +97,42 @@ def pre_collect_setup():
 
     logger.info("Setting up test abilities...")
 
-    ta_1 = Ability(name=f"{TEST_PREFIX}Ability 1", description="ta_1", on_use="ta_1 used",
-                   target_mode=TargetMode.SINGLE, damage=1)
-    ta_2 = Ability(name=f"{TEST_PREFIX}Ability 2", description="ta_2", on_use="ta_2 used",
-                   target_mode=TargetMode.SINGLE_ENEMY, damage=1,
-                   costs={f"{TEST_PREFIX}health": 1})
-    ta_3 = Ability(name=f"{TEST_PREFIX}Ability 3", description="ta_3", on_use="ta_3 used",
-                   target_mode=TargetMode.SINGLE_ALLY,
-                   costs={f"{TEST_PREFIX}stamina": 2})
-    ta_4 = Ability(name=f"{TEST_PREFIX}Ability 4", description="ta_1", on_use="ta_1 used",
-                   target_mode=TargetMode.ALL, damage=1)
-    ta_5 = Ability(name=f"{TEST_PREFIX}Ability 5", description="ta_2", on_use="ta_2 used",
-                   target_mode=TargetMode.ALL_ENEMY,
-                   costs={f"{TEST_PREFIX}health": 1}, damage=1)
-    ta_6 = Ability(name=f"{TEST_PREFIX}Ability 6", description="ta_3", on_use="ta_3 used",
-                   target_mode=TargetMode.ALL_ALLY,
-                   costs={f"{TEST_PREFIX}stamina": 2})
+    ta_1 = Ability(
+        name=f"{TEST_PREFIX}Ability 1", description="ta_1", on_use="ta_1 used", target_mode=TargetMode.SINGLE, damage=1
+    )
+    ta_2 = Ability(
+        name=f"{TEST_PREFIX}Ability 2",
+        description="ta_2",
+        on_use="ta_2 used",
+        target_mode=TargetMode.SINGLE_ENEMY,
+        damage=1,
+        costs={f"{TEST_PREFIX}health": 1},
+    )
+    ta_3 = Ability(
+        name=f"{TEST_PREFIX}Ability 3",
+        description="ta_3",
+        on_use="ta_3 used",
+        target_mode=TargetMode.SINGLE_ALLY,
+        costs={f"{TEST_PREFIX}stamina": 2},
+    )
+    ta_4 = Ability(
+        name=f"{TEST_PREFIX}Ability 4", description="ta_1", on_use="ta_1 used", target_mode=TargetMode.ALL, damage=1
+    )
+    ta_5 = Ability(
+        name=f"{TEST_PREFIX}Ability 5",
+        description="ta_2",
+        on_use="ta_2 used",
+        target_mode=TargetMode.ALL_ENEMY,
+        costs={f"{TEST_PREFIX}health": 1},
+        damage=1,
+    )
+    ta_6 = Ability(
+        name=f"{TEST_PREFIX}Ability 6",
+        description="ta_3",
+        on_use="ta_3 used",
+        target_mode=TargetMode.ALL_ALLY,
+        costs={f"{TEST_PREFIX}stamina": 2},
+    )
 
     ability_manager.register_ability(ta_1)
     ability_manager.register_ability(ta_2)
@@ -136,7 +156,6 @@ def pre_collect_setup():
     # For each ability, teach it to each entity
     assert len(ability_manager._manifest) > 0
     for ability in ability_manager._manifest:
-
         # Skip any non-testing abilities that might have gotten into the mix
         if not ability.startswith(TEST_PREFIX):
             continue

@@ -224,8 +224,9 @@ consume_item_mixed_split_stacks_cases = [
 
 
 @pytest.mark.parametrize("start, seq, end, size", consume_item_mixed_split_stacks_cases)
-def test_consume_item_mixed_split_stacks(start: dict[int, int], seq: list[tuple[int, int]], end: dict[int, int],
-                                         size: int):
+def test_consume_item_mixed_split_stacks(
+    start: dict[int, int], seq: list[tuple[int, int]], end: dict[int, int], size: int
+):
     iv = InventoryController()
 
     for item_id in start:

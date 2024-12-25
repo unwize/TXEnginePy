@@ -4,12 +4,7 @@ from game.cache import from_cache
 from game.systems.flag import FlagManager
 from game.systems.requirement.requirements import FlagRequirement
 
-flag_cases = [
-    [True, True, True],
-    [False, False, True],
-    [True, False, False],
-    [False, True, False]
-]
+flag_cases = [[True, True, True], [False, False, True], [True, False, False], [False, True, False]]
 
 
 @pytest.mark.parametrize("actual, expected, result", flag_cases)

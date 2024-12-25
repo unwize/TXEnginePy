@@ -13,18 +13,14 @@ def get_test_allies() -> list[int]:
     Get a default list of generic ally CombatEntity objects.
     """
 
-    return [
-        -110, -111
-    ]
+    return [-110, -111]
 
 
 def get_test_enemies() -> list[int]:
     """
     Get a default list of generic enemy CombatEntity objects.
     """
-    return [
-        -112, -113
-    ]
+    return [-112, -113]
 
 
 def get_generic_combat_instance() -> CombatEngine:
@@ -56,7 +52,7 @@ def test_self_cache():
     assert from_cache("combat") == engine
 
     # Terminate the combat session and verify that it isn't cached anymore
-    engine.state_data[engine.States.TERMINATE.value]['logic'](None)
+    engine.state_data[engine.States.TERMINATE.value]["logic"](None)
     assert from_cache("combat") is None
 
 
@@ -65,9 +61,9 @@ def test_duplicate_combats():
     Test that duplicate combat sessions correctly throw an error when spawned
     """
 
-    engine = get_generic_combat_instance()
+    get_generic_combat_instance()
     with pytest.raises(RuntimeError):
-        engine2 = get_generic_combat_instance()
+        get_generic_combat_instance()
 
 
 def test_compute_turn_order():
@@ -100,8 +96,9 @@ def test_active_entity():
     engine.input("")  # Run the following state (START_ENTITY_TURN) to set up engine logic
 
     for i in range(len(engine._turn_order)):
-        assert engine.active_entity.name == engine._turn_order[
-            engine.current_turn].name  # Active entity should be the fastest entity
+        assert (
+            engine.active_entity.name == engine._turn_order[engine.current_turn].name
+        )  # Active entity should be the fastest entity
         engine.current_turn += 1
 
 
@@ -127,7 +124,7 @@ def test_phase_handle_triggers():
 
     # Call the HANDLE_PHASE state logic by hand
     with pytest.raises(RuntimeError):
-        engine.state_data[engine.States.HANDLE_PHASE.value]['logic']("")
+        engine.state_data[engine.States.HANDLE_PHASE.value]["logic"]("")
 
 
 def test_get_relative_enemies():
@@ -191,9 +188,7 @@ def test_get_target_single(source_entity_type: str, ability: str, valid_targets:
             case _:
                 raise RuntimeError("No such group")
 
-    for entity in engine.get_valid_ability_targets(
-            translate_target_str(source_entity_type)[0],
-            ability):
+    for entity in engine.get_valid_ability_targets(translate_target_str(source_entity_type)[0], ability):
         assert entity in translate_target_str(valid_targets)
 
 
@@ -203,7 +198,7 @@ test_get_target_group_cases = [
     ["ABSOLUTE_ALLY", f"{TEST_PREFIX}Ability 6", "ABSOLUTE_ALLY"],
     ["ABSOLUTE_ENEMY", f"{TEST_PREFIX}Ability 4", "ALL"],
     ["ABSOLUTE_ENEMY", f"{TEST_PREFIX}Ability 5", "ABSOLUTE_ALLY"],
-    ["ABSOLUTE_ENEMY", f"{TEST_PREFIX}Ability 6", "ABSOLUTE_ENEMY"]
+    ["ABSOLUTE_ENEMY", f"{TEST_PREFIX}Ability 6", "ABSOLUTE_ENEMY"],
 ]
 
 
@@ -226,10 +221,7 @@ def test_get_target_group(source_entity_type, ability, valid_group):
             case _:
                 raise RuntimeError("No such group")
 
-    resulting_group = engine.get_valid_ability_targets(
-        translate_target_str(source_entity_type)[0],
-        ability
-    )
+    resulting_group = engine.get_valid_ability_targets(translate_target_str(source_entity_type)[0], ability)
 
     expected_group = translate_target_str(valid_group)
 

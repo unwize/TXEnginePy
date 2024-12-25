@@ -8,7 +8,7 @@ from game.systems.currency.currency import Currency
 def get_cur():
     currencies = {
         "USD": Currency(-1, "USD", {"cents": 1, "dollars": 100, "k": 100000, "m": 100000000}),
-        "Imperial": Currency(-2, "Imperial", {"copper": 1, "silver": 100, "gold": 10000})
+        "Imperial": Currency(-2, "Imperial", {"copper": 1, "silver": 100, "gold": 10000}),
     }
     return currencies
 
@@ -66,7 +66,7 @@ sub_int_cases = [
     ["USD", [1, 3], -2],
     ["USD", [0, 0], 0],
     ["USD", [0, 3], -3],
-    ["USD", [10, 1, 1, 1, 3], 4]
+    ["USD", [10, 1, 1, 1, 3], 4],
 ]
 
 
@@ -96,7 +96,7 @@ mul_int_cases = [
     ["USD", [1, 2, 3], 6],
     ["USD", [2, 2, 2], 8],
     ["USD", [3, -1, -1], 3],
-    ["USD", [-1, -1, 2], 2]
+    ["USD", [-1, -1, 2], 2],
 ]
 
 
@@ -104,8 +104,8 @@ mul_int_cases = [
 def test_mul_int(currency: str, offsets: list, result: int):
     """Test that Currency objects correctly handle multiplication by int
 
-        The Currency's initial value is determined by offsets[0]. Each subsequent value of 'offsets' represents a
-        multiplication.
+    The Currency's initial value is determined by offsets[0]. Each subsequent value of 'offsets' represents a
+    multiplication.
     """
 
     cur = deepcopy(get_cur()[currency])
@@ -137,8 +137,8 @@ mul_float_cases = [
 def test_mul_float(currency: str, offsets: list, result: int):
     """Test that Currency objects correctly handle multiplication by float
 
-        The Currency's initial value is determined by offsets[0]. Each subsequent value of 'offsets' represents a
-        multiplication.
+    The Currency's initial value is determined by offsets[0]. Each subsequent value of 'offsets' represents a
+    multiplication.
     """
 
     cur = deepcopy(get_cur()[currency])
@@ -147,7 +147,7 @@ def test_mul_float(currency: str, offsets: list, result: int):
     for i in range(1, len(offsets)):
         cur = cur * offsets[i]
 
-    assert type(cur.quantity) == int, "Quantity was not an int!"
+    assert type(cur.quantity) is int, "Quantity was not an int!"
     assert cur.quantity == result, f"Quantity was not as expected: {cur.quantity} != {result}"
 
 
@@ -176,7 +176,7 @@ def test_div_int(currency: str, offsets: list, result: int):
     for i in range(1, len(offsets)):
         cur = cur / offsets[i]
 
-    assert type(cur.quantity) == int, "Quantity was not an int!"
+    assert type(cur.quantity) is int, "Quantity was not an int!"
     assert cur.quantity == result, f"Quantity was not as expected: {cur.quantity} != {result}"
 
 
@@ -202,7 +202,7 @@ def test_div_float(currency: str, offsets: list, result: int):
     for i in range(1, len(offsets)):
         cur = cur / offsets[i]
 
-    assert type(cur.quantity) == int, "Quantity was not an int!"
+    assert type(cur.quantity) is int, "Quantity was not an int!"
     assert cur.quantity == result, f"Quantity was not as expected: {cur.quantity} != {result}"
 
 
@@ -235,12 +235,11 @@ set_cases_bad = [
     ["USD", [1.0]],
     ["USD", [1, 0.0]],
     ["USD", [None]],
-    ["USD", ['1', -1]],
-    ["USD", [1000, '10']],
+    ["USD", ["1", -1]],
+    ["USD", [1000, "10"]],
     ["USD", [19, None, 2022, 4]],
     ["USD", [True]],
     ["USD", [lambda: pow(2, 2)]],
-
 ]
 
 
@@ -251,7 +250,7 @@ def test_set_bad(currency: str, values: list[int]):
     """
     cur: Currency = deepcopy(get_cur()[currency])
 
-    with pytest.raises(TypeError) as e_info:
+    with pytest.raises(TypeError):
         for value in values:
             cur.set(value)
 
@@ -264,7 +263,6 @@ adjust_int_cases_good = [
     ["USD", [-2, -3, -1], -6],
     ["USD", [1], 1],
     ["USD", [0], 0],
-
 ]
 
 adjust_float_cases_good = [
@@ -277,7 +275,6 @@ adjust_float_cases_good = [
     ["USD", [1, 0.5], 0],
     ["USD", [20, 0.2], 4],
     ["USD", [6, 0.33], 2],
-
 ]
 
 adjust_mixed_cases_good = [
@@ -291,8 +288,9 @@ adjust_mixed_cases_good = [
 ]
 
 
-@pytest.mark.parametrize("currency, offsets, result",
-                         adjust_int_cases_good + adjust_float_cases_good + adjust_mixed_cases_good)
+@pytest.mark.parametrize(
+    "currency, offsets, result", adjust_int_cases_good + adjust_float_cases_good + adjust_mixed_cases_good
+)
 def test_adjust_good(currency: str, offsets: list[int], result):
     cur: Currency = deepcopy(get_cur()[currency])
 
@@ -306,9 +304,9 @@ def test_adjust_good(currency: str, offsets: list[int], result):
 
 adjust_cases_bad = [
     ["USD", [None]],
-    ["USD", ['sneaky number']],
+    ["USD", ["sneaky number"]],
     ["USD", [1, 2.0, None]],
-    ["USD", [2.0, 1, 0, 0.0, '4']],
+    ["USD", [2.0, 1, 0, 0.0, "4"]],
     ["USD", [True]],
     ["USD", [False]],
     ["USD", [1, False, True]],
@@ -319,6 +317,6 @@ adjust_cases_bad = [
 def test_adjust_bad(currency: str, offsets: list[int]):
     cur: Currency = deepcopy(get_cur()[currency])
 
-    with pytest.raises(TypeError) as e_info:
+    with pytest.raises(TypeError):
         for offset in offsets:
             cur.adjust(offset)

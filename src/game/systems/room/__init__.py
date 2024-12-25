@@ -7,3 +7,5 @@ from game.systems.room.room_manager import RoomManager
 
 
 room_manager = RoomManager()
+
+__all__ = ["Room", "room_manager"]

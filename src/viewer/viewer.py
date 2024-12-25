@@ -25,13 +25,15 @@ def format_string(content: str, tags: list[str]) -> str:
 def parse_content(content: list) -> str:
     buf = ""
     for element in content:
-        if type(element) == str:
+        if type(element) is str:
             buf = buf + element
-        elif type(element) == dict:
-            buf = buf + \
-                  formatting_to_tags(element['formatting'], opening_tag=True) + \
-                  element['value'] + \
-                  formatting_to_tags(element['formatting'], closing_tag=True)
+        elif type(element) is dict:
+            buf = (
+                buf
+                + formatting_to_tags(element["formatting"], opening_tag=True)
+                + element["value"]
+                + formatting_to_tags(element["formatting"], closing_tag=True)
+            )
     return buf
 
 
@@ -42,7 +44,7 @@ class Viewer:
 
     def __init__(self):
         u = input("Enter the IP for the TXEngine server: ")
-        self._ip = 'http://' + (u if u != "" else "localhost:8000")
+        self._ip = "http://" + (u if u != "" else "localhost:8000")
         self._session = requests.Session()
         self.clear = lambda: os.system("cls")
 
@@ -59,17 +61,20 @@ class Viewer:
             self._session.put(self._ip, params={"user_input": user_input}, verify=False)
 
     def get_text_header(self, tx_engine_response: dict) -> str:
-        input_type = tx_engine_response["input_type"] if type(tx_engine_response["input_type"]) == str else \
-            tx_engine_response["input_type"][0]
+        input_type = (
+            tx_engine_response["input_type"]
+            if type(tx_engine_response["input_type"]) is str
+            else tx_engine_response["input_type"][0]
+        )
         input_range = tx_engine_response["input_range"]
 
-        formatting = ['italic']
+        formatting = ["italic"]
 
         if input_type == "int":
             hdr = f"Enter a number between ({input_range['min']} and {input_range['max']}):"
 
         elif input_type == "none":
-            hdr = f"Press any key:"
+            hdr = "Press any key:"
 
         elif input_type == "str":
             hdr = "Enter a string: "
@@ -92,10 +97,10 @@ class Viewer:
         self.clear()
 
         def entity_to_str(entity_dict: dict[str, any]) -> str:
-            entity_name = entity_dict['name']
-            primary_resource_name = entity_dict['primary_resource_name']
-            primary_resource_value = entity_dict['primary_resource_val']
-            primary_resource_max = entity_dict['primary_resource_max']
+            entity_name = entity_dict["name"]
+            primary_resource_name = entity_dict["primary_resource_name"]
+            primary_resource_value = entity_dict["primary_resource_val"]
+            primary_resource_max = entity_dict["primary_resource_max"]
             return f"{entity_name}\n{primary_resource_name}]: [{primary_resource_value}/{primary_resource_max}]"
 
         if "enemies" in tx_engine_response["components"]:
@@ -110,7 +115,7 @@ class Viewer:
 
         print(parse_content(tx_engine_response["components"]["content"]))
 
-        if "options" in tx_engine_response["components"] and type(tx_engine_response["components"]["options"]) == list:
+        if "options" in tx_engine_response["components"] and type(tx_engine_response["components"]["options"]) is list:
             for idx, opt in enumerate(tx_engine_response["components"]["options"]):
                 print(f"[{idx}] {parse_content(opt)}")
 

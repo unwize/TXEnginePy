@@ -33,20 +33,11 @@ class ViewSummaryEvent(Event):
         self._options: dict[str, dict[str, any]] = {
             "View Resources": {  # Text shown to user
                 "class": ViewResourcesEvent,  # What event to spawn if options is selected
-                "required_classes": [ResourceMixin]  # Target must be an instance of these classes for option to show
+                "required_classes": [ResourceMixin],  # Target must be an instance of these classes for option to show
             },
-            "View Abilities": {
-                "class": ViewAbilitiesEvent,
-                "required_classes": [AbilityMixin]
-            },
-            "View Skills": {
-                "class": ViewSkillsEvent,
-                "required_classes": [SkillMixin]
-            },
-            "View Equipment": {
-                "class": ViewEquipmentEvent,
-                "required_classes": [EquipmentMixin]
-            }
+            "View Abilities": {"class": ViewAbilitiesEvent, "required_classes": [AbilityMixin]},
+            "View Skills": {"class": ViewSkillsEvent, "required_classes": [SkillMixin]},
+            "View Equipment": {"class": ViewEquipmentEvent, "required_classes": [EquipmentMixin]},
         }
 
         self.setup_states()
@@ -68,7 +59,7 @@ class ViewSummaryEvent(Event):
         """
         Returns the event's target. If no target is specified, return a reference to the player.
         """
-        return self._target or from_cache('player')
+        return self._target or from_cache("player")
 
     @target.setter
     def target(self, entity):
@@ -79,28 +70,24 @@ class ViewSummaryEvent(Event):
 
         if not isinstance(entity, Entity):
             raise TypeError(
-                f"ViewSummaryEvent target must be an instance of class CombatEntity! Got {type(entity)} instead!")
+                f"ViewSummaryEvent target must be an instance of class CombatEntity! Got {type(entity)} instead!"
+            )
 
         self._target = entity
 
     def setup_states(self):
-
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.INT,
-                                       -1, lambda: len(self.options))
+        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.INT, -1, lambda: len(self.options))
         def logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
                 return
 
             selected_option = self.options[user_input][0]
-            game.add_state_device(self._options[selected_option]['class'](self.target))
+            game.add_state_device(self._options[selected_option]["class"](self.target))
 
         @FiniteStateDevice.state_content(self, self.States.DEFAULT)
         def content() -> dict:
-            return ComponentFactory.get(
-                ["What would you like to do?"],
-                self.options
-            )
+            return ComponentFactory.get(["What would you like to do?"], self.options)
 
     def __copy__(self):
         return ViewSummaryEvent(self.target)

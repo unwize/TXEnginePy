@@ -18,22 +18,20 @@ class CoinPurse(LoadableMixin):
     currencies: dict[int, Currency] = dataclasses.field(default_factory=dict)
 
     def __contains__(self, item: int | Currency) -> bool:
-        if type(item) == Currency:
+        if type(item) is Currency:
             return item.id in self.currencies
-        elif type(item) == int:
+        elif type(item) is int:
             return item in self.currencies
         else:
-            raise KeyError(
-                f"Cannot look up Currency with id of type {type(item)}! Expected id of type: int.")
+            raise KeyError(f"Cannot look up Currency with id of type {type(item)}! Expected id of type: int.")
 
     def __getitem__(self, item: int | Currency) -> Currency:
-        if type(item) == Currency:
+        if type(item) is Currency:
             return self.currencies[item.id]
-        elif type(item) == int:
+        elif type(item) is int:
             return self.currencies[item]
         else:
-            raise KeyError(
-                f"Cannot look up Currency with id of type {type(item)}! Expected id of type: int.")
+            raise KeyError(f"Cannot look up Currency with id of type {type(item)}! Expected id of type: int.")
 
     def __iter__(self) -> Iterator:
         """
@@ -49,11 +47,9 @@ class CoinPurse(LoadableMixin):
         return self._iterator.__next__()
 
     def __post_init__(self):
-
         # Initialize the currencies map.
         for currency in currency_manager:
-            self.currencies[currency.id] = currency_manager.to_currency(
-                currency.id, 0)
+            self.currencies[currency.id] = currency_manager.to_currency(currency.id, 0)
 
     def balance(self, cur: Currency | int) -> int:
         """
@@ -85,14 +81,12 @@ class CoinPurse(LoadableMixin):
         if cur not in self:
             raise KeyError(f"Unknown currency: {cur}")
 
-        if quantity is not None and type(quantity) != int:
-            raise TypeError(
-                f"Cannot spend not-int values! Got type{type(quantity)}. Expected type: int")
+        if quantity is not None and type(quantity) is not int:
+            raise TypeError(f"Cannot spend not-int values! Got type{type(quantity)}. Expected type: int")
 
-        if type(cur) == int:
+        if type(cur) is int:
             if quantity < 1:
-                raise ValueError(
-                    f"Cannot spend values less than 1! Got {quantity}.")
+                raise ValueError(f"Cannot spend values less than 1! Got {quantity}.")
 
             if self[cur].quantity < quantity:
                 return False
@@ -100,7 +94,7 @@ class CoinPurse(LoadableMixin):
             self.adjust(cur, quantity * -1)
             return True
 
-        if type(cur) == Currency:
+        if type(cur) is Currency:
             if cur.quantity <= self.balance(cur):
                 self.currencies[cur.id].quantity -= cur.quantity
                 return True
@@ -122,15 +116,14 @@ class CoinPurse(LoadableMixin):
         if cur not in self:
             raise KeyError(f"Unknown currency: {cur}")
 
-        if type(quantity) == int:
+        if type(quantity) is int:
             self[cur].quantity += quantity
 
-        elif type(quantity) == float:
+        elif type(quantity) is float:
             self[cur].quantity = round(self[cur].quantity * quantity)
 
         else:
-            raise TypeError(
-                f"Unknown type: {type(quantity)}! Quantity must be of type int or float")
+            raise TypeError(f"Unknown type: {type(quantity)}! Quantity must be of type int or float")
 
     def test_currency(self, cur: int | Currency, quantity: int) -> bool:
         """
@@ -169,8 +162,7 @@ class CoinPurse(LoadableMixin):
         from game.systems.item import item_manager
 
         costs: dict[int, int] = item_manager.get_currency_values(item_id)
-        return [cur_id for cur_id, value in costs.items() if
-                self.test_currency(cur_id, value)]
+        return [cur_id for cur_id, value in costs.items() if self.test_currency(cur_id, value)]
 
     def test_purchase(self, item_id: int, currency_id: int) -> bool:
         """
@@ -187,10 +179,7 @@ class CoinPurse(LoadableMixin):
 
         item: Item = from_cache("managers.ItemManager").get_ref(item_id)
 
-        return self.test_currency(
-            currency_id,
-            item.get_market_value(currency_id).quantity
-        )
+        return self.test_currency(currency_id, item.get_market_value(currency_id).quantity)
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "CoinPurse", LoadableMixin.ATTR_KEY])
@@ -220,16 +209,14 @@ class CoinPurse(LoadableMixin):
                 raise ValueError(f"Required field {field} not in JSON!")
 
         if json["class"] != class_key:
-            raise ValueError(
-                f"Cannot load JSON for object of class {json['class']}")
+            raise ValueError(f"Cannot load JSON for object of class {json['class']}")
 
-        if type(json[currencies_key]) != list:
-            raise TypeError(
-                f"Cannot parse item manifest of type {type(json[currencies_key])}! Expect type list")
+        if type(json[currencies_key]) is not list:
+            raise TypeError(f"Cannot parse item manifest of type {type(json[currencies_key])}! Expect type list")
 
         cp = CoinPurse()
 
         for currency in json["currencies"]:
-            cp.adjust(currency['id'], currency['quantity'])
+            cp.adjust(currency["id"], currency["quantity"])
 
         return cp

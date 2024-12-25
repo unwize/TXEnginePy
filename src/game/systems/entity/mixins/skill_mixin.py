@@ -28,7 +28,6 @@ class SkillMixin:
         # Iterate through the skill dicts provided, and load them into the controller's data
         if skills is not None:
             for skill_id in skills:
-
                 # JSON does not allow for int-typed keys, so we have to cast the str-equivalent of int back into an int
                 try:
                     true_id = int(skill_id)
@@ -45,5 +44,5 @@ class SkillMixin:
                         raise ValueError(f"Missing field {term} in skill definition for skill {skill_id}")
 
                 # Finally, set the level and xp values of the skill (assuming it has already been obtained)
-                self.skill_controller[true_id].level = skills[skill_id]['level']
-                self.skill_controller[true_id].xp = skills[skill_id]['xp']
+                self.skill_controller[true_id].level = skills[skill_id]["level"]
+                self.skill_controller[true_id].xp = skills[skill_id]["xp"]

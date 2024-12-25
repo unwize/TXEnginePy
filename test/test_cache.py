@@ -1,12 +1,11 @@
-import game.cache
-from game.cache import from_cache, get_cache, get_loader, cache_element, delete_element
+from game.cache import from_cache, get_cache, cache_element, delete_element
 
 
 def test_get_cache():
     """
     Test that the cache object can be retrieved
     """
-    assert type(get_cache()) == dict
+    assert type(get_cache()) is dict
 
 
 def test_from_cache():
@@ -34,7 +33,7 @@ def test_delete_element():
     delete_element("element")
     assert from_cache("element") is None
 
-    cache["root"] = {"branch" : "leaf"}
+    cache["root"] = {"branch": "leaf"}
     assert from_cache("root.branch") == "leaf"
 
     delete_element("root.branch")

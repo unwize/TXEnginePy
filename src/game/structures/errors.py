@@ -21,6 +21,7 @@ class StateDeviceInternalError(CompoundError):
     """
     An error that is thrown when a StateDevice's internal logic fails
     """
+
     pass
 
 
@@ -28,6 +29,7 @@ class CombatError(CompoundError):
     """
     A generic error thrown when there is a problem executing combat logic
     """
+
     pass
 
 
@@ -35,4 +37,5 @@ class CombatHandlerError(CompoundError):
     """
     An error that is thrown when a PhaseHandler object has a problem executing logic
     """
+
     pass

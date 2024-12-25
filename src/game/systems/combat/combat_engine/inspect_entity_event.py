@@ -45,7 +45,7 @@ def get_all_inspection_tiers() -> dict[int, list[str]]:
     results = {}
 
     for tier in inspection_data:
-        if type(tier) != str or len(tier) != 2:
+        if type(tier) is not str or len(tier) != 2:
             raise ValueError(f"Invalid Tier name! {tier}")
 
         try:
@@ -73,14 +73,16 @@ class InspectEntityEvent(EntityTargetMixin, Event):
         "RESOURCES": ("Inspect Resources", States.INSPECT_RESOURCES),
         "EQUIPMENT": ("Inspect Equipment", States.INSPECT_EQUIPMENT),
         "ABILITIES": ("Inspect Abilities", States.INSPECT_ABILITIES),
-        "SKILLS": ("Inspect Skills", States.INSPECT_ABILITIES)
+        "SKILLS": ("Inspect Skills", States.INSPECT_ABILITIES),
     }
 
     def __init__(self, target, inspection_tier: int = None):
-        super().__init__(target=target, default_input_type=InputType.SILENT, states=self.States,
-                         default_state=self.States.DEFAULT)
+        super().__init__(
+            target=target, default_input_type=InputType.SILENT, states=self.States, default_state=self.States.DEFAULT
+        )
 
         from game.systems.entity.entities import CombatEntity
+
         if not isinstance(target, CombatEntity):
             raise TypeError(
                 f"InspectEntityEvent target must be an instance of class CombatEntity! Got {type(target)} instead."
@@ -104,14 +106,14 @@ class InspectEntityEvent(EntityTargetMixin, Event):
         self._setup_states()
 
     def _setup_states(self):
-
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
             self.set_state(self.States.SHOW_OPTIONS)
 
         # SHOW_OPTIONS
-        FiniteStateDevice.user_branching_state(self, self.States.SHOW_OPTIONS, self._options_map,
-                                               back_out_state=self.States.TERMINATE)
+        FiniteStateDevice.user_branching_state(
+            self, self.States.SHOW_OPTIONS, self._options_map, back_out_state=self.States.TERMINATE
+        )
 
         # INSPECT_ABILITIES
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_ABILITIES, InputType.SILENT)
@@ -150,4 +152,4 @@ class InspectEntityEvent(EntityTargetMixin, Event):
 
     @staticmethod
     def from_json(json: dict[str, any]) -> any:
-        raise NotImplemented("InspectEntityEvent does not support JSON loading!")
+        raise NotImplementedError("InspectEntityEvent does not support JSON loading!")

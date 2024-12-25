@@ -34,10 +34,10 @@ class ItemManager(Manager):
         """
 
         from game.systems.item.item import Item
+
         if isinstance(item_object, Item):
             if item_object.id in self._manifest:
-                raise ValueError(f"Item with ID {item_object.id} already "
-                                 f"registered!")
+                raise ValueError(f"Item with ID {item_object.id} already " f"registered!")
 
             self._manifest[item_object.id] = item_object
 
@@ -45,8 +45,9 @@ class ItemManager(Manager):
             for obj in item_object:
                 self.register_item(obj)
         else:
-            raise TypeError(f"Expected object of type Item or type list[Item],"
-                            f" got type {type(item_object)} instead.")
+            raise TypeError(
+                f"Expected object of type Item or type list[Item]," f" got type {type(item_object)} instead."
+            )
 
     def get_name(self, item_id: int) -> str:
         return self._manifest[item_id].name
@@ -67,8 +68,7 @@ class ItemManager(Manager):
 
         return self._manifest[item_id]._market_values
 
-    def get_currency_value(self, item_id: int, currency_id: int,
-                           as_currency: bool = False) -> int | currency.Currency:
+    def get_currency_value(self, item_id: int, currency_id: int, as_currency: bool = False) -> int | currency.Currency:
         """
         Get the value of an item in a specific currency
 
@@ -94,9 +94,8 @@ class ItemManager(Manager):
 
         Returns: A deep copy of the requested item
         """
-        if type(item_id) != int:
-            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}"
-                            f" instead.")
+        if type(item_id) is not int:
+            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}" f" instead.")
 
         if item_id not in self._manifest:
             raise ValueError(f"No such item with ID {item_id}!")
@@ -110,13 +109,11 @@ class ItemManager(Manager):
 
         Use sparingly.
         """
-        if type(item_id) != int:
-            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}"
-                            f" instead.")
+        if type(item_id) is not int:
+            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}" f" instead.")
 
         if item_id not in self._manifest:
-            logger.error(f"ItemManager @ {self.__repr__()} failed to find item "
-                         f"with ID {item_id}")
+            logger.error(f"ItemManager @ {self.__repr__()} failed to find item " f"with ID {item_id}")
             logger.error(self._manifest)
             raise ValueError(f"No such item with ID {item_id}!")
 
@@ -127,13 +124,13 @@ class ItemManager(Manager):
         Load item game objects from disk.
         """
         raw_asset: dict[str, any] = get_asset(self.ITEM_ASSET_PATH)
-        for raw_item in raw_asset['content']:
+        for raw_item in raw_asset["content"]:
             item = LoadableFactory.get(raw_item)
 
             from game.systems.item.item import Item
+
             if not isinstance(item, Item):
-                raise TypeError(f"Expected object of type Ability, got "
-                                f"{type(item)} instead!")
+                raise TypeError(f"Expected object of type Ability, got " f"{type(item)} instead!")
 
             self.register_item(item)
 

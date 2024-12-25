@@ -32,7 +32,7 @@ def test_lootable_mixin_trivial():
     d_prob = {1: 1.0}
     sl = CombatEntity(id=-1, name="TestEntity", item_probabilities=i_prob, drop_probabilities=d_prob)
 
-    assert type(sl.loot_table) == LootTable
+    assert type(sl.loot_table) is LootTable
     assert len(sl.loot_table.item_table) == LootTable.ITEM_TABLE_RESOLUTION
     assert sum(sl.loot_table.drop_table) == LootTable.DROP_TABLE_RESOLUTION * 1.0
 

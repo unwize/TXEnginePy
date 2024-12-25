@@ -1,4 +1,3 @@
-import weakref
 from abc import ABC
 
 from game.cache import cached
@@ -38,12 +37,15 @@ class CombatEffect(LoadableMixin, FiniteStateDevice, TagMixin, ABC):
     Effect's duration via reset().
     """
 
-    def __init__(self,
-                 target_entity: CombatEntity = None,
-                 source_entity: CombatEntity = None,
-                 duration: int | None = 1,
-                 on_remove: str | None = None,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        target_entity: CombatEntity = None,
+        source_entity: CombatEntity = None,
+        duration: int | None = 1,
+        on_remove: str | None = None,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self._setup_states()
 
@@ -62,8 +64,7 @@ class CombatEffect(LoadableMixin, FiniteStateDevice, TagMixin, ABC):
 
         return self._source_entity is not None and self._target_entity is not None
 
-    def assign(self, source_entity: CombatEntity,
-               target_entity: CombatEntity) -> None:
+    def assign(self, source_entity: CombatEntity, target_entity: CombatEntity) -> None:
         """
         Assign a source and target to the Effect. This option should be
         exercised by the CombatEngine
@@ -84,9 +85,9 @@ class CombatEffect(LoadableMixin, FiniteStateDevice, TagMixin, ABC):
         This method wraps the private abstract function _perform.
         """
         if not isinstance(self._target_entity, CombatEntity):
-            raise TypeError(f"Cannot perform an effect on object of type "
-                            f"{type(self._target_entity)}! Expected type Entity"
-                            )
+            raise TypeError(
+                f"Cannot perform an effect on object of type " f"{type(self._target_entity)}! Expected type Entity"
+            )
 
         self._perform(self._target_entity)  # Execute Effect logic
 
@@ -120,17 +121,14 @@ class ResourceEffect(CombatEffect):
     Modify a given resource by a given amount for the target.
     """
 
-    def __init__(self, resource_name: str, adjust_quantity: int | float,
-                 trigger_message: str = None, **kwargs):
-        super().__init__(default_input_type=InputType.ANY, states=self.States,
-                         **kwargs)
+    def __init__(self, resource_name: str, adjust_quantity: int | float, trigger_message: str = None, **kwargs):
+        super().__init__(default_input_type=InputType.ANY, states=self.States, **kwargs)
 
-        if type(resource_name) != str:
+        if type(resource_name) is not str:
             raise TypeError("resource_name must be of type str!")
 
-        if type(adjust_quantity) != int and type(adjust_quantity) != float:
-            raise TypeError(
-                "adjust_quantity must be of type int or type float!")
+        if type(adjust_quantity) is not int and type(adjust_quantity) is not float:
+            raise TypeError("adjust_quantity must be of type int or type float!")
 
         self._resource_name = resource_name
         self._adjust_quantity = adjust_quantity
@@ -140,40 +138,39 @@ class ResourceEffect(CombatEffect):
         return f"{self.name}: ({self._resource_name}: {self._adjust_quantity})"
 
     def __copy__(self):
-        return ResourceEffect(self._resource_name, self._adjust_quantity,
-                              self.trigger_message)
+        return ResourceEffect(self._resource_name, self._adjust_quantity, self.trigger_message)
 
     def __deepcopy__(self, memodict={}):
         return self.__copy__()
 
     def _perform(self, target: CombatEntity):
         if self._resource_name not in target.resource_controller:
-            raise ValueError(
-                f"Cannot locate resource {self._resource_name} in entity {target.name}!")
+            raise ValueError(f"Cannot locate resource {self._resource_name} in entity {target.name}!")
 
-        target.resource_controller[self._resource_name].adjust(
-            self._adjust_quantity)
+        target.resource_controller[self._resource_name].adjust(self._adjust_quantity)
 
     def _get_change_message(self) -> list[StringContent | str]:
         """
         The message to be printed when the Effect is viewed.
         """
-        post_change: int = self._target_entity.resource_controller[
-            self._resource_name].test_adjust(
-            self._adjust_quantity)
-        net = post_change - self._target_entity.resource_controller[
-            self._resource_name].value
+        post_change: int = self._target_entity.resource_controller[self._resource_name].test_adjust(
+            self._adjust_quantity
+        )
+        net = post_change - self._target_entity.resource_controller[self._resource_name].value
         term = "gained" if net > -1 else "lost"
 
         return [
-            self._target_entity.name, " ", term, " ", str(abs(net)), " ",
-            StringContent(value=self._resource_name,
-                          formatting="resource_name"),
-            "."
+            self._target_entity.name,
+            " ",
+            term,
+            " ",
+            str(abs(net)),
+            " ",
+            StringContent(value=self._resource_name, formatting="resource_name"),
+            ".",
         ]
 
     def _setup_states(self):
-
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY)
         def logic(_: any) -> None:
             self.perform()
@@ -184,16 +181,11 @@ class ResourceEffect(CombatEffect):
             """
             This calculation only works because the client must retrieve state_content before executing state_logic!
             """
-            trigger_message = self.trigger_message.format(
-                target=self._target_entity.name)
-            return ComponentFactory.get(
-                [trigger_message] +
-                self._get_change_message()
-            )
+            trigger_message = self.trigger_message.format(target=self._target_entity.name)
+            return ComponentFactory.get([trigger_message] + self._get_change_message())
 
     @staticmethod
-    @cached(
-        [LoadableMixin.LOADER_KEY, "ResourceEffect", LoadableMixin.ATTR_KEY])
+    @cached([LoadableMixin.LOADER_KEY, "ResourceEffect", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> any:
         """
         Instantiate a ResourceEffect object from a JSON blob.
@@ -215,24 +207,15 @@ class ResourceEffect(CombatEffect):
         """
 
         # Validate that required fields are present and correctly-typed
-        required_fields = [
-            ("resource_name", str),
-            ("adjust_quantity", (int, float)),
-            ("trigger_message", str)
-        ]
+        required_fields = [("resource_name", str), ("adjust_quantity", (int, float)), ("trigger_message", str)]
 
-        optional_fields = [
-            ("duration", int), ("on_remove", str), ("tags", list)
-        ]
+        optional_fields = [("duration", int), ("on_remove", str), ("tags", list)]
 
         LoadableFactory.validate_fields(required_fields, json)
-        kwargs = LoadableFactory.collect_optional_fields(optional_fields, json,
-                                                         False)
+        kwargs = LoadableFactory.collect_optional_fields(optional_fields, json, False)
 
         # Type and value validation
         if json["class"] != "ResourceEffect":
-            raise ValueError(
-                "Incorrect class field in JSON! Expected class field of value 'ResourceEffect'")
+            raise ValueError("Incorrect class field in JSON! Expected class field of value 'ResourceEffect'")
 
-        return ResourceEffect(json['resource_name'], json['adjust_quantity'],
-                              json['trigger_message'], **kwargs)
+        return ResourceEffect(json["resource_name"], json["adjust_quantity"], json["trigger_message"], **kwargs)

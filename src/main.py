@@ -30,6 +30,7 @@ def root(user_input: int | str):
 @tx_engine.get("/cache")
 def root(cache_path: str):
     from game.cache import get_cache
+
     obj: any = get_cache()
     count: int = 0
 
@@ -37,7 +38,7 @@ def root(cache_path: str):
         return str(obj)
 
     try:
-        for key in cache_path.split('.'):
+        for key in cache_path.split("."):
             obj = obj[key]
             count += 1
 
@@ -57,9 +58,7 @@ def root(command: str):
     from game.cache import from_cache
 
     if parts[0] in from_cache("managers"):
-        return from_cache("managers")[parts[0]].handle_command(
-            " ".join(parts[1:])
-        )
+        return from_cache("managers")[parts[0]].handle_command(" ".join(parts[1:]))
 
 
 # Begin service logic

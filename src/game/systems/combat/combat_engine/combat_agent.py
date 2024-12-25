@@ -17,6 +17,7 @@ class CombatAgentMixin:
     A mixin that allows for CombatEngine integration. Mixin MUST be applied to a
      CombatEntity instance.
     """
+
     PRIMARY_RESOURCE_DANGER_THRESHOLD: float = 0.33
 
     def __init__(self, naive: bool = True, **kwargs):
@@ -25,9 +26,9 @@ class CombatAgentMixin:
         self.naive = naive
 
         from game.systems.entity.entities import CombatEntity
+
         if not isinstance(self, CombatEntity):
-            raise TypeError(
-                "CombatAgentMixin must mixed with a CombatEntity instance!")
+            raise TypeError("CombatAgentMixin must mixed with a CombatEntity instance!")
 
     @property
     def usable_abilities(self) -> list[str]:
@@ -36,9 +37,9 @@ class CombatAgentMixin:
         """
 
         return [
-            ab for ab in self.ability_controller.abilities if from_cache(
-                "managers.AbilityManager"
-            ).get_instance(ab).is_requirements_fulfilled(self)
+            ab
+            for ab in self.ability_controller.abilities
+            if from_cache("managers.AbilityManager").get_instance(ab).is_requirements_fulfilled(self)
         ]
 
     @property
@@ -49,8 +50,7 @@ class CombatAgentMixin:
         from game.systems.item.item import Usable
 
         stacks = self.inventory.filter_stacks(
-            lambda stack: isinstance(stack, Usable) and
-                          stack.is_requirements_fulfilled(self)
+            lambda stack: isinstance(stack, Usable) and stack.is_requirements_fulfilled(self)
         )
 
         return [s.ref for s in stacks]
@@ -83,9 +83,7 @@ class CombatAgentMixin:
         """A list of Usables that restore primary_resource."""
 
         return [
-            u for u in self.usable_items if self._is_restorative_item(
-                u, self.resource_controller.primary_resource.name
-            )
+            u for u in self.usable_items if self._is_restorative_item(u, self.resource_controller.primary_resource.name)
         ]
 
     def get_resource_fix_items(self, ability: str) -> list:
@@ -120,14 +118,15 @@ class CombatAgentMixin:
 
             # Check if the ability deals damage and can target enemies
             if inst.damage > 0 and inst.target_mode not in [
-                TargetMode.ALL_ALLY, TargetMode.SELF, TargetMode.SINGLE_ALLY
+                TargetMode.ALL_ALLY,
+                TargetMode.SELF,
+                TargetMode.SINGLE_ALLY,
             ]:
                 res.append(inst)
 
         return res
 
     def naive_choice_logic(self) -> ChoiceData:
-
         # If the entity doesn't know any abilities, just pass
         if len(self.ability_controller.abilities) < 1:
             return ChoiceData(ChoiceData.ChoiceType.PASS)
@@ -137,14 +136,9 @@ class CombatAgentMixin:
         targets = from_cache("combat").get_valid_ability_targets(self, ab)
 
         target = r.choice(targets)
-        return ChoiceData(
-            ChoiceData.ChoiceType.ABILITY,
-            ability_name=ab,
-            ability_target=target
-        )
+        return ChoiceData(ChoiceData.ChoiceType.ABILITY, ability_name=ab, ability_target=target)
 
     def intelligent_choice_logic(self) -> ChoiceData:
-
         # If the entity is in danger, use an item to restore primary_resource
         if self.in_danger:
             restoratives = self.restorative_items
@@ -156,10 +150,7 @@ class CombatAgentMixin:
         if len(offensive_abilities) > 0:
             logger.debug("Found offensive abilities!")
             # sort by damage in desc order
-            offensive_abilities = sorted(
-                offensive_abilities,
-                key=lambda x: x.damage,
-                reverse=True)
+            offensive_abilities = sorted(offensive_abilities, key=lambda x: x.damage, reverse=True)
 
             # Attempt to figure out which offensive abilities are usable
 
@@ -182,36 +173,24 @@ class CombatAgentMixin:
                         continue
 
                     # There is an item that can help, so use the first one
-                    return ChoiceData(
-                        ChoiceData.ChoiceType.ITEM,
-                        item_id=resource_fixers[0].id
-                    )
+                    return ChoiceData(ChoiceData.ChoiceType.ITEM, item_id=resource_fixers[0].id)
 
                 else:
-
                     # Check if it is a single-target ability
-                    single_target_modes = [
-                        TargetMode.SINGLE,
-                        TargetMode.SINGLE_ENEMY,
-                        TargetMode.NOT_SELF
-                    ]
+                    single_target_modes = [TargetMode.SINGLE, TargetMode.SINGLE_ENEMY, TargetMode.NOT_SELF]
 
                     if ab.target_mode in single_target_modes:
-
                         targets = from_cache("combat").get_valid_ability_targets(self, ab.name)
                         t = sorted(targets, key=lambda x: x.resource_controller.primary_resource.value, reverse=True)[0]
 
-                        return ChoiceData(
-                            ChoiceData.ChoiceType.ABILITY,
-                            ability_name=ab.name,
-                            ability_target=t)
+                        return ChoiceData(ChoiceData.ChoiceType.ABILITY, ability_name=ab.name, ability_target=t)
 
                     # If ability is group-target, just choose it
                     else:
                         return ChoiceData(
                             ChoiceData.ChoiceType.ABILITY,
                             ability_name=ab.name,
-                            ability_target=from_cache("combat").get_valid_ability_targets(self, ab.name)
+                            ability_target=from_cache("combat").get_valid_ability_targets(self, ab.name),
                         )
 
         return ChoiceData(ChoiceData.ChoiceType.PASS)
@@ -266,4 +245,5 @@ class PlayerAgentMixin(CombatAgentMixin):
         # directly, all of that is handled within the PlayerCombatChoiceEvent's
         # logic.
         from game.systems.combat.combat_engine.player_combat_choice_event import PlayerCombatChoiceEvent
+
         game.add_state_device(PlayerCombatChoiceEvent(self))

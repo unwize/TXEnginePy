@@ -7,11 +7,7 @@ def test_flag_manager_import():
     assert flag_manager.name is not None
 
 
-test_no_flag_cases = [
-    "base",
-    "root.branch.leaf",
-    ""
-]
+test_no_flag_cases = ["base", "root.branch.leaf", ""]
 
 
 @pytest.mark.parametrize("flag", test_no_flag_cases)
@@ -28,7 +24,7 @@ test_get_flag_cases = [
     ["shop1.features.enabled", False],
     ["shop1.stock.allowed", True],
     ["shop1.enabled", True],
-    ["shop1.features.persistent", True]
+    ["shop1.features.persistent", True],
 ]
 
 
@@ -41,19 +37,15 @@ def test_get_flag(payload: list):
     assert flag_manager.get_flag(payload[0]) == payload[1]
 
 
-test_set_flag_blocked_cases = [
-    ["store0", False],
-    ["store0.enabled", True],
-    ["store0.props.enabled", True]
-]
+test_set_flag_blocked_cases = [["store0", False], ["store0.enabled", True], ["store0.props.enabled", True]]
 
 
 @pytest.mark.parametrize("key, throws", test_set_flag_blocked_cases)
-def test_get_flag(key: str, throws: bool):
+def test_get_flag_bad(key: str, throws: bool):
     if not throws:
         flag_manager.clear()
         flag_manager.set_flag(key, True)
 
     if throws:
-        with pytest.raises(KeyError) as error:
+        with pytest.raises(KeyError):
             flag_manager.set_flag(key, True)

@@ -15,6 +15,7 @@ python = "^3.10"
 loguru = "^0.7.3"
 fastapi = "^0.115.6"
 textual = "^1.0.0"
+omegaconf = "^2.3.0"
 
 
 [tool.poetry.group.test.dependencies]
@@ -26,3 +27,9 @@ ruff = "*"
 [tool.ruff]
 line-length = 120
 target-version = "py310"
+
+[tool.ruff.lint]
+ignore = ["F811"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/game/engine.py" = ["F403"]

@@ -10,7 +10,7 @@ def test_player_get_item():
     resources = ["Health", "Stamina", "Mana"]
 
     for res in resources:
-        assert type(player_ref.resource_controller[res]) == Resource
+        assert type(player_ref.resource_controller[res]) is Resource
 
 
 def test_entity_get_item():
@@ -18,4 +18,4 @@ def test_entity_get_item():
         if isinstance(entity, CombatEntity):
             if entity.name.startswith(TEST_PREFIX):
                 for resource in from_cache("managers.ResourceManager")._manifest:
-                    assert type(entity.resource_controller[resource]) == Resource
+                    assert type(entity.resource_controller[resource]) is Resource

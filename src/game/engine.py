@@ -2,6 +2,7 @@
 Houses the primary logical driver logic for starting TXEngine. Responsible for
 initiating IO, reading and executing config, and more.
 """
+
 import os.path
 
 from loguru import logger
@@ -16,7 +17,7 @@ from game.systems.dialog import *
 from game.systems.room.action.shop_action import *
 from game.systems.event.view_summary_event import *
 
-from .cache import get_config, set_config
+from .cache import get_config, set_config, get_cache, from_cache
 from .formatting import register_arguments, register_style
 from .systems.entity.entities import Player
 
@@ -40,7 +41,7 @@ class Engine:
         1: ["EquipmentManager"],
         2: ["ItemManager", "LootManager"],
         3: ["EntityManager"],
-        4: ["RoomManager"]
+        4: ["RoomManager"],
     }
 
     @classmethod
@@ -61,9 +62,7 @@ class Engine:
         elif isinstance(manager_cls, type):
             true_cls = manager_cls.__name__
         else:
-            raise TypeError(
-                f"Expect str or type for manager_cls. "
-                f"Got type {type(manager_cls)} instead!")
+            raise TypeError(f"Expect str or type for manager_cls. " f"Got type {type(manager_cls)} instead!")
 
         for priority in cls.manager_load_priority:
             if true_cls in cls.manager_load_priority[priority]:
@@ -72,8 +71,7 @@ class Engine:
         return None
 
     @classmethod
-    def set_manager_priority(cls, manager_cls: str | type,
-                             priority: int) -> None:
+    def set_manager_priority(cls, manager_cls: str | type, priority: int) -> None:
         """
         Set a manager's loading priority.
 
@@ -88,22 +86,16 @@ class Engine:
 
         # Type checking
         if not isinstance(priority, int):
-            raise TypeError(
-                f"Cannot set priority to type {type(priority)}. "
-                f"Priority must be an int!")
+            raise TypeError(f"Cannot set priority to type {type(priority)}. " f"Priority must be an int!")
         if priority < 0:
-            raise ValueError(
-                f"Invalid priority: {priority}. "
-                f"Priority must be positive or zero!")
+            raise ValueError(f"Invalid priority: {priority}. " f"Priority must be positive or zero!")
 
         if isinstance(manager_cls, str):
             true_cls = manager_cls
         elif isinstance(manager_cls, type):
             true_cls = manager_cls.__name__
         else:
-            raise TypeError(
-                f"Expect str or type for manager_cls. "
-                f"Got type {type(manager_cls)} instead!")
+            raise TypeError(f"Expect str or type for manager_cls. " f"Got type {type(manager_cls)} instead!")
 
         # Check if the manager has already been assigned a priority.
         # If so, remove it from the extant list
@@ -137,8 +129,7 @@ class Engine:
         p.inventory.new_stack(3, 15)
         p.crafting_controller.learn_recipe(1)
         p.ability_controller.learn("Proto Ability")
-        p.ability_controller.learn(
-            "My Opinions on Facebook are Really Important")
+        p.ability_controller.learn("My Opinions on Facebook are Really Important")
         p.ability_controller.learn("Shortcuts are Great")
 
     def _load_assets(self) -> None:
@@ -147,7 +138,7 @@ class Engine:
         """
 
         # Get a list of all managers
-        manager_keys: list[str] = list(from_cache('managers').keys())
+        manager_keys: list[str] = list(from_cache("managers").keys())
 
         # Get an ordered list of available priorities in ascending order
         ordered_priorities = list(self.manager_load_priority)
@@ -159,7 +150,7 @@ class Engine:
                 logger.debug(f"[{manager_key}] Loading assets")
 
                 # Fetch manager from cache and load
-                from_cache(['managers', manager_key]).load()
+                from_cache(["managers", manager_key]).load()
 
                 # Remove it from the list of remaining managers
                 manager_keys.remove(manager_key)
@@ -169,7 +160,7 @@ class Engine:
             logger.debug(f"[{leftover_key}] Loading assets")
 
             # Fetch from cache and load manager
-            from_cache(['managers', leftover_key]).load()
+            from_cache(["managers", leftover_key]).load()
 
     def _startup(self):
         """
@@ -181,7 +172,6 @@ class Engine:
         logger.info("Loading config...")
         # Load config values from disk
         if os.path.exists(conf_path):
-
             # Load config data
             set_config(OmegaConf.load(conf_path))
 
@@ -213,8 +203,8 @@ class Engine:
         """
 
         # Save state data to disk
-        for manager in get_cache()['managers']:
-            get_cache()['managers'][manager].save()
+        for manager in get_cache()["managers"]:
+            get_cache()["managers"][manager].save()
 
     def __init__(self):
         self._startup()  # Call startup logic.
@@ -229,10 +219,11 @@ class Engine:
         Returns:
 
         """
-        return {"io": {"save_data_path": "./saves", "asset_path": "./assets"},
-                "inventory": {"default_capacity": 10},
-                "room": {"default_id": 0}
-                }
+        return {
+            "io": {"save_data_path": "./saves", "asset_path": "./assets"},
+            "inventory": {"default_capacity": 10},
+            "room": {"default_id": 0},
+        }
 
     @classmethod
     def write_styles(cls) -> None:
@@ -242,9 +233,7 @@ class Engine:
         Returns: None
         """
         logger.info("Writing empty style file...")
-        styles_empty = {"arguments": [],
-                        "styles": {}
-                        }
+        styles_empty = {"arguments": [], "styles": {}}
 
         if not os.path.exists(conf_dir_path):
             try:

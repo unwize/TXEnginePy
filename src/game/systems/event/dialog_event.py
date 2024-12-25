@@ -22,6 +22,7 @@ class DialogEvent(Event):
         """
         Internal Enum for FSD states.
         """
+
         DEFAULT = 0
         VISIT_NODE = 1
         TERMINATE = -1
@@ -48,21 +49,16 @@ class DialogEvent(Event):
 
         """
         if not isinstance(value, int):
-            raise ValueError(
-                f"Cannot set current_node to value of type {type(value)}! "
-                f"Expected an int!"
-            )
+            raise ValueError(f"Cannot set current_node to value of type {type(value)}! " f"Expected an int!")
 
         self.dialog.current_node = value
 
     def __init__(self, dialog_id: int, **kwargs):
-        super().__init__(InputType.SILENT, self.States, self.States.DEFAULT,
-                         **kwargs)
+        super().__init__(InputType.SILENT, self.States, self.States.DEFAULT, **kwargs)
 
         self.dialog: Dialog = None
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT,
-                                       InputType.SILENT)
+        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
             self.dialog = from_cache("managers.DialogManager")[dialog_id]
             self.set_state(self.States.VISIT_NODE)
@@ -75,16 +71,16 @@ class DialogEvent(Event):
                     f"None!"
                 )
 
-        @FiniteStateDevice.state_logic(self, self.States.VISIT_NODE,
-                                       InputType.INT,
-                                       input_min=0,
-                                       input_max=lambda: len(
-                                           self.current_node.get_option_text()
-                                       ) - 1)
+        @FiniteStateDevice.state_logic(
+            self,
+            self.States.VISIT_NODE,
+            InputType.INT,
+            input_min=0,
+            input_max=lambda: len(self.current_node.get_option_text()) - 1,
+        )
         def logic(user_input: int):
             self.current_node.visited = True
-            user_choice: str = self.current_node.get_option_text()[user_input][
-                0]
+            user_choice: str = self.current_node.get_option_text()[user_input][0]
             next_node: int = self.current_node.options[user_choice]
             if next_node < 0:
                 self.set_state(self.States.TERMINATE)
@@ -99,16 +95,11 @@ class DialogEvent(Event):
                     # node's main text.
                     # This will allow the user to read the text of the node
                     # before "seeing" the triggered events.
-                    game.add_state_device(TextEvent(
-                        self.current_node.text
-                    ))
+                    game.add_state_device(TextEvent(self.current_node.text))
 
         @FiniteStateDevice.state_content(self, self.States.VISIT_NODE)
         def content() -> dict:
-            return ComponentFactory.get(
-                [self.current_node.text],
-                self.current_node.get_option_text()
-            )
+            return ComponentFactory.get([self.current_node.text], self.current_node.get_option_text())
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "DialogEvent", LoadableMixin.ATTR_KEY])
@@ -120,13 +111,11 @@ class DialogEvent(Event):
         - dialog_id (int)
         """
 
-        required_fields = [
-            ('dialog_id', int)
-        ]
+        required_fields = [("dialog_id", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "DialogEvent":
+        if json["class"] != "DialogEvent":
             raise ValueError()
 
-        return DialogEvent(json['dialog_id'])
+        return DialogEvent(json["dialog_id"])

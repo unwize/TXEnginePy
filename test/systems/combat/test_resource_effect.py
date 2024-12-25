@@ -7,18 +7,11 @@ from game.systems.entity.entities import CombatEntity
 
 from .. import TEST_PREFIX
 
-dummy_entity = CombatEntity(
-    id=-1,
-    name='dummy'
-)
+dummy_entity = CombatEntity(id=-1, name="dummy")
 
 
 def test_init_trivial():
-    re = ResourceEffect(
-        f"{TEST_PREFIX}health",
-        -10,
-        "Some text"
-    )
+    re = ResourceEffect(f"{TEST_PREFIX}health", -10, "Some text")
 
     assert re._resource_name == f"{TEST_PREFIX}health"
     assert re._adjust_quantity == -10
@@ -49,22 +42,33 @@ def test_perform_single_int(resource_effect: ResourceEffect):
 
     resource_effect.perform()
 
-    assert target_tce.resource_controller[resource_effect._resource_name].value == \
-           min(max(RES_START_VALUE + resource_effect._adjust_quantity, 0), target_tce.resource_controller[res_name].max)
+    assert target_tce.resource_controller[resource_effect._resource_name].value == min(
+        max(RES_START_VALUE + resource_effect._adjust_quantity, 0), target_tce.resource_controller[res_name].max
+    )
 
 
 perform_cases_multiple_int = [
-    [[ResourceEffect(f"{TEST_PREFIX}health", -2), ResourceEffect(f"{TEST_PREFIX}health", 3)],
-     {f"{TEST_PREFIX}health": 1}],
-    [[ResourceEffect(f"{TEST_PREFIX}stamina", -11), ResourceEffect(f"{TEST_PREFIX}stamina", 4)],
-     {f"{TEST_PREFIX}stamina": -7}],
-    [[ResourceEffect(f"{TEST_PREFIX}mana", -4), ResourceEffect(f"{TEST_PREFIX}mana", 6)],
-     {f"{TEST_PREFIX}mana": 2}],
-    [[ResourceEffect(f"{TEST_PREFIX}mana", -4), ResourceEffect(f"{TEST_PREFIX}health", 6)],
-     {f"{TEST_PREFIX}mana": -4, f"{TEST_PREFIX}health": 6}],
-    [[ResourceEffect(f"{TEST_PREFIX}mana", -4), ResourceEffect(f"{TEST_PREFIX}mana", 6),
-      ResourceEffect(f"{TEST_PREFIX}stamina", 3)],
-     {f"{TEST_PREFIX}mana": 2, f"{TEST_PREFIX}stamina": 3}]
+    [
+        [ResourceEffect(f"{TEST_PREFIX}health", -2), ResourceEffect(f"{TEST_PREFIX}health", 3)],
+        {f"{TEST_PREFIX}health": 1},
+    ],
+    [
+        [ResourceEffect(f"{TEST_PREFIX}stamina", -11), ResourceEffect(f"{TEST_PREFIX}stamina", 4)],
+        {f"{TEST_PREFIX}stamina": -7},
+    ],
+    [[ResourceEffect(f"{TEST_PREFIX}mana", -4), ResourceEffect(f"{TEST_PREFIX}mana", 6)], {f"{TEST_PREFIX}mana": 2}],
+    [
+        [ResourceEffect(f"{TEST_PREFIX}mana", -4), ResourceEffect(f"{TEST_PREFIX}health", 6)],
+        {f"{TEST_PREFIX}mana": -4, f"{TEST_PREFIX}health": 6},
+    ],
+    [
+        [
+            ResourceEffect(f"{TEST_PREFIX}mana", -4),
+            ResourceEffect(f"{TEST_PREFIX}mana", 6),
+            ResourceEffect(f"{TEST_PREFIX}stamina", 3),
+        ],
+        {f"{TEST_PREFIX}mana": 2, f"{TEST_PREFIX}stamina": 3},
+    ],
 ]
 
 
@@ -91,8 +95,9 @@ def test_perform_multiple_int(resource_effects: list[ResourceEffect], net_res_ch
         starting_res_value = target_tce.resource_controller[res_name].value  # Value before execution
         effect.assign(source_tce, target_tce)
         effect.perform()  # Execution
-        assert target_tce.resource_controller[res_name].value == \
-               min(max(0, starting_res_value + effect._adjust_quantity), target_tce.resource_controller[res_name].max)
+        assert target_tce.resource_controller[res_name].value == min(
+            max(0, starting_res_value + effect._adjust_quantity), target_tce.resource_controller[res_name].max
+        )
 
     # For each resource modified, ensure that its final value conforms with the predicted differences
     for res in net_res_changes:
@@ -123,39 +128,28 @@ def test_perform_single_float(resource_effect: ResourceEffect):
 
     resource_effect.perform()
 
-    assert target_tce.resource_controller[resource_effect._resource_name].value == \
-           min(
-               max(
-                   0,
-                   round(RES_START_VALUE + (
-                               target_tce.resource_controller[res_name].max * resource_effect._adjust_quantity))
-               ),
-               target_tce.resource_controller[res_name].max
-           )
+    assert target_tce.resource_controller[resource_effect._resource_name].value == min(
+        max(
+            0,
+            round(RES_START_VALUE + (target_tce.resource_controller[res_name].max * resource_effect._adjust_quantity)),
+        ),
+        target_tce.resource_controller[res_name].max,
+    )
 
 
 perform_cases_multiple_float = [
     [  # Cancel out
         ResourceEffect(f"{TEST_PREFIX}health", 0.2),
-        ResourceEffect(f"{TEST_PREFIX}health", -0.2)
+        ResourceEffect(f"{TEST_PREFIX}health", -0.2),
     ],
-    [
-        ResourceEffect(f"{TEST_PREFIX}stamina", -0.2),
-        ResourceEffect(f"{TEST_PREFIX}stamina", 0.5)
-    ],
-    [
-        ResourceEffect(f"{TEST_PREFIX}mana", -1.0),
-        ResourceEffect(f"{TEST_PREFIX}mana", 1.0)
-    ],
-    [
-        ResourceEffect(f"{TEST_PREFIX}mana", -0.5),
-        ResourceEffect(f"{TEST_PREFIX}health", .2)
-    ],
+    [ResourceEffect(f"{TEST_PREFIX}stamina", -0.2), ResourceEffect(f"{TEST_PREFIX}stamina", 0.5)],
+    [ResourceEffect(f"{TEST_PREFIX}mana", -1.0), ResourceEffect(f"{TEST_PREFIX}mana", 1.0)],
+    [ResourceEffect(f"{TEST_PREFIX}mana", -0.5), ResourceEffect(f"{TEST_PREFIX}health", 0.2)],
     [
         ResourceEffect(f"{TEST_PREFIX}mana", -0.33),
         ResourceEffect(f"{TEST_PREFIX}mana", 0.2),
-        ResourceEffect(f"{TEST_PREFIX}stamina", 0.33)
-    ]
+        ResourceEffect(f"{TEST_PREFIX}stamina", 0.33),
+    ],
 ]
 
 
@@ -187,14 +181,15 @@ def test_perform_multiple_float(resource_effects: list[ResourceEffect]):
         starting_res_value = target_tce.resource_controller[res_name].value  # Value before execution
         effect.assign(source_tce, target_tce)
         effect.perform()  # Execution
-        assert target_tce.resource_controller[res_name].value == min(target_tce.resource_controller[res_name].max, max(0, round(
-            starting_res_value + (target_tce.resource_controller[res_name].max * effect._adjust_quantity)))
+        assert target_tce.resource_controller[res_name].value == min(
+            target_tce.resource_controller[res_name].max,
+            max(
+                0, round(starting_res_value + (target_tce.resource_controller[res_name].max * effect._adjust_quantity))
+            ),
         )  # Verify
 
 
-fsm_int_cases = [
-
-]
+fsm_int_cases = []
 
 
 # Interface not finalized, so tests not written
@@ -203,9 +198,7 @@ def test_fsm_int(resource_effect: ResourceEffect, expected_resource_value: int):
     pass
 
 
-fsm_float_cases = [
-
-]
+fsm_float_cases = []
 
 
 # Interface not finalized, so tests not written

@@ -26,27 +26,25 @@ class EquipmentController(LoadableMixin):
     are ignored.
     """
 
-    def __init__(self, owner=None, equipment: list[int] = None,
-                 *args, **kwargs):
+    def __init__(self, owner=None, equipment: list[int] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.owner = owner
         self.player_mode: bool = False
-        self._slots: dict[str, EquipSlot] = get_cache()['managers'][
-            'EquipmentManager'].get_slots()
+        self._slots: dict[str, EquipSlot] = get_cache()["managers"]["EquipmentManager"].get_slots()
 
         # If the equipment list is not None
         if equipment is not None and isinstance(equipment, list):
-
             # For each equipment id
             for item_id in equipment:
-
                 from game.systems.item.item import Equipment
 
                 inst = from_cache("managers.ItemManager").get_instance(item_id)
                 if not isinstance(inst, Equipment):
-                    raise TypeError("Cannot instantiate a EquipmentController"
-                                    "with items not of type Equipment! Got "
-                                    f"object of type  {type(inst)}.")
+                    raise TypeError(
+                        "Cannot instantiate a EquipmentController"
+                        "with items not of type Equipment! Got "
+                        f"object of type  {type(inst)}."
+                    )
 
                 if not self._slots[inst.slot].enabled:
                     logger.error(f"Failed to equip item with id: {item_id}")
@@ -78,11 +76,11 @@ class EquipmentController(LoadableMixin):
             raise KeyError(f"Unknown slot: {key}!")
 
         # If value is a bool, treat is an enable/disable slot
-        if type(value) == bool:
+        if type(value) is bool:
             self._slots[key].enabled = value
 
         # If an int, treat it as set-id
-        elif type(value) == int:
+        elif type(value) is int:
             from game.systems.item import item_manager
 
             ref = item_manager.get_ref(value)
@@ -91,13 +89,11 @@ class EquipmentController(LoadableMixin):
 
             if not isinstance(ref, Equipment):
                 raise ValueError(
-                    f"Cannot assign item {str(ref)} to slot {key}! Item "
-                    f"{str(ref)} is not an Equipment!")
+                    f"Cannot assign item {str(ref)} to slot {key}! Item " f"{str(ref)} is not an Equipment!"
+                )
 
             if ref.slot != key:
-                raise ValueError(
-                    f"Cannot assign item {str(ref)} to slot {key}! Wrong slot! "
-                    f"{key} != {ref.slot}")
+                raise ValueError(f"Cannot assign item {str(ref)} to slot {key}! Wrong slot! " f"{key} != {ref.slot}")
 
             self._slots[key].item_id = value
 
@@ -107,9 +103,7 @@ class EquipmentController(LoadableMixin):
 
         # That's not right
         else:
-            raise TypeError(
-                f"Unknown type for value! Expected int, bool, or None. Got "
-                f"{type(value)}!")
+            raise TypeError(f"Unknown type for value! Expected int, bool, or None. Got " f"{type(value)}!")
 
     def equip(self, item_id: int) -> bool:
         """
@@ -130,8 +124,8 @@ class EquipmentController(LoadableMixin):
         if isinstance(item_ref, Equipment):
             if not self._slots[item_ref.slot].enabled:
                 raise RuntimeError(
-                    f"Cannot equip {item_ref.name} to slot {item_ref.slot} "
-                    f"since slot {item_ref.slot} is disabled.")
+                    f"Cannot equip {item_ref.name} to slot {item_ref.slot} " f"since slot {item_ref.slot} is disabled."
+                )
 
             # If operating in player mode, check for quantity and requirements
             if self.player_mode:
@@ -149,9 +143,7 @@ class EquipmentController(LoadableMixin):
 
             return True
 
-        raise TypeError(
-            f"Cannot equip item of type {type(item_ref)}! Expected item of type"
-            f" Equipment")
+        raise TypeError(f"Cannot equip item of type {type(item_ref)}! Expected item of type" f" Equipment")
 
     def unequip(self, slot: str) -> bool:
         """
@@ -163,7 +155,7 @@ class EquipmentController(LoadableMixin):
         returns: True if the slot is enabled, false otherwise
         """
 
-        if not get_cache()['managers']['EquipmentManager'].is_valid_slot(slot):
+        if not get_cache()["managers"]["EquipmentManager"].is_valid_slot(slot):
             raise ValueError(f"Unknown slot: {slot}!")
 
         if not self._slots[slot].enabled:
@@ -173,8 +165,8 @@ class EquipmentController(LoadableMixin):
 
         # Add-item-event to handle moving the item back in player inventory
         if self.player_mode and temp is not None:
-
             from game.systems.event.add_item_event import AddItemEvent
+
             game.add_state_device(AddItemEvent(temp, 1))
         elif not self.player_mode and temp is not None:
             self.owner.inventory.new_stack(temp, 1)
@@ -201,10 +193,9 @@ class EquipmentController(LoadableMixin):
         is an instance of Player and set player_mode accordingly.
         """
         from game.systems.entity import Entity, Player
+
         if entity is not None and not isinstance(entity, Entity):
-            raise TypeError(
-                f"Cannot assign an owner of type {type(entity)}, owner must of "
-                f"type entities.Entity")
+            raise TypeError(f"Cannot assign an owner of type {type(entity)}, owner must of " f"type entities.Entity")
 
         elif isinstance(entity, Player):
             self._owner = entity
@@ -225,13 +216,9 @@ class EquipmentController(LoadableMixin):
         entity in all enabled slots
         """
         instances = [
-            from_cache(
-                "managers.ItemManager"
-            ).get_instance(
-                s.item_id
-            ) for s in self._slots.values() if (
-                    s.enabled and s.item_id is not None
-            )
+            from_cache("managers.ItemManager").get_instance(s.item_id)
+            for s in self._slots.values()
+            if (s.enabled and s.item_id is not None)
         ]
 
         return sum([e.damage_resist for e in instances])
@@ -243,12 +230,9 @@ class EquipmentController(LoadableMixin):
         entity in all enabled slots
         """
         instances = [
-            from_cache(
-                "managers.ItemManager"
-            ).get_instance(
-                s.item_id
-            ) for s in self._slots.values() if (
-                    s.enabled and s.item_id is not None)
+            from_cache("managers.ItemManager").get_instance(s.item_id)
+            for s in self._slots.values()
+            if (s.enabled and s.item_id is not None)
         ]
 
         return sum([e.damage_buff for e in instances])
@@ -260,11 +244,9 @@ class EquipmentController(LoadableMixin):
         """
 
         instances = [
-            from_cache(
-                "managers.ItemManager"
-            ).get_instance(
-                s.item_id)
-            for s in self._slots.values() if s.enabled and s.item_id is not None
+            from_cache("managers.ItemManager").get_instance(s.item_id)
+            for s in self._slots.values()
+            if s.enabled and s.item_id is not None
         ]
         total_tags: dict[str, list[float]] = {}
         for equipment in instances:
@@ -304,20 +286,13 @@ class EquipmentController(LoadableMixin):
         opts = []
 
         for tag, value in self.sum_tag_resistance.items():
-            opts.append(
-                [
-                    StringContent(value=tag, formatting="equipment_tag"), ": ",
-                    value
-                 ]
-            )
+            opts.append([StringContent(value=tag, formatting="equipment_tag"), ": ", value])
 
         return opts
 
     @staticmethod
-    @cached([LoadableMixin.LOADER_KEY, "EquipmentController",
-             LoadableMixin.ATTR_KEY])
+    @cached([LoadableMixin.LOADER_KEY, "EquipmentController", LoadableMixin.ATTR_KEY])
     def from_json(json: dict[str, any]) -> "EquipmentController":
-
         class_key: str = "EquipmentController"
         slots_key: str = "slots"
 
@@ -327,8 +302,7 @@ class EquipmentController(LoadableMixin):
         LoadableFactory.validate_fields(required_fields, json)
 
         if json["class"] != class_key:
-            raise ValueError(
-                f"Cannot load JSON for object of class {json['class']}")
+            raise ValueError(f"Cannot load JSON for object of class {json['class']}")
 
         ec = EquipmentController()
 

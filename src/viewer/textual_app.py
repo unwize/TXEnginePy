@@ -33,21 +33,23 @@ def parse_content(content: list) -> str:
     """
     buf = ""
     for element in content:
-        if type(element) == str:
+        if type(element) is str:
             buf = buf + element
-        elif type(element) == dict:
-            buf = buf + \
-                  formatting_to_tags(element['formatting'], opening_tag=True) + \
-                  element['value'] + \
-                  formatting_to_tags(element['formatting'], closing_tag=True)
+        elif type(element) is dict:
+            buf = (
+                buf
+                + formatting_to_tags(element["formatting"], opening_tag=True)
+                + element["value"]
+                + formatting_to_tags(element["formatting"], closing_tag=True)
+            )
     return buf
 
 
 def input_type_to_regex(input_type: str, input_range: dict = None) -> str | None:
-    if type(input_type) != str:
+    if type(input_type) is not str:
         raise TypeError()
 
-    if input_range is not None and type(input_range) != dict:
+    if input_range is not None and type(input_range) is not dict:
         raise TypeError()
 
     match input_type:
@@ -95,7 +97,6 @@ class HistoryEntry:
 
 
 class HistoryWidget(Static):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._frame_history = self.app.frame_history
@@ -126,13 +127,12 @@ class MainView(Static):
 
 
 class TextualViewer(App):
-
     def __init__(self):
         super().__init__()
 
         self.frame_history: list[HistoryEntry] = []
         self.current_history_index: int | None = None
-        self._ip = 'http://localhost:8000'
+        self._ip = "http://localhost:8000"
         self._session = requests.Session()
 
     def _get_current_frame(self) -> dict:
@@ -148,7 +148,7 @@ class TextualViewer(App):
         true_input = user_input
         try:
             true_input = int(user_input)
-        except:
+        except TypeError:
             pass
 
         self._session.put(self._ip, params={"user_input": true_input}, verify=False)
@@ -182,9 +182,7 @@ class TextualViewer(App):
         self._write_log(f"Sent input: {text}")
         self.app.get_child_by_id("primary_user_input").value = ""
         frame = self._get_current_frame()
-        text = get_content_from_frame(
-            self._get_current_frame()
-        )
+        text = get_content_from_frame(self._get_current_frame())
 
         self.game_screen.clear()
         self.game_screen.write(text)

@@ -14,8 +14,7 @@ class FactionBase(ABC):
     via Requirements.
     """
 
-    def __init__(self, name: str, id: int, tags: list[str] = None,
-                 affinity: int = 0):
+    def __init__(self, name: str, id: int, tags: list[str] = None, affinity: int = 0):
         self.name = name
         self.id = id
         self.tags = tags or []
@@ -27,7 +26,7 @@ class FactionBase(ABC):
 
     @affinity.setter
     def affinity(self, value: int) -> None:
-        assert type(value) == int
+        assert type(value) is int
         self._affinity = value
 
     def adjust_affinity(self, quantity: int | float) -> None:
@@ -42,21 +41,17 @@ class FactionBase(ABC):
 
         Returns: None
         """
-        if type(quantity) == int:
+        if type(quantity) is int:
             self._affinity += quantity
-        elif type(quantity) == float:
+        elif type(quantity) is float:
             self._affinity += self._affinity * quantity
         else:
-            raise TypeError(f"Cannot adjust affinity by type {type(quantity)} "
-                            f"Must be an int or float!")
+            raise TypeError(f"Cannot adjust affinity by type {type(quantity)} " f"Must be an int or float!")
 
 
 class Faction(LoadableMixin, FactionBase):
-
-    def __init__(self, name: str, id: int, tags: list[str] = None,
-                 affinity: int = 0, **kwargs):
-        super().__init__(name=name, id=id, tags=tags, affinity=affinity,
-                         **kwargs)
+    def __init__(self, name: str, id: int, tags: list[str] = None, affinity: int = 0, **kwargs):
+        super().__init__(name=name, id=id, tags=tags, affinity=affinity, **kwargs)
 
     @staticmethod
     def from_json(json: dict[str, any]) -> any:
@@ -70,17 +65,11 @@ class Faction(LoadableMixin, FactionBase):
         affinity: (int)
         """
 
-        required_fields = [
-            ("name", str),
-            ("id", int),
-            ("tags", list),
-            ("affinity", int)
-        ]
+        required_fields = [("name", str), ("id", int), ("tags", list), ("affinity", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "Faction":
+        if json["class"] != "Faction":
             raise ValueError()
 
-        return Faction(json['name'], json['id'], json['tags'], json['affinity'])
-
+        return Faction(json["name"], json["id"], json["tags"], json["affinity"])

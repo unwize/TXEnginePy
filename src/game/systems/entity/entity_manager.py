@@ -63,7 +63,7 @@ class EntityManager(manager.Manager):
 
     def load(self) -> None:
         raw_asset: dict[str, any] = get_asset(self.ENTITY_ASSET_PATH)
-        for raw_entity in raw_asset['content']:
+        for raw_entity in raw_asset["content"]:
             entity = LoadableFactory.get(raw_entity)
             if not isinstance(entity, entities.Entity):
                 raise TypeError(f"Expected object of type Entity, got {type(entity)} instead!")

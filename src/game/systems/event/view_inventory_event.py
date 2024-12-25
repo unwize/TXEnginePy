@@ -39,13 +39,14 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             (Item, "View value", cls.States.VIEW_ITEM_VALUE),
             (Usable, "View functional description", cls.States.VIEW_FUNCTIONAL_DESC),
             (Equipment, "View functional description", cls.States.VIEW_FUNCTIONAL_DESC),
-            (Equipment, "View stats", cls.States.VIEW_ITEM_STATS)
+            (Equipment, "View stats", cls.States.VIEW_ITEM_STATS),
         ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         from game.systems.entity.mixins.inventory_mixin import InventoryMixin
+
         if not isinstance(self.target, InventoryMixin):
             raise TypeError("Cannot view inventory of Entity not of type InventoryMixin!")
 
@@ -71,7 +72,6 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
         return {text: state for cls, text, state in self.get_item_inspection_options() if isinstance(inst, cls)}
 
     def _setup_states(self) -> None:
-
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any):
             if self.target.inventory.size == 0:
@@ -80,8 +80,9 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             else:
                 self.set_state(self.States.CHOOSE_ITEM)
 
-        @FiniteStateDevice.state_logic(self, self.States.CHOOSE_ITEM, InputType.INT, -1,
-                                       lambda: self.target.inventory.size - 1)
+        @FiniteStateDevice.state_logic(
+            self, self.States.CHOOSE_ITEM, InputType.INT, -1, lambda: self.target.inventory.size - 1
+        )
         def logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -91,8 +92,7 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
 
         @FiniteStateDevice.state_content(self, self.States.CHOOSE_ITEM)
         def content() -> dict:
-            return ComponentFactory.get(["What stack would you like to inspect?"],
-                                        self.target.inventory.to_options())
+            return ComponentFactory.get(["What stack would you like to inspect?"], self.target.inventory.to_options())
 
         @FiniteStateDevice.state_logic(self, self.States.CALCULATE_INSPECTION_OPTIONS, InputType.SILENT)
         def logic(_: any) -> None:
@@ -100,17 +100,14 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             opt = self._get_available_inspection_options(self.stack_index)
 
             # Build the CHOOSE_ITEM_INSPECTION_OPTION state in real time using the results in opt
-            FiniteStateDevice.user_branching_state(self, self.States.CHOOSE_ITEM_INSPECTION_OPTION, opt,
-                                                   back_out_state=self.States.CHOOSE_ITEM)
+            FiniteStateDevice.user_branching_state(
+                self, self.States.CHOOSE_ITEM_INSPECTION_OPTION, opt, back_out_state=self.States.CHOOSE_ITEM
+            )
             self.set_state(self.States.CHOOSE_ITEM_INSPECTION_OPTION)
 
         @FiniteStateDevice.state_logic(self, self.States.VIEW_DESC, InputType.SILENT)
         def logic(_: any) -> None:
-            game.add_state_device(
-                InspectItemEvent(
-                    self.target.inventory.items[self.stack_index].id
-                )
-            )
+            game.add_state_device(InspectItemEvent(self.target.inventory.items[self.stack_index].id))
             self.set_state(self.States.CHOOSE_ITEM_INSPECTION_OPTION)
 
         @FiniteStateDevice.state_logic(self, self.States.VIEW_FUNCTIONAL_DESC, InputType.ANY)
@@ -122,11 +119,13 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             """
             Return a content dict displaying the selected-item's name and description
             """
-            return ComponentFactory.get([
-                StringContent(value=self.target.inventory.items[self.stack_index].ref.name, formatting="item_name"),
-                "\n",
-                self.target.inventory.items[self.stack_index].ref.functional_description
-            ])
+            return ComponentFactory.get(
+                [
+                    StringContent(value=self.target.inventory.items[self.stack_index].ref.name, formatting="item_name"),
+                    "\n",
+                    self.target.inventory.items[self.stack_index].ref.functional_description,
+                ]
+            )
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "ViewSkillsEvent", LoadableMixin.ATTR_KEY])

@@ -11,3 +11,19 @@ import game.systems.dialog as dialog
 import game.systems.skill as skill
 import game.systems.faction as faction
 import game.systems.crafting as crafting
+
+__all__ = [
+    "item",
+    "inventory",
+    "currency",
+    "entity",
+    "event",
+    "combat",
+    "flag",
+    "room",
+    "requirement",
+    "dialog",
+    "skill",
+    "faction",
+    "crafting",
+]

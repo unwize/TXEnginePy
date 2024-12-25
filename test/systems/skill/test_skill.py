@@ -51,11 +51,7 @@ def test_level_up_trivial():
     assert sk.level_up_limit == 6
 
 
-level_up_recursive_cases = [
-    [6, 2, 2],
-    [10, 3, 0],
-    [40, 5, 7]
-]
+level_up_recursive_cases = [[6, 2, 2], [10, 3, 0], [40, 5, 7]]
 
 
 @pytest.mark.parametrize("xp, expected_level, leftover_xp", level_up_recursive_cases)

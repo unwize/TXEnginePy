@@ -27,17 +27,14 @@ def temporary_item(items: Iterable[Item]) -> ItemManager:
         yield item_manager
 
     finally:
-
         # In order to "safely" delete items from the manager, check that the
         # Item registered to that ID has the same name as the temporary Item.
         # This way, an exit that occurs due to a collision doesn't break the
         # Item Manager
 
         for item in items:
-
             # Make sure item ID exists in manager
             if item_manager.is_id(item.id):
-
                 # Make sure items are the same
                 if item_manager.get_ref(item.id).name == item.name:
                     # Delete from the manager permanently
@@ -62,17 +59,14 @@ def temporary_entity(entities: Iterable[CombatEntity]) -> EntityManager:
         yield entity_manager
 
     finally:
-
         # In order to "safely" delete entities from the manager, check that the
         # Entity registered to that ID has the same name as the temporary Entity
         # This way, an exit that occurs due to a collision doesn't break the
         # EntityManager
 
         for entity in entities:
-
             # Make sure item ID exists in manager
             if entity_manager.is_id(entity.id):
-
                 # Make sure items are the same
                 if entity_manager.get_instance(entity.id).name == entity.name:
                     # Delete from the manager permanently
@@ -96,9 +90,7 @@ def temporary_ability(abilities: Iterable[Ability]) -> AbilityManager:
         yield ability_manager
 
     finally:
-
         for ability in abilities:
-
             # Make sure item ID exists in manager
             if ability_manager.is_id(ability.name):
                 # Delete from the manager permanently

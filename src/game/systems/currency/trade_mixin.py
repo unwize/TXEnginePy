@@ -23,11 +23,7 @@ class TradeMixin(ABC):
 
     @property
     def market_values(self) -> list[Currency]:
-        return [
-            from_cache(
-                "managers.CurrencyManager"
-            ).to_currency(k, v) for k, v in self._market_values.items()
-        ]
+        return [from_cache("managers.CurrencyManager").to_currency(k, v) for k, v in self._market_values.items()]
 
     def has_market_value(self, currency_id: int) -> bool:
         """
@@ -54,13 +50,9 @@ class TradeMixin(ABC):
         """
 
         if not self.has_market_value(currency_id):
-            raise RuntimeError(f"{self} has no value in Currency with ID"
-                               f" {currency_id}")
+            raise RuntimeError(f"{self} has no value in Currency with ID" f" {currency_id}")
 
-        return from_cache(
-            "managers.CurrencyManager").to_currency(currency_id,
-                                                    self._market_values[
-                                                        currency_id])
+        return from_cache("managers.CurrencyManager").to_currency(currency_id, self._market_values[currency_id])
 
     def get_market_values_as_options(self) -> list[list[str, StringContent]]:
         """
@@ -71,13 +63,13 @@ class TradeMixin(ABC):
         res = []
 
         for cur_id, cur_value in self._market_values.items():
-            cur: Currency = from_cache(
-                "managers.CurrencyManager").to_currency(cur_id, cur_value)
+            cur: Currency = from_cache("managers.CurrencyManager").to_currency(cur_id, cur_value)
             res.append(
                 [
                     StringContent(value=cur.name, formatting="currency_name"),
                     ": ",
-                    StringContent(value=str(cur), formatting="currency_value")
-                ])
+                    StringContent(value=str(cur), formatting="currency_value"),
+                ]
+            )
 
         return res

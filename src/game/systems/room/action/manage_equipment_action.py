@@ -54,7 +54,6 @@ class ManageEquipmentAction(Action):
     def _setup_states(self) -> None:
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
-
             # Get user-ref
             if not self._player_ref:
                 self._player_ref = from_cache("player")
@@ -64,8 +63,13 @@ class ManageEquipmentAction(Action):
 
             self.set_state(self.States.DEFAULT)
 
-        @FiniteStateDevice.state_logic(self, self.States.LIST_SLOTS, InputType.INT, input_min=-1,
-                                       input_max=lambda: len(self._player_ref.equipment_controller.enabled_slots) - 1)
+        @FiniteStateDevice.state_logic(
+            self,
+            self.States.LIST_SLOTS,
+            InputType.INT,
+            input_min=-1,
+            input_max=lambda: len(self._player_ref.equipment_controller.enabled_slots) - 1,
+        )
         def logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -78,12 +82,16 @@ class ManageEquipmentAction(Action):
         def content() -> dict:
             return ComponentFactory.get(
                 ["Which slot would you like to select?"],
-                self._player_ref.equipment_controller.get_equipment_as_options()
+                self._player_ref.equipment_controller.get_equipment_as_options(),
             )
 
-        FiniteStateDevice.user_branching_state(self, self.States.INSPECT_SLOT, self._inspect_slot_branch_map,
-                                               f"What would you like to do with the {self.selected_slot} slot?",
-                                               self.States.LIST_SLOTS)
+        FiniteStateDevice.user_branching_state(
+            self,
+            self.States.INSPECT_SLOT,
+            self._inspect_slot_branch_map,
+            f"What would you like to do with the {self.selected_slot} slot?",
+            self.States.LIST_SLOTS,
+        )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.ANY)
         def logic(_: any) -> None:

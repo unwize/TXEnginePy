@@ -24,7 +24,7 @@ cases = [
     [{"inventory": make_inv([-111])}, ItemRequirement(-110, 1), False],  # Wrong item
     [{"inventory": make_inv([-110, -110])}, ItemRequirement(-110, 1), True],  # More than needed
     # Precise number across more than 1 stack
-    [{"inventory": make_inv([-110 for i in range(16)])}, ItemRequirement(-110, 16), True]
+    [{"inventory": make_inv([-110 for i in range(16)])}, ItemRequirement(-110, 16), True],
 ]
 
 

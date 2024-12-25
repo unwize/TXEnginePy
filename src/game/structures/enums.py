@@ -37,7 +37,6 @@ class TargetMode(enum.Enum):
 
 
 class EquipmentType(enum.Enum):
-
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))

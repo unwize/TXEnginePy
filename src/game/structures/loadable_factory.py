@@ -9,9 +9,8 @@ from game.structures.loadable import LoadableMixin
 
 
 class LoadableFactory:
-
     @classmethod
-    def collect_requirements(cls, json: dict, field='requirements') -> list:
+    def collect_requirements(cls, json: dict, field="requirements") -> list:
         """
         Interrogate a JSON blob and parse out any requirements it has stored inside.
 
@@ -36,7 +35,7 @@ class LoadableFactory:
         return reqs
 
     @classmethod
-    def collect_resource_modifiers(cls, json: dict, field='resource_modifiers') -> dict[str, int | float]:
+    def collect_resource_modifiers(cls, json: dict, field="resource_modifiers") -> dict[str, int | float]:
         """
         Interrogate a JSON blob and parse out any resource_modifiers it has stored inside.
 
@@ -47,8 +46,7 @@ class LoadableFactory:
         return json[field] if field in json else None
 
     @classmethod
-    def collect_optional_fields(cls, fields: list[tuple[str, type]], json: dict,
-                                implicit_fields: bool = True) -> dict:
+    def collect_optional_fields(cls, fields: list[tuple[str, type]], json: dict, implicit_fields: bool = True) -> dict:
         """
         Search for optional fields within a JSON blob and bundle them into a dict. Any fields not found will simply not
         be included.
@@ -56,10 +54,9 @@ class LoadableFactory:
         kw = {}
 
         for field_name, field_type in fields:
-
             if field_name in json:  # If the JSON blob contains a matching field
-                if field_type == dict:  # If it is a dict and can possibly be a dict-form of a supported class
-                    if 'class' in json[field_name]:  # Search for class field
+                if field_type is dict:  # If it is a dict and can possibly be a dict-form of a supported class
+                    if "class" in json[field_name]:  # Search for class field
                         kw[field_name] = LoadableFactory.get(json[field_name])  # Instantiate the object from dict
                         continue
 
@@ -70,15 +67,17 @@ class LoadableFactory:
             req = cls.collect_requirements(json)
 
             if res_mod is not None:
-                kw['resource_modifiers'] = res_mod
+                kw["resource_modifiers"] = res_mod
 
             if req is not None:
-                kw['requirements'] = req
+                kw["requirements"] = req
 
         return kw
 
     @classmethod
-    def validate_fields(cls, fields: list[tuple[str, type | tuple[type]]], json: dict, required=True, implicit_fields=True) -> bool:
+    def validate_fields(
+        cls, fields: list[tuple[str, type | tuple[type]]], json: dict, required=True, implicit_fields=True
+    ) -> bool:
         """
         Verify that the expected json fields are present and correctly typed.
 
@@ -90,12 +89,11 @@ class LoadableFactory:
 
         returns: True if all the fields are present and correctly typed.
         """
-        base_fields = [('class', str)]
+        base_fields = [("class", str)]
 
         for field_name, field_type in fields + (base_fields if implicit_fields else []):
-
             # Verify valid tuple typings
-            if type(field_name) != str:
+            if type(field_name) is not str:
                 raise TypeError(f"field_name must be of type 'str'! Got {type(field_name)} instead.")
 
             # Verify field presence
@@ -112,7 +110,7 @@ class LoadableFactory:
                         f"Expected field {field_name} to be of type {field_type}, got {type(json[field_name])} instead!"
                     )
 
-            elif type(field_type) == tuple:  # If there are multiple allowable types
+            elif type(field_type) is tuple:  # If there are multiple allowable types
                 valid_cls = False
                 for _cls in field_type:  # Iterate through allowable types
                     if isinstance(json[field_name], _cls):
@@ -142,7 +140,7 @@ class LoadableFactory:
         Returns: An object of the type specified in the JSON.
         """
 
-        if type(json) != dict:
+        if type(json) is not dict:
             raise TypeError(f"Argument 'json' must be of type dict, got type {type(json)} instead!")
 
         if "class" not in json:
@@ -152,7 +150,7 @@ class LoadableFactory:
             raise ValueError(f"No loader for class {json['class']} has been registered!")
 
         try:
-            return get_loader(json['class'])(json=json)
+            return get_loader(json["class"])(json=json)
 
         except Exception as e:
             logger.error(f"Something wen wrong while trying to load an object of type {json['class']}!")

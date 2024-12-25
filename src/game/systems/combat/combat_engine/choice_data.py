@@ -22,10 +22,13 @@ class ChoiceData:
         ABILITY = "ability"
         ITEM = "item"
 
-    def __init__(self, choice_type: ChoiceType,
-                 item_id: int = None,
-                 ability_name: str = None, ability_target: list[entities.CombatEntity] = None):
-
+    def __init__(
+        self,
+        choice_type: ChoiceType,
+        item_id: int = None,
+        ability_name: str = None,
+        ability_target: list[entities.CombatEntity] = None,
+    ):
         self.ability_name: str | None = None  # Name of selected ability
         self.ability_target: list[entities.CombatEntity] | None = None  # Target of selected ability
         self.item_id: int | None = None  # ID of selected item
@@ -53,4 +56,3 @@ class ChoiceData:
 
         else:
             raise CombatError(f"Unknown choice type {choice_type}!")
-

@@ -63,9 +63,9 @@ class ResourceManager(Manager):
 
         raw_asset = get_asset(self.RESOURCE_ASSET_PATH)
 
-        for raw_resource in raw_asset['content']:
+        for raw_resource in raw_asset["content"]:
             res = LoadableFactory.get(raw_resource)
-            if type(res) != Resource:
+            if type(res) is not Resource:
                 raise TypeError()
 
             self.register_resource(res)

@@ -7,7 +7,6 @@ from game.systems.event import Event
 
 
 class EventTester:
-
     def __init__(self, event: Event, inputs: list[str | int], tests: list[Callable], show_frames: bool = False):
         self._event: Event = event
         self._inputs: list[str | int] = inputs

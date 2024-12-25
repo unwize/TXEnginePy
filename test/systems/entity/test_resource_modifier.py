@@ -26,8 +26,10 @@ def test_flat_attach():
     dummy_entity.resource_controller.attach_modifier(item_manager.get_instance(-115))
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", int)) == 1
 
-    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == \
-           tr_health_initial + item_manager.get_instance(-115).resource_modifiers[f"{TEST_PREFIX}health"]
+    assert (
+        dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health")
+        == tr_health_initial + item_manager.get_instance(-115).resource_modifiers[f"{TEST_PREFIX}health"]
+    )
 
 
 def test_flat_attach_detach():
@@ -39,13 +41,16 @@ def test_flat_attach_detach():
     dummy_entity.resource_controller.attach_modifier(e_instance)
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", int)) == 1
 
-    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == \
-           tr_health_initial + item_manager.get_instance(-115).resource_modifiers[f"{TEST_PREFIX}health"]
+    assert (
+        dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health")
+        == tr_health_initial + item_manager.get_instance(-115).resource_modifiers[f"{TEST_PREFIX}health"]
+    )
 
     dummy_entity.resource_controller.detach_modifier(e_instance)
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", int)) == 0
-    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == dummy_entity.resource_controller.get_base_max(
-        f"{TEST_PREFIX}health")
+    assert dummy_entity.resource_controller.get_max(
+        f"{TEST_PREFIX}health"
+    ) == dummy_entity.resource_controller.get_base_max(f"{TEST_PREFIX}health")
 
 
 def test_float_attach_detach():
@@ -57,13 +62,15 @@ def test_float_attach_detach():
     dummy_entity.resource_controller.attach_modifier(e_instance)
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float)) == 1
 
-    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == \
-           tr_health_initial + (tr_health_initial * e_instance.resource_modifiers[f"{TEST_PREFIX}health"])
+    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == tr_health_initial + (
+        tr_health_initial * e_instance.resource_modifiers[f"{TEST_PREFIX}health"]
+    )
 
     dummy_entity.resource_controller.detach_modifier(e_instance)
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float)) == 0
-    assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == dummy_entity.resource_controller.get_base_max(
-        f"{TEST_PREFIX}health")
+    assert dummy_entity.resource_controller.get_max(
+        f"{TEST_PREFIX}health"
+    ) == dummy_entity.resource_controller.get_base_max(f"{TEST_PREFIX}health")
 
 
 def test_mixed_attach_detach():
@@ -77,16 +84,19 @@ def test_mixed_attach_detach():
     dummy_entity.resource_controller.attach_modifier(e_instance_float)
 
     expected_max = (
-            tr_health_initial +
-            (tr_health_initial * e_instance_float.resource_modifiers[f"{TEST_PREFIX}health"]) +
-            e_instance_int.resource_modifiers[f"{TEST_PREFIX}health"]
+        tr_health_initial
+        + (tr_health_initial * e_instance_float.resource_modifiers[f"{TEST_PREFIX}health"])
+        + e_instance_int.resource_modifiers[f"{TEST_PREFIX}health"]
     )
 
     logger.debug(f"Base max: {tr_health_initial}")
     logger.debug(f"Expected max: {expected_max}")
 
-    assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float)) == len(
-        dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float)) == 1
+    assert (
+        len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float))
+        == len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", float))
+        == 1
+    )
     assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == expected_max
 
     dummy_entity.resource_controller.detach_modifier(e_instance_float)
@@ -94,16 +104,14 @@ def test_mixed_attach_detach():
     assert len(dummy_entity.resource_controller.get_modifiers(f"{TEST_PREFIX}health", int)) == 1
 
     assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == (
-            tr_health_initial +
-            e_instance_int.resource_modifiers[f"{TEST_PREFIX}health"]
+        tr_health_initial + e_instance_int.resource_modifiers[f"{TEST_PREFIX}health"]
     )
 
     dummy_entity.resource_controller.attach_modifier(e_instance_float)
     dummy_entity.resource_controller.detach_modifier(e_instance_int)
 
     assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == (
-            tr_health_initial +
-            (tr_health_initial * e_instance_float.resource_modifiers[f"{TEST_PREFIX}health"])
+        tr_health_initial + (tr_health_initial * e_instance_float.resource_modifiers[f"{TEST_PREFIX}health"])
     )
 
     dummy_entity.resource_controller.detach_modifier(e_instance_float)
@@ -111,9 +119,7 @@ def test_mixed_attach_detach():
     assert dummy_entity.resource_controller.get_max(f"{TEST_PREFIX}health") == tr_health_initial
 
 
-random_attach_detach_cases = [
-    [[i for i in range(-119, -114)], 123456]
-]
+random_attach_detach_cases = [[[i for i in range(-119, -114)], 123456]]
 
 
 @pytest.mark.parametrize("item_ids, seed", random_attach_detach_cases)
@@ -127,8 +133,9 @@ def test_random_attach_detach(item_ids: list[int], seed):
     def compute_max(resource_name):
         total = dummy_entity.resource_controller.get_base_max(resource_name)
         total += round(
-            dummy_entity.resource_controller.get_base_max(resource_name) * resource_mods[resource_name]['float'])
-        total = total + resource_mods[resource_name]['int']
+            dummy_entity.resource_controller.get_base_max(resource_name) * resource_mods[resource_name]["float"]
+        )
+        total = total + resource_mods[resource_name]["int"]
         return total
 
     def verify_maxes():
@@ -149,9 +156,9 @@ def test_random_attach_detach(item_ids: list[int], seed):
 
         # Record item's mods in the test logic
         for res_name, res_mod in selected_equipment.resource_modifiers.items():
-            if type(res_mod) == int:
+            if type(res_mod) is int:
                 resource_mods[res_name]["int"] += res_mod
-            elif type(res_mod) == float:
+            elif type(res_mod) is float:
                 resource_mods[res_name]["float"] += res_mod
             else:
                 raise TypeError("Unexpected resource modifier type")
@@ -170,9 +177,9 @@ def test_random_attach_detach(item_ids: list[int], seed):
 
         # Record item's mods in the test logic
         for res_name, res_mod in selected_equipment.resource_modifiers.items():
-            if type(res_mod) == int:
+            if type(res_mod) is int:
                 resource_mods[res_name]["int"] -= res_mod
-            elif type(res_mod) == float:
+            elif type(res_mod) is float:
                 resource_mods[res_name]["float"] -= res_mod
             else:
                 raise TypeError("Unexpected resource modifier type")

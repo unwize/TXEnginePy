@@ -1,5 +1,3 @@
-import copy
-import weakref
 from loguru import logger
 
 from game.structures import manager as manager
@@ -64,9 +62,9 @@ class RoomManager(manager.Manager):
         Returns: None
         """
 
-        if type(r) == int:
+        if type(r) is int:
             self.visited_rooms.add(r)
-        elif type(r) == room.Room:
+        elif type(r) is room.Room:
             self.visited_rooms.add(r.id)
         else:
             raise TypeError(f"Expected type int or Room! Got {type(r)} instead.")
@@ -88,7 +86,7 @@ class RoomManager(manager.Manager):
         Returns: The name of the room
         """
 
-        if type(room_id) != int:
+        if type(room_id) is not int:
             raise TypeError(f"room_id must be an int! Got object of type {type(room_id)} instead.")
 
         if room_id not in self.rooms:
@@ -105,10 +103,10 @@ class RoomManager(manager.Manager):
 
         # Load default actions
         logger.info("Loading default actions...")
-        self._default_actions = raw_asset['config']['default_actions']
+        self._default_actions = raw_asset["config"]["default_actions"]
 
         # Load rooms
-        for raw_room in raw_asset['content']:
+        for raw_room in raw_asset["content"]:
             r = LoadableFactory.get(raw_room)
 
             if not isinstance(r, room.Room):

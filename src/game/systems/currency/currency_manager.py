@@ -21,9 +21,9 @@ class CurrencyManager(manager.Manager):
         self._manifest: dict[int, Currency] = {}
 
     def __contains__(self, item: int | Currency):
-        if type(item) == int:
+        if type(item) is int:
             return item in self._manifest
-        elif type(item) == Currency:
+        elif type(item) is Currency:
             return item.id in self._manifest
         else:
             return False
@@ -65,7 +65,7 @@ class CurrencyManager(manager.Manager):
     def load(self) -> None:
         raw_asset = get_asset(self.CURRENCY_ASSET_PATH)
 
-        for raw_currency in raw_asset['content']:
+        for raw_currency in raw_asset["content"]:
             currency = LoadableFactory.get(raw_currency)
 
             if not isinstance(currency, Currency):

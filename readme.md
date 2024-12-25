@@ -36,7 +36,9 @@ I recommend using Jetbrains PyCharm as your IDE when developing for TXEngine. As
    - Create a virtual environment and install dependencies: `poetry install`
  - (Optional) Install pre-commit and the `ruff` hook
    - Run `pipx install pre-commit` OR install pre-commit via Poetry: `poetry add pre-commit`
-   - 
+   - Verify that pre-commit is installed with `pre-commit --version`
+   - Ensure you are in the root directory of the repo and run `pre-commit install`
+   - Verify that pre-commit ruff is working with `pre-commit run --all-files`
  - [Install PyCharm](https://www.jetbrains.com/pycharm/)
  - Open TXEnginePy in PyCharm
  - Install the [Pydantic PyCharm plugin](https://docs.pydantic.dev/pycharm_plugin/)

@@ -22,5 +22,4 @@ def add_state_device(device) -> None:
         state_device_controller.add_state_device(device)
 
     else:
-        raise RuntimeError("Cannot add a StateDevice to the stack! Game state "
-                           "controller has not been initialized!")
+        raise RuntimeError("Cannot add a StateDevice to the stack! Game state " "controller has not been initialized!")

@@ -7,7 +7,6 @@ from game.util.asset_utils import get_asset
 
 
 class RecipeManager(Manager):
-
     RECIPE_ASSET_PATH = "recipes"
 
     def __init__(self):
@@ -24,10 +23,10 @@ class RecipeManager(Manager):
         """
         Register a Recipe object with the manager.
         """
-        if type(recipe.id) != int:
+        if type(recipe.id) is not int:
             raise TypeError(f"recipe_id must be an int! Got {type(recipe.id)} instead.")
 
-        if type(recipe) != Recipe:
+        if type(recipe) is not Recipe:
             raise TypeError(f"recipe must be a Recipe! Got {type(recipe)} instead!")
 
         if recipe.id in self._manifest:
@@ -43,7 +42,7 @@ class RecipeManager(Manager):
 
     def load(self) -> None:
         raw_asset: dict[str, any] = get_asset(self.RECIPE_ASSET_PATH)
-        for raw_recipe in raw_asset['content']:
+        for raw_recipe in raw_asset["content"]:
             recipe = LoadableFactory.get(raw_recipe)
 
             if not isinstance(recipe, Recipe):

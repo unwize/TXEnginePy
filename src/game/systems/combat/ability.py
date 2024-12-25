@@ -23,11 +23,18 @@ class AbilityBase(ABC):
     inheritance constructors specified in LoadableMixin and RequirementsMixin.
     """
 
-    def __init__(self, name: str, description: str, on_use: str,
-                 target_mode: TargetMode,
-                 effects: dict[CombatPhase, list[CombatEffect]] = None,
-                 damage: int = 1, costs: dict[str, int | float] = None,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        on_use: str,
+        target_mode: TargetMode,
+        effects: dict[CombatPhase, list[CombatEffect]] = None,
+        damage: int = 1,
+        costs: dict[str, int | float] = None,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.name: str = name
         self.description: str = description
@@ -68,9 +75,7 @@ class Ability(LoadableMixin, RequirementsMixin, TagMixin, AbilityBase):
         # enforce resource-minimums without extra logic.
         for resource_name, cost_quantity in self.costs.items():
             logger.debug(f"Adding ResourceRequirement to {self.name}: {resource_name} : {cost_quantity}")
-            self.requirements.append(
-                ResourceRequirement(resource_name, cost_quantity)
-            )
+            self.requirements.append(ResourceRequirement(resource_name, cost_quantity))
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "Ability", LoadableMixin.ATTR_KEY])
@@ -92,55 +97,54 @@ class Ability(LoadableMixin, RequirementsMixin, TagMixin, AbilityBase):
         """
 
         required_fields: list[tuple[str, type]] = [
-            ("name", str), ("description", str), ("on_use", str), ("target_mode", str),
+            ("name", str),
+            ("description", str),
+            ("on_use", str),
+            ("target_mode", str),
             ("damage", int),
-
         ]
 
-        optional_fields = [
-            ("effects", dict), ("requirements", list), ("costs", dict),
-            ("tags", list)
-        ]
+        optional_fields = [("effects", dict), ("requirements", list), ("costs", dict), ("tags", list)]
 
         LoadableFactory.validate_fields(required_fields, json)
         LoadableFactory.validate_fields(optional_fields, json, False, False)
 
-        if json['class'] != 'Ability':
-            raise ValueError('Incorrect class designation!')
+        if json["class"] != "Ability":
+            raise ValueError("Incorrect class designation!")
 
         # Build complex optional field collections
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json, False)
 
         # Build, verify and store effects
-        if 'effects' in json:
+        if "effects" in json:
             effects = {}  # Pass to kwargs once filled
 
             # Sort Effects into lists by phase; iterate through phase
-            for phase in json['effects']:
+            for phase in json["effects"]:
                 if phase not in CombatPhase.list():  # Catch bad phase
                     raise ValueError(f"Unknown combat phase: {phase}")
 
                 # Catch broken formatting
-                if type(json['effects'][phase]) != list:
+                if type(json["effects"][phase]) is not list:
                     raise TypeError(
-                        f"Expected phase {phase} to map to a list, got "
-                        f"{type(json['effects'][phase])} instead!")
+                        f"Expected phase {phase} to map to a list, got " f"{type(json['effects'][phase])} instead!"
+                    )
 
                 # If the phase hasn't been observed yet, make a list for it
                 if CombatPhase(phase) not in effects:
                     effects[CombatPhase(phase)] = []
 
                 # Load the effect via class-field (raw_effect['class'])
-                for raw_effect in json['effects'][phase]:
+                for raw_effect in json["effects"][phase]:
                     effects[CombatPhase(phase)].append(LoadableFactory.get(raw_effect))
 
-            kwargs['effects'] = effects
+            kwargs["effects"] = effects
 
         return Ability(
-            name=json['name'],
-            description=json['description'],
-            on_use=json['on_use'],
-            damage=json['damage'],
-            target_mode=TargetMode(json['target_mode']),
-            **kwargs  # Optional fields might not be present, so store and split via dict unpacking
+            name=json["name"],
+            description=json["description"],
+            on_use=json["on_use"],
+            damage=json["damage"],
+            target_mode=TargetMode(json["target_mode"]),
+            **kwargs,  # Optional fields might not be present, so store and split via dict unpacking
         )

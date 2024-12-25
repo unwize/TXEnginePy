@@ -5,3 +5,5 @@ from game.systems.entity.entity_manager import EntityManager
 
 resource_manager: ResourceManager = ResourceManager()
 entity_manager: EntityManager = EntityManager()
+
+__all__ = ["Entity", "Player", "Resource", "resource_manager", "entity_manager"]

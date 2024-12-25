@@ -13,6 +13,7 @@ class DialogAction(Action):
         """
         The DialogEvent will self-terminate, so only one real state is needed.
         """
+
         DEFAULT = 0
         TERMINATE = -1
 
@@ -20,7 +21,3 @@ class DialogAction(Action):
         super().__init__(menu_name, activation_text, states, self.States.DEFAULT, InputType.SILENT, *args, **kwargs)
 
         self.dialog_id = dialog_id
-
-
-
-

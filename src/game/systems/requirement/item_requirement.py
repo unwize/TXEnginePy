@@ -28,7 +28,7 @@ class ItemRequirement(Requirement):
             StringContent(value=f"{self.item_quantity}x", formatting="item_quantity"),
             " ",
             StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-            "!"
+            "!",
         ]
 
     @staticmethod
@@ -42,17 +42,14 @@ class ItemRequirement(Requirement):
         - item_quantity (int)
         """
 
-        required_fields = [
-            ('item_id', int),
-            ('item_quantity', int)
-        ]
+        required_fields = [("item_id", int), ("item_quantity", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "ItemRequirement":
+        if json["class"] != "ItemRequirement":
             raise ValueError()
 
-        return ItemRequirement(json['item_id'], json['item_quantity'])
+        return ItemRequirement(json["item_id"], json["item_quantity"])
 
 
 class ConsumeItemRequirement(ItemRequirement):
@@ -71,7 +68,7 @@ class ConsumeItemRequirement(ItemRequirement):
             "You consumed ",
             StringContent(value=f"{self.item_quantity}x ", formatting="item_quantity"),
             " ",
-            StringContent(value=f"{from_cache('managers.ItemManager').get_instance(self.item_id).name}.")
+            StringContent(value=f"{from_cache('managers.ItemManager').get_instance(self.item_id).name}."),
         ]
 
         entity.inventory.consume_item(self.item_id, self.item_quantity)
@@ -85,7 +82,7 @@ class ConsumeItemRequirement(ItemRequirement):
             StringContent(value=f"{self.item_quantity}x", formatting="item_quantity"),
             " ",
             StringContent(value=f"{item.item_manager.get_name(self.item_id)}", formatting="item_name"),
-            "!"
+            "!",
         ]
 
     @staticmethod
@@ -99,14 +96,11 @@ class ConsumeItemRequirement(ItemRequirement):
         - item_quantity (int)
         """
 
-        required_fields = [
-            ('item_id', int),
-            ('item_quantity', int)
-        ]
+        required_fields = [("item_id", int), ("item_quantity", int)]
 
         LoadableFactory.validate_fields(required_fields, json)
 
-        if json['class'] != "ConsumeItemRequirement":
+        if json["class"] != "ConsumeItemRequirement":
             raise ValueError()
 
-        return ConsumeItemRequirement(json['item_id'], json['item_quantity'])
+        return ConsumeItemRequirement(json["item_id"], json["item_quantity"])

@@ -26,9 +26,7 @@ class Manager(ABC):
             logger.debug(f"[{self.name}] Registering manager with cache...")
             cache.get_cache()["managers"][self.name] = self
 
-        self.command_handlers: dict[str, typing.Callable] = {
-            "list": self._command_list
-        }
+        self.command_handlers: dict[str, typing.Callable] = {"list": self._command_list}
 
     def load(self) -> None:
         raise NotImplementedError
@@ -66,10 +64,8 @@ class Manager(ABC):
             sub_buffer = ""
 
             for field in parts:
-
                 if not hasattr(obj, field):
-                    raise AttributeError(
-                        f"Object of type {type(obj)} has no attribute {field}!")
+                    raise AttributeError(f"Object of type {type(obj)} has no attribute {field}!")
 
                 sub_buffer += str(getattr(obj, field)) + " "
 

@@ -27,9 +27,7 @@ class ViewAbilitiesEvent(Event):
         if self._selected_instance:
             return self._selected_instance
 
-        inst = from_cache(
-            "managers.AbilityManager"
-        ).get_instance(self.selected_ability)
+        inst = from_cache("managers.AbilityManager").get_instance(self.selected_ability)
         self._selected_instance = inst  # Cache instance in attr
 
         return inst
@@ -46,12 +44,12 @@ class ViewAbilitiesEvent(Event):
             self.selected_ability = None
 
             if self.target is None:
-                self.target = from_cache('player')
+                self.target = from_cache("player")
 
             from game.systems.entity.mixins.ability_mixin import AbilityMixin
+
             if not isinstance(self.target, AbilityMixin):
-                raise TypeError(f"Cannot view Abilities for non-AbilityMixin "
-                                f"entity! ({self.target})")
+                raise TypeError(f"Cannot view Abilities for non-AbilityMixin " f"entity! ({self.target})")
 
             if len(self.target.ability_controller.abilities) < 1:
                 self.set_state(self.States.EMPTY)
@@ -60,9 +58,13 @@ class ViewAbilitiesEvent(Event):
             self.set_state(self.States.VIEW_ABILITIES)
 
         # This state is highly inefficient. TODO: Improve
-        @FiniteStateDevice.state_logic(self, self.States.VIEW_ABILITIES,
-                                       InputType.INT, -1,
-                                       lambda: len(list(self.target.ability_controller.abilities)) - 1)
+        @FiniteStateDevice.state_logic(
+            self,
+            self.States.VIEW_ABILITIES,
+            InputType.INT,
+            -1,
+            lambda: len(list(self.target.ability_controller.abilities)) - 1,
+        )
         def logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -74,8 +76,7 @@ class ViewAbilitiesEvent(Event):
         @FiniteStateDevice.state_content(self, self.States.VIEW_ABILITIES)
         def content() -> dict:
             return ComponentFactory.get(
-                [f"{self.target.name}'s abilities: "],
-                self.target.ability_controller.get_abilities_as_options()
+                [f"{self.target.name}'s abilities: "], self.target.ability_controller.get_abilities_as_options()
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_ABILITY, InputType.ANY)
@@ -90,11 +91,9 @@ class ViewAbilitiesEvent(Event):
                     self.selected_ability + "\n",
                     self.selected_ability_instance.description + "\n\n",
                     "Types: \n",
-                    "\n".join(
-                        [f"- {t}" for t in self.selected_ability_instance.tags]
-                    )
+                    "\n".join([f"- {t}" for t in self.selected_ability_instance.tags]),
                 ],
-                self.selected_ability_instance.get_requirements_as_options()
+                self.selected_ability_instance.get_requirements_as_options(),
             )
 
         @FiniteStateDevice.state_logic(self, self.States.EMPTY, InputType.ANY)
@@ -103,9 +102,7 @@ class ViewAbilitiesEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.EMPTY)
         def content() -> dict:
-            return ComponentFactory.get(
-                ["No learned abilities!"]
-            )
+            return ComponentFactory.get(["No learned abilities!"])
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "ViewAbilitiesEvent", LoadableMixin.ATTR_KEY])

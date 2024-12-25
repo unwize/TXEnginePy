@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 from abc import ABC
-from loguru import logger
 
 import game
 from game.cache import cached
@@ -11,15 +10,23 @@ from game.structures.loadable_factory import LoadableFactory
 from game.structures.messages import StringContent
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from game.systems.event.events import Event
 
 
 class SkillBase(ABC):
-
-    def __init__(self, name: str, id: int, description: str,
-                 level: int = 1, xp: int = 0, initial_level_up_limit: int = 5, next_level_ratio: float = 1.3,
-                 level_up_events: dict[int, list[Event]] = None):
+    def __init__(
+        self,
+        name: str,
+        id: int,
+        description: str,
+        level: int = 1,
+        xp: int = 0,
+        initial_level_up_limit: int = 5,
+        next_level_ratio: float = 1.3,
+        level_up_events: dict[int, list[Event]] = None,
+    ):
         self.name: str = name  # Skill name
         self.id: int = id  # Unique id associate with this skill
         self.description: str = description
@@ -31,8 +38,9 @@ class SkillBase(ABC):
         self.xp: int = xp  # Skill's current xp quantity
         self.level_up_limit: int = self._xp_ceiling(self.level)  # Current limit to level up against
 
-        self.level_up_events: dict[
-            int, list[Event]] = level_up_events or {}  # events.Events that are triggered on level up
+        self.level_up_events: dict[int, list[Event]] = (
+            level_up_events or {}
+        )  # events.Events that are triggered on level up
 
         # Detect invalid next_level_ratios
         if self.next_level_ratio < 1.0:
@@ -59,7 +67,7 @@ class SkillBase(ABC):
         For a given level, add all level-up-events to the device stack
         """
 
-        if type(level) != int:
+        if type(level) is not int:
             raise TypeError("Level must be an int!")
 
         if level in self.level_up_events:
@@ -67,14 +75,15 @@ class SkillBase(ABC):
                 game.add_state_device(copy.deepcopy(event))
 
         from game.systems.event.events import TextEvent
+
         # Add user prompt for level-up LAST so that it is executed before all
         # the level-up events
         game.add_state_device(
             TextEvent(
                 [
-                    f"Congratulations! ",
+                    "Congratulations! ",
                     StringContent(value=self.name, formatting="skill_name"),
-                    f" reached level {level}!"
+                    f" reached level {level}!",
                 ]
             )
         )
@@ -99,7 +108,6 @@ class SkillBase(ABC):
         """
 
         if self.xp >= self.level_up_limit:  # Check for a level-up
-
             # Calculate how much xp carries into the next level
             remaining_xp = self.xp - self.level_up_limit
 
@@ -129,7 +137,6 @@ class SkillBase(ABC):
 
 
 class Skill(LoadableMixin, SkillBase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -163,7 +170,7 @@ class Skill(LoadableMixin, SkillBase):
 
         level_up_events: dict[int, list[Event]] = {}
 
-        for str_level in json['level_up_events']:
+        for str_level in json["level_up_events"]:
             try:
                 true_level = int(str_level)
             except TypeError:
@@ -176,23 +183,17 @@ class Skill(LoadableMixin, SkillBase):
 
             from game.systems.event.events import Event
 
-            for raw_event in json['level_up_events'][str_level]:
+            for raw_event in json["level_up_events"][str_level]:
                 obj = LoadableFactory.get(raw_event)
                 if not isinstance(obj, Event):
-                    raise TypeError(f"Cannot add object of type {type(obj)} to "
-                                    f"level_up_event list!")
+                    raise TypeError(f"Cannot add object of type {type(obj)} to " f"level_up_event list!")
                 level_up_events[true_level].append(obj)
 
         # Verify that the optional fields are typed correctly if they're present
-        optional_fields = [('level', int), ('xp', int), (
-            'initial_level_up_limit', int), ('next_level_ratio', float)]
+        optional_fields = [("level", int), ("xp", int), ("initial_level_up_limit", int), ("next_level_ratio", float)]
         LoadableFactory.validate_fields(optional_fields, json, required=False)
         kwargs = LoadableFactory.collect_optional_fields(optional_fields, json)
 
         return Skill(
-            name=json['name'],
-            id=json['id'],
-            description=json['description'],
-            level_up_events=level_up_events,
-            **kwargs
+            name=json["name"], id=json["id"], description=json["description"], level_up_events=level_up_events, **kwargs
         )

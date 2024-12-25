@@ -14,14 +14,16 @@ def test_init_trivial():
 
 
 init_kwargs_cases = [
-    {"name": "Proto Combat Entity",
-     "id": 9999,
-     },
-    {"name": "TCE",
-     "id": 1,
-     "xp_yield": 10,
-     "turn_speed": 2,
-     }
+    {
+        "name": "Proto Combat Entity",
+        "id": 9999,
+    },
+    {
+        "name": "TCE",
+        "id": 1,
+        "xp_yield": 10,
+        "turn_speed": 2,
+    },
 ]
 
 

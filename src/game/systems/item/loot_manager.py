@@ -15,8 +15,13 @@ class LootManager(Manager):
         super().__init__()
         self._manifest: dict[int, LootTable] = {}
 
-    def register_loot_table(self, loot_table_id: int, item_probabilities: dict[int, float] = None,
-                            drop_probabilities: dict[int, float] = None, instance: LootTable = None):
+    def register_loot_table(
+        self,
+        loot_table_id: int,
+        item_probabilities: dict[int, float] = None,
+        drop_probabilities: dict[int, float] = None,
+        instance: LootTable = None,
+    ):
         """
         Register a LootTable with the manager.
 
@@ -41,10 +46,10 @@ class LootManager(Manager):
 
     def load(self) -> None:
         """
-       Load LootTable objects from disk and register them with the Manager.
-       """
+        Load LootTable objects from disk and register them with the Manager.
+        """
         raw_asset: dict[str, any] = get_asset(self.LOOT_ASSET_PATH)
-        for raw_loot_table in raw_asset['content']:
+        for raw_loot_table in raw_asset["content"]:
             table = LoadableFactory.get(raw_loot_table)
             if not isinstance(table, LootTable):
                 raise TypeError(f"Expected object of type Ability, got {type(table)} instead!")

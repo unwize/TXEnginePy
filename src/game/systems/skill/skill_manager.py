@@ -9,7 +9,6 @@ from game.util.asset_utils import get_asset
 
 
 class SkillManager(Manager):
-
     SKILL_ASSET_PATH = "skills"
 
     def __init__(self):
@@ -35,7 +34,7 @@ class SkillManager(Manager):
         self._manifest[skill.id] = skill
 
     def get_skill(self, skill_id: int) -> skills.Skill:
-        if type(skill_id) != int:
+        if type(skill_id) is not int:
             raise TypeError(f"Expected skill_id of type int, got {type(skill_id)} instead!")
         if skill_id not in self._manifest:
             raise ValueError(f"No skill with id {skill_id}!")
@@ -43,10 +42,9 @@ class SkillManager(Manager):
         return copy.deepcopy(self._manifest[skill_id])
 
     def load(self) -> None:
-
         raw_asset: dict[str, any] = get_asset(self.SKILL_ASSET_PATH)
 
-        for raw_skill in raw_asset['content']:
+        for raw_skill in raw_asset["content"]:
             skill = LoadableFactory.get(raw_skill)
 
             if not isinstance(skill, skills.Skill):

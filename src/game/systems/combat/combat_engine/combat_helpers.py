@@ -28,8 +28,7 @@ def sum_a_tag(resistances: list[float]) -> float:
     return total_res
 
 
-def calculate_target_resistance(ability: Ability,
-                                target: CombatEntity) -> float:
+def calculate_target_resistance(ability: Ability, target: CombatEntity) -> float:
     """
     For a given Ability and target, calculate the resistance value of the target
 
@@ -40,28 +39,22 @@ def calculate_target_resistance(ability: Ability,
     Returns: A float representing the resistance of the target
     """
     if not isinstance(ability, Ability):
-        raise TypeError(f"Expected ability to be of type Ability, got "
-                        f"{type(ability)} instead!")
+        raise TypeError(f"Expected ability to be of type Ability, got " f"{type(ability)} instead!")
 
     if not isinstance(target, CombatEntity):
-        raise TypeError("Expected target to be of type CombatEntity, got "
-                        f"{type(target)} instead!")
+        raise TypeError("Expected target to be of type CombatEntity, got " f"{type(target)} instead!")
 
     if not isinstance(ability.tags, dict):
-        raise TypeError("ability.tags should be of type dict! Got type"
-                        f"{type(ability.tags)} instead!")
+        raise TypeError("ability.tags should be of type dict! Got type" f"{type(ability.tags)} instead!")
 
     tag_values: list[float] = [0.0]
-    tags_on_target: dict[
-        str, list[float]] = target.equipment_controller.all_tag_resistance
+    tags_on_target: dict[str, list[float]] = target.equipment_controller.all_tag_resistance
 
     # Iterate through tags on Ability
     for ability_tag in ability.tags:
-
         # Check if tag is present in target's Equipments
         if ability_tag in tags_on_target:
-            tag_values += tags_on_target[
-                ability_tag]  # Add resistances to queue
+            tag_values += tags_on_target[ability_tag]  # Add resistances to queue
 
     tag_values = sorted(tag_values, reverse=True)
 
@@ -84,17 +77,12 @@ def calculate_damage_to_entity(ability: Ability, target: CombatEntity) -> int:
     """
 
     if not isinstance(ability, Ability):
-        raise TypeError(f"Expected ability to be of type Ability, got "
-                        f"{type(ability)} instead!")
+        raise TypeError(f"Expected ability to be of type Ability, got " f"{type(ability)} instead!")
 
     if not isinstance(target, CombatEntity):
-        raise TypeError("Expected target to be of type CombatEntity, got "
-                        f"{type(target)} instead!")
+        raise TypeError("Expected target to be of type CombatEntity, got " f"{type(target)} instead!")
 
     target_tag_res = calculate_target_resistance(ability, target)
     target_armor_res = target.equipment_controller.total_dmg_resistance
 
-    return max(
-        int((ability.damage - target_armor_res) * (1 - target_tag_res)),
-        0
-    )
+    return max(int((ability.damage - target_armor_res) * (1 - target_tag_res)), 0)

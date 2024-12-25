@@ -10,11 +10,7 @@ def test_init_trivial():
     assert cc is not None
 
 
-manifest_cases = [
-    [],
-    [-110],
-    [-110, -111, -112, -113, -114]
-]
+manifest_cases = [[], [-110], [-110, -111, -112, -113, -114]]
 
 
 @pytest.mark.parametrize("manifest", manifest_cases)
@@ -26,26 +22,18 @@ def test_init_manifest(manifest: list[int]):
 
 
 def test_owner():
-    p = Player(name="Crafty Boy",
-               id=1,
-               inventory=InventoryController(
-                   items=[(-110, 1), (-111, 2)]
-               ),
-               recipes=[-110, -111]
-               )
+    p = Player(
+        name="Crafty Boy", id=1, inventory=InventoryController(items=[(-110, 1), (-111, 2)]), recipes=[-110, -111]
+    )
 
     assert hasattr(p, "crafting_controller")
     assert p.crafting_controller.owner == p
 
 
 def test_has_sufficient_ingredients():
-    p = Player(name="Crafty Boy",
-               id=1,
-               inventory=InventoryController(
-                   items=[(-110, 1), (-111, 2)]
-               ),
-               recipes=[-110, -111]
-               )
+    p = Player(
+        name="Crafty Boy", id=1, inventory=InventoryController(items=[(-110, 1), (-111, 2)]), recipes=[-110, -111]
+    )
 
     assert p.inventory.total_quantity(-110) == 1
     assert p.inventory.total_quantity(-111) == 2
@@ -75,12 +63,6 @@ max_crafts_cases = [
 
 @pytest.mark.parametrize("recipe_id, inventory_contents, results", max_crafts_cases)
 def test_max_crafts(recipe_id: int, inventory_contents: list[tuple[int, int]], results: int):
-    p = Player(name="Crafty Boy",
-               id=1,
-               inventory=InventoryController(
-                   items=inventory_contents
-               ),
-               recipes=[-110, -111]
-               )
+    p = Player(name="Crafty Boy", id=1, inventory=InventoryController(items=inventory_contents), recipes=[-110, -111])
 
     assert p.crafting_controller.get_max_crafts(recipe_id) == results

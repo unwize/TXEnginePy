@@ -25,12 +25,16 @@ class ViewSkillsEvent(Event):
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
         def logic(_: any) -> None:
-
             self._selected_skill = None
             self.set_state(self.States.VIEW_SKILLS)
 
-        @FiniteStateDevice.state_logic(self, self.States.VIEW_SKILLS, InputType.INT,
-                                       -1, lambda: len(self.target.skill_controller.skills.keys()) - 1)
+        @FiniteStateDevice.state_logic(
+            self,
+            self.States.VIEW_SKILLS,
+            InputType.INT,
+            -1,
+            lambda: len(self.target.skill_controller.skills.keys()) - 1,
+        )
         def logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -41,10 +45,7 @@ class ViewSkillsEvent(Event):
 
         @FiniteStateDevice.state_content(self, self.States.VIEW_SKILLS)
         def content() -> dict:
-            return ComponentFactory.get(
-                ["Skills: "],
-                self.target.skill_controller.get_skills_as_options()
-            )
+            return ComponentFactory.get(["Skills: "], self.target.skill_controller.get_skills_as_options())
 
         @FiniteStateDevice.state_logic(self, self.States.SKILL_SELECTED, InputType.ANY)
         def logic(_: any) -> None:
@@ -54,11 +55,12 @@ class ViewSkillsEvent(Event):
         def content() -> dict:
             return ComponentFactory.get(
                 [
-                    StringContent(value=self.target.skill_controller.skills[self._selected_skill].name,
-                                  formatting="skill_name"),
+                    StringContent(
+                        value=self.target.skill_controller.skills[self._selected_skill].name, formatting="skill_name"
+                    ),
                     self.target.skill_controller.get_skill_as_option(self._selected_skill),
                     "\n",
-                    self.target.skill_controller.skills[self._selected_skill].description
+                    self.target.skill_controller.skills[self._selected_skill].description,
                 ]
             )
 
@@ -67,7 +69,7 @@ class ViewSkillsEvent(Event):
         """
         Returns the event's target. If no target is specified, return a reference to the player.
         """
-        return self._target or from_cache('player')
+        return self._target or from_cache("player")
 
     @target.setter
     def target(self, entity: SkillMixin):
@@ -77,7 +79,8 @@ class ViewSkillsEvent(Event):
 
         if not isinstance(entity, SkillMixin):
             raise TypeError(
-                f"ViewSummaryEvent target must be an instance of class SkillMixin! Got {type(entity)} instead!")
+                f"ViewSummaryEvent target must be an instance of class SkillMixin! Got {type(entity)} instead!"
+            )
 
         self._target = entity
 
