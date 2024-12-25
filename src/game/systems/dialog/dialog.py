@@ -5,7 +5,6 @@ translation functions, and related Events.
 
 import copy
 import dataclasses
-import weakref
 from abc import ABC
 
 from loguru import logger
@@ -135,7 +134,7 @@ class DialogNodeBase(ABC):
         if not isinstance(dialog, Dialog):
             raise TypeError("A DialogNode's owner must be of type Dialog! Got" f" type {type(dialog)} instead!")
 
-        self.__dialog_ref = weakref.proxy(dialog)
+        self.__dialog_ref = dialog
 
     def get_option_text(self) -> list[list[str]]:
         """
