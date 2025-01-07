@@ -70,7 +70,7 @@ class AddItemEvent(Event):
 
     def _build_states(self) -> None:
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, IT.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             if self.player_ref is None:
                 logger.debug("Setting player ref...")
                 # Grab a weak reference to Player
@@ -87,14 +87,14 @@ class AddItemEvent(Event):
                 logger.debug(f"{self.current_state}: {id(self)}")
 
         @FiniteStateDevice.state_logic(self, self.States.PROMPT_KEEP_NEW_ITEM, IT.AFFIRMATIVE)
-        def logic(user_input: bool) -> None:
+        def _logic(user_input: bool) -> None:
             if user_input:
                 self.set_state(self.States.INSERT_ITEM)
             else:
                 self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.PROMPT_KEEP_NEW_ITEM)
-        def content() -> dict:
+        def _content() -> dict:
             c = [
                 "Would you like to make room in your inventory for ",
                 StringContent(value=f"{self.remaining_quantity}x ", formatting="item_quantity"),
@@ -104,7 +104,7 @@ class AddItemEvent(Event):
             return ComponentFactory.get(c)
 
         @FiniteStateDevice.state_logic(self, self.States.INSERT_ITEM, IT.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.remaining_quantity = self.player_ref.inventory.insert_item(self.item_id, self.item_quantity)
 
             if self.remaining_quantity > 0:
@@ -113,7 +113,7 @@ class AddItemEvent(Event):
                 self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSERT_ITEM)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     "You added ",

@@ -59,7 +59,7 @@ class DialogEvent(Event):
         self.dialog: Dialog = None
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.dialog = from_cache("managers.DialogManager")[dialog_id]
             self.set_state(self.States.VISIT_NODE)
 
@@ -78,7 +78,7 @@ class DialogEvent(Event):
             input_min=0,
             input_max=lambda: len(self.current_node.get_option_text()) - 1,
         )
-        def logic(user_input: int):
+        def _logic(user_input: int):
             self.current_node.visited = True
             user_choice: str = self.current_node.get_option_text()[user_input][0]
             next_node: int = self.current_node.options[user_choice]
@@ -98,7 +98,7 @@ class DialogEvent(Event):
                     game.add_state_device(TextEvent(self.current_node.text))
 
         @FiniteStateDevice.state_content(self, self.States.VISIT_NODE)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get([self.current_node.text], self.current_node.get_option_text())
 
     @staticmethod

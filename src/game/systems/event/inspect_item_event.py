@@ -35,11 +35,11 @@ class InspectItemEvent(Event):
         self.ref = from_cache("managers.ItemManager").get_instance(self.item_id)
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.CHECK_TYPE)
 
         @FiniteStateDevice.state_logic(self, self.States.CHECK_TYPE, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             from game.systems.item.item import Item, Usable, Equipment
 
             if isinstance(self.ref, Equipment):
@@ -52,11 +52,11 @@ class InspectItemEvent(Event):
                 raise TypeError("ref did not fetch an Item instance!")
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_ITEM, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSPECT_ITEM)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     self.ref.name,
@@ -71,11 +71,11 @@ class InspectItemEvent(Event):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_USABLE, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSPECT_USABLE)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     self.ref.name,
@@ -92,11 +92,11 @@ class InspectItemEvent(Event):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSPECT_EQUIPMENT)
-        def content() -> dict:
+        def _content() -> dict:
             """
             Print in the following format:
                 * item.name

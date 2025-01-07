@@ -24,7 +24,7 @@ class ViewSkillsEvent(Event):
         self._target: SkillMixin | None = target
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self._selected_skill = None
             self.set_state(self.States.VIEW_SKILLS)
 
@@ -35,7 +35,7 @@ class ViewSkillsEvent(Event):
             -1,
             lambda: len(self.target.skill_controller.skills.keys()) - 1,
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
                 return
@@ -44,15 +44,15 @@ class ViewSkillsEvent(Event):
             self.set_state(self.States.SKILL_SELECTED)
 
         @FiniteStateDevice.state_content(self, self.States.VIEW_SKILLS)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(["Skills: "], self.target.skill_controller.get_skills_as_options())
 
         @FiniteStateDevice.state_logic(self, self.States.SKILL_SELECTED, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.VIEW_SKILLS)
 
         @FiniteStateDevice.state_content(self, self.States.SKILL_SELECTED)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     StringContent(

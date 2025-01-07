@@ -35,7 +35,7 @@ class CraftingEvent(Event):
         self._chosen_num_crafts: int | None = None
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any):
+        def _logic(_: any):
             """
             Set up the event. Grab a reference to the player and clear any stateful variables.
             """
@@ -55,7 +55,7 @@ class CraftingEvent(Event):
             -1,
             lambda: len(self._player_ref.crafting_controller.learned_recipes) - 1,
         )
-        def logic(user_input: int):
+        def _logic(user_input: int):
             # Go back to start
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -80,7 +80,7 @@ class CraftingEvent(Event):
                 raise RuntimeError("Invalid state transition!")
 
         @FiniteStateDevice.state_content(self, self.States.DISPLAY_RECIPES)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 ["Choose a recipe:"], self._player_ref.crafting_controller.get_recipes_as_options()
             )
@@ -92,7 +92,7 @@ class CraftingEvent(Event):
             -1,
             lambda: self._player_ref.crafting_controller.get_max_crafts(self._chosen_recipe),
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input < 1:
                 self.set_state(self.States.DEFAULT)
                 return
@@ -102,7 +102,7 @@ class CraftingEvent(Event):
             self.set_state(self.States.CONFIRM_RECIPE)
 
         @FiniteStateDevice.state_content(self, self.States.NUM_CRAFTS)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     "How many times would you like to craft ",
@@ -112,11 +112,11 @@ class CraftingEvent(Event):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.CONFIRM_RECIPE, InputType.AFFIRMATIVE)
-        def logic(user_input: bool):
+        def _logic(user_input: bool):
             self.set_state(self.States.EXECUTE_RECIPE if user_input else self.States.DEFAULT)
 
         @FiniteStateDevice.state_content(self, self.States.CONFIRM_RECIPE)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     f"Are you sure you want to craft {recipe_manager.get_recipe(self._chosen_recipe).name} ",
@@ -126,7 +126,7 @@ class CraftingEvent(Event):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSUFFICIENT_INGREDIENTS, InputType.ANY)
-        def logic(_: any):
+        def _logic(_: any):
             if not recipe_manager.get_recipe(self._chosen_recipe).is_requirements_fulfilled(self._player_ref):
                 self.set_state(self.States.REQUIREMENTS_NOT_MET)
 
@@ -134,30 +134,30 @@ class CraftingEvent(Event):
                 self.set_state(self.States.DEFAULT)
 
         @FiniteStateDevice.state_content(self, self.States.INSUFFICIENT_INGREDIENTS)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 ["You are missing key ingredients for this recipe:"],
                 self._player_ref.crafting_controller.get_missing_ingredients_as_options(self._chosen_recipe),
             )
 
         @FiniteStateDevice.state_logic(self, self.States.REQUIREMENTS_NOT_MET, InputType.ANY)
-        def logic(_: any):
+        def _logic(_: any):
             self.set_state(self.States.DEFAULT)
 
         @FiniteStateDevice.state_content(self, self.States.REQUIREMENTS_NOT_MET)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 ["You do not meet the requirements for this recipe!"],
                 recipe_manager.get_recipe().get_requirements_as_options(),
             )
 
         @FiniteStateDevice.state_logic(self, self.States.EXECUTE_RECIPE, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self._player_ref.crafting_controller.perform_recipe(self._chosen_recipe, self._chosen_num_crafts)
             self.set_state(self.States.DEFAULT)
 
         @FiniteStateDevice.state_content(self, self.States.EXECUTE_RECIPE)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     "You crafted ",

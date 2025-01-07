@@ -39,7 +39,7 @@ class ViewAbilitiesEvent(Event):
         self._selected_instance = None
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self._selected_instance = None
             self.selected_ability = None
 
@@ -65,7 +65,7 @@ class ViewAbilitiesEvent(Event):
             -1,
             lambda: len(list(self.target.ability_controller.abilities)) - 1,
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
                 return
@@ -74,18 +74,18 @@ class ViewAbilitiesEvent(Event):
             self.set_state(self.States.INSPECT_ABILITY)
 
         @FiniteStateDevice.state_content(self, self.States.VIEW_ABILITIES)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [f"{self.target.name}'s abilities: "], self.target.ability_controller.get_abilities_as_options()
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_ABILITY, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.DEFAULT)
 
         # TODO: Improve state to account for zero tags
         @FiniteStateDevice.state_content(self, self.States.INSPECT_ABILITY)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [
                     self.selected_ability + "\n",
@@ -97,11 +97,11 @@ class ViewAbilitiesEvent(Event):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.EMPTY, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.EMPTY)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(["No learned abilities!"])
 
     @staticmethod

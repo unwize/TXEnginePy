@@ -41,7 +41,7 @@ class ConsumeItemEvent(Event):
         # DEFAULT
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             # Detect item quantities
             if self.player_ref.inventory.total_quantity(self.item_id) < self.item_quantity:
                 self.set_state(self.States.INSUFFICIENT_QUANTITY)
@@ -51,13 +51,13 @@ class ConsumeItemEvent(Event):
         # INSUFFICIENT_QUANTITY
 
         @FiniteStateDevice.state_logic(self, self.States.INSUFFICIENT_QUANTITY, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             if self.callback:
                 self.callback(False)  # Transmit that the player failed to consume items to the callback
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.INSUFFICIENT_QUANTITY)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     "Insufficient quantity of ",
@@ -69,14 +69,14 @@ class ConsumeItemEvent(Event):
         # PROMPT_CONSUME
 
         @FiniteStateDevice.state_logic(self, self.States.PROMPT_CONSUME, InputType.AFFIRMATIVE)
-        def logic(user_input: bool) -> None:
+        def _logic(user_input: bool) -> None:
             if user_input:
                 self.set_state(self.States.ACCEPTED_CONSUME)
             else:
                 self.set_state(self.States.REFUSED_CONSUME)
 
         @FiniteStateDevice.state_content(self, self.States.PROMPT_CONSUME)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     "Are you sure that you want to consume ",
@@ -89,14 +89,14 @@ class ConsumeItemEvent(Event):
         # ACCEPTED_CONSUME
 
         @FiniteStateDevice.state_logic(self, self.States.ACCEPTED_CONSUME, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             assert self.player_ref.inventory.consume_item(self.item_id, self.item_quantity)
             if self.callback:
                 self.callback(True)  # Transmit that the player successfully consumed items to the callback
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.ACCEPTED_CONSUME)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     "You consumed ",
@@ -109,13 +109,13 @@ class ConsumeItemEvent(Event):
         # REFUSED_CONSUME
 
         @FiniteStateDevice.state_logic(self, self.States.REFUSED_CONSUME, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             if self.callback:
                 self.callback(False)  # Transmit that the player did not consume items to the callback
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.REFUSED_CONSUME)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     "You refused to consume ",

@@ -77,7 +77,7 @@ class ViewSummaryEvent(Event):
 
     def setup_states(self):
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.INT, -1, lambda: len(self.options))
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
                 return
@@ -86,7 +86,7 @@ class ViewSummaryEvent(Event):
             game.add_state_device(self._options[selected_option]["class"](self.target))
 
         @FiniteStateDevice.state_content(self, self.States.DEFAULT)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(["What would you like to do?"], self.options)
 
     def __copy__(self):

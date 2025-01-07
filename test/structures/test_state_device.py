@@ -23,7 +23,7 @@ class MockDevice(StateDevice):
     def components(self) -> dict[str, any]:
         return ComponentFactory.get([str(self.counter)])
 
-    def _logic(self, user_input: any) -> None:
+    def logic(self, user_input: any) -> None:
         self.counter = self.counter + 1
 
 

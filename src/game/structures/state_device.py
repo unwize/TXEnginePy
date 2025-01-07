@@ -270,7 +270,7 @@ class StateDevice(ABC):
             raise ValueError(f"Unknown InputType: {self.input_type.name}!")
 
     @abstractmethod
-    def _logic(self, user_input: any) -> None:
+    def logic(self, user_input: any) -> None:
         """
         The actual game logic. This must be overriden by subclasses.
 
@@ -296,12 +296,12 @@ class StateDevice(ABC):
         if self.validate_input(user_input):
             # Intercept affirmative input values and transform them
             if self.input_type == enums.InputType.AFFIRMATIVE:
-                self._logic(affirmative_to_bool(user_input))
+                self.logic(affirmative_to_bool(user_input))
 
             elif self.input_type == enums.InputType.INT:
-                self._logic(int(user_input))
+                self.logic(int(user_input))
             else:  # Handle all other input values normally
-                self._logic(user_input)
+                self.logic(user_input)
             return True
 
         return False
@@ -540,7 +540,7 @@ class FiniteStateDevice(StateDevice, ABC):
         if callable(self.state_data[self.current_state.value]["min"]):
             self.domain_min = self.state_data[self.current_state.value]["min"]()
 
-    def _logic(self, user_input: any) -> None:
+    def logic(self, user_input: any) -> None:
         self._update_dynamic_input_domains()
 
         # Check for bad state data
@@ -582,11 +582,11 @@ class FiniteStateDevice(StateDevice, ABC):
 
     def set_defaults(self) -> None:
         @FiniteStateDevice.state_logic(self, self.States.TERMINATE, InputType.SILENT)
-        def logic(_: any):
+        def _logic(_: any):
             game.state_device_controller.set_dead()
 
         @FiniteStateDevice.state_content(self, self.States.TERMINATE)
-        def content():
+        def _content():
             return ComponentFactory.get()
 
     @staticmethod
@@ -646,7 +646,7 @@ class FiniteStateDevice(StateDevice, ABC):
             input_min=-1 if back_out_state is not None else 0,
             input_max=len(branch_map.keys()) - 1,
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             # If back_out_state is enabled and the user entered -1, set the
             # state to the defined back-out state
             if back_out_state is not None and user_input == -1:
@@ -667,5 +667,5 @@ class FiniteStateDevice(StateDevice, ABC):
             instance.set_state(branch_map[choice_as_str])
 
         @FiniteStateDevice.state_content(instance, state)
-        def content():
+        def _content():
             return ComponentFactory.get([prompt], [[s] for s in branch_map.keys()])

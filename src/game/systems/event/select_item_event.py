@@ -40,7 +40,7 @@ class SelectItemEvent(EntityTargetMixin, Event):
 
     def _setup_states(self) -> None:
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.SHOW_ITEMS)
 
         @FiniteStateDevice.state_logic(
@@ -50,7 +50,7 @@ class SelectItemEvent(EntityTargetMixin, Event):
             -1,
             len(self.target.inventory.filter_stacks(self._inventory_filter)) - 1,
         )
-        def logic(user_input: int):
+        def _logic(user_input: int):
             if self._storage_keys["selected_item_id"] is None:
                 raise RuntimeError("SelectItemEvent was never linked!")
 
@@ -65,7 +65,7 @@ class SelectItemEvent(EntityTargetMixin, Event):
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.SHOW_ITEMS)
-        def content():
+        def _content():
             return ComponentFactory.get(["Choose an item:"], self.target.inventory.to_options(self._inventory_filter))
 
     @staticmethod

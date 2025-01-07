@@ -85,7 +85,7 @@ class SelectElementEvent(Event):
     def _setup_states(self) -> None:
         # DEFAULT
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             # Check for a filter and use it if available
             if self._element_filter is not None:
                 self.__filtered_collection = [element for element in self._collection if self._element_filter(element)]
@@ -108,7 +108,7 @@ class SelectElementEvent(Event):
             input_min=0 if self._must_select else -1,
             input_max=lambda: int(self.__filtered_collection_len) - 1,
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             """
             If the user chooses to 'go back' via entering -1, None will be
             stored. Otherwise, the _key transformation will occur and the
@@ -122,7 +122,7 @@ class SelectElementEvent(Event):
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.SHOW_ELEMENTS)
-        def content():
+        def _content():
             return ComponentFactory.get([self._prompt], [self._to_listing(e) for e in self.__filtered_collection])
 
     @staticmethod

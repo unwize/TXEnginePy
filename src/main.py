@@ -10,7 +10,7 @@ tx_engine = FastAPI()  # FastAPI service object that hosts TXEngine
 
 # Implement service logic
 @tx_engine.get("/")
-def root():
+def root_get():
     start = default_timer()
     r = game.state_device_controller.get_current_frame()
     duration = default_timer() - start
@@ -19,7 +19,7 @@ def root():
 
 
 @tx_engine.put("/")
-def root(user_input: int | str):
+def root_put(user_input: int | str):
     start = default_timer()
     r = game.state_device_controller.deliver_input(user_input)
     duration = default_timer() - start
@@ -28,7 +28,7 @@ def root(user_input: int | str):
 
 
 @tx_engine.get("/cache")
-def root(cache_path: str):
+def cache(cache_path: str):
     from game.cache import get_cache
 
     obj: any = get_cache()
@@ -49,7 +49,7 @@ def root(cache_path: str):
 
 
 @tx_engine.get("/cli")
-def root(command: str):
+def cli(command: str):
     parts = command.split(" ")
 
     if len(parts) < 1:

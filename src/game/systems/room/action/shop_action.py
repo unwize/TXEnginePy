@@ -71,7 +71,7 @@ class ShopAction(Action):
         self.default_currency: int = default_currency
 
         @FiniteStateDevice.state_logic(self, self.States.DISPLAY_WARES, InputType.INT, -1, len(self.wares) - 1)
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input == -1:  # Chose to exit
                 self.set_state(self.States.TERMINATE)
             else:  # Chose an item
@@ -79,13 +79,13 @@ class ShopAction(Action):
                 self.set_state(self.States.WARE_SELECTED)
 
         @FiniteStateDevice.state_content(self, self.States.DISPLAY_WARES)
-        def content():
+        def _content():
             return ComponentFactory.get([self.get_text_header(), self.activation_text], self._ware_to_option())
 
         @FiniteStateDevice.state_logic(
             self, self.States.WARE_SELECTED, InputType.INT, -1, lambda: len(self._get_ware_options()) - 1
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             # TODO: Handle input dispatching better. Remove hardcoded state transitions
             if user_input == -1:
                 self.set_state(self.States.DISPLAY_WARES)
@@ -95,7 +95,7 @@ class ShopAction(Action):
                 self.set_state(self.States.INSPECT_WARE)
 
         @FiniteStateDevice.state_content(self, self.States.WARE_SELECTED)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     self.get_text_header(),
@@ -107,12 +107,12 @@ class ShopAction(Action):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_WARE, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self.ware_of_interest.id))
             self.set_state(self.States.WARE_SELECTED)
 
         @FiniteStateDevice.state_logic(self, self.States.CONFIRM_WARE_PURCHASE, InputType.AFFIRMATIVE)
-        def logic(user_input: bool) -> None:
+        def _logic(user_input: bool) -> None:
             if user_input:
                 player: entities.Player = get_cache()["player"]
                 if player.coin_purse.test_purchase(self.ware_of_interest.id, self.default_currency):
@@ -127,7 +127,7 @@ class ShopAction(Action):
                 self.set_state(self.States.WARE_SELECTED)
 
         @FiniteStateDevice.state_content(self, self.States.CONFIRM_WARE_PURCHASE)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     self.get_text_header(),
@@ -142,11 +142,11 @@ class ShopAction(Action):
             )
 
         @FiniteStateDevice.state_logic(self, self.States.PURCHASE_FAILURE, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_WARES)
 
         @FiniteStateDevice.state_content(self, self.States.PURCHASE_FAILURE)
-        def content():
+        def _content():
             return ComponentFactory.get(
                 [
                     self.get_text_header(),
@@ -161,7 +161,7 @@ class ShopAction(Action):
             )
 
         @FiniteStateDevice.state_content(self, self.States.TERMINATE, True)
-        def content():
+        def _content():
             return ComponentFactory.get(["You leave the shop."])
 
     @property

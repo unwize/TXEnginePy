@@ -28,7 +28,7 @@ class UseItemEvent(Event):
         self._item_instance = None
 
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self._item_instance = from_cache("managers.ItemManager").get_instance(item_id)
 
             # Check that the entity actually owns enough of the item to use it.
@@ -51,11 +51,11 @@ class UseItemEvent(Event):
                 self.set_state(self.States.NOT_USABLE)
 
         @FiniteStateDevice.state_logic(self, self.States.NOT_REQUIREMENTS, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.NOT_REQUIREMENTS)
-        def content(_: any) -> dict:
+        def _content(_: any) -> dict:
             c = [
                 "Failed to use ",
                 StringContent(value=self._item_instance.name, formatting="item_name"),
@@ -64,17 +64,17 @@ class UseItemEvent(Event):
             return ComponentFactory.get(c, self._item_instance.get_requirements_as_options())
 
         @FiniteStateDevice.state_logic(self, self.States.NOT_USABLE, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.NOT_USABLE)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [StringContent(value=self._item_instance.name, formatting="item_name"), " cannot be used."]
             )
 
         @FiniteStateDevice.state_logic(self, self.States.USE_ITEM, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self._item_instance.use(self.target)
 
             if self._item_instance.consumable:
@@ -83,7 +83,7 @@ class UseItemEvent(Event):
             self.set_state(self.States.TERMINATE)
 
         @FiniteStateDevice.state_content(self, self.States.USE_ITEM)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(["You used ", self._item_instance.name, "."])
 
     @property

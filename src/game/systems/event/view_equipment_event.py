@@ -41,7 +41,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
 
     def _setup_states(self):
         @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             if self._inspect_item_id:
                 self.set_state(self.States.INSPECT_EQUIPMENT)
             else:
@@ -54,7 +54,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
             input_min=-1,
             input_max=lambda: len(self.target.equipment_controller.enabled_slots) - 1,
         )
-        def logic(user_input: int) -> None:
+        def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
                 return
@@ -68,21 +68,21 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
             self.set_state(self.States.INSPECT_EQUIPMENT)
 
         @FiniteStateDevice.state_content(self, self.States.DISPLAY_EQUIPMENT)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(
                 [self.target.name, "'s Equipment:"], self.target.equipment_controller.get_equipment_as_options()
             )
 
         @FiniteStateDevice.state_logic(self, self.States.SLOT_IS_EMPTY, InputType.ANY)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_EQUIPMENT)
 
         @FiniteStateDevice.state_content(self, self.States.SLOT_IS_EMPTY)
-        def content() -> dict:
+        def _content() -> dict:
             return ComponentFactory.get(["This equipment slot is empty."])
 
         @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.SILENT)
-        def logic(_: any) -> None:
+        def _logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self._inspect_item_id))
             self.set_state(self.States.DISPLAY_EQUIPMENT)
 
