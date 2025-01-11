@@ -1,10 +1,11 @@
 import enum
 
-
+import game
 from game.cache import cached
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
+from game.systems.event.dialog_event import DialogEvent
 from game.systems.room.action.actions import Action
 
 
@@ -27,6 +28,11 @@ class DialogAction(Action):
         )
 
         self.dialog_id = dialog_id
+
+        @self.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        def _logic(_) -> None:
+            game.add_state_device(DialogEvent(self.dialog_id))
+            self.set_state(self.States.TERMINATE)
 
     @staticmethod
     @cached([LoadableMixin.LOADER_KEY, "DialogAction", LoadableMixin.ATTR_KEY])

@@ -87,6 +87,10 @@
         {
           "class" : "ExitAction",
           "target_room" : 2
+        },
+        {
+          "class" : "ExitAction",
+          "target_room" : 5
         }
       ],
       "__comment__" : "End of Lonely Debug Room"
@@ -248,6 +252,10 @@
           "menu_name" : "A voice calls out from the dark: \"Men are such pricks!\"",
           "activation_text" : "You're approached by a woman with a suspiciously deep voice.",
           "dialog_id" : 2
+        },
+        {
+          "class": "ExitAction",
+          "target_room" : 0
         }
       ]
     }
