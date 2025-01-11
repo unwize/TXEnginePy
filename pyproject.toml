@@ -16,6 +16,7 @@ loguru = "^0.7.3"
 fastapi = {extras = ["standard"], version = "^0.115.6"}
 textual = "^1.0.0"
 omegaconf = "^2.3.0"
+requests = "^2.32.3"
 
 
 [tool.poetry.group.test.dependencies]
