@@ -573,7 +573,9 @@ class FiniteStateDevice(StateDevice, ABC):
             "content" not in self.state_data[self.current_state.value]
             or not self.state_data[self.current_state.value]["content"]
         ):
-            raise KeyError(f"No content provider has been registered for state " f"{self.current_state}!")
+            raise KeyError(
+                f"No content provider has been registered for state " f"{self.current_state} in device {self.name}!"
+            )
 
         return self.state_data[self.current_state.value]["content"]()
 
