@@ -178,6 +178,7 @@ class StateDevice(ABC):
         """
         pass
 
+    # TODO: Can _link or link be be standardized/parameterized? There shouldn't be two layers of undefined logic.
     def _link(self) -> dict[str, str]:
         """
         Internal link logic that is responsible for acquiring storage keys,
@@ -306,6 +307,7 @@ class StateDevice(ABC):
 
         return False
 
+    # TODO: Does anything else define __frame__? If so, why is this not a mixin? If not, why do we need both to_frame and __frame__?
     def __frame__(self) -> Frame:
         """
         A method to convert a state device into a corresponding frame.

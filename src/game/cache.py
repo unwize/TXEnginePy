@@ -212,18 +212,25 @@ def cached(path: list[str] | str) -> Callable:
 
     For example:
 
+    '''
     @cached(['fancy', 'func'])
     def some_func():
         pass
+    '''
 
     or alternatively:
 
+    '''
     @cached("fancy.func")
     def some_func():
         pass
+    '''
 
     would cache some_func under:
+
+    '''
     get_cache()['fancy']['func']
+    '''
 
     Args:
        path: A list of strings or a string following dot-notation that describes
@@ -268,12 +275,13 @@ def loader(cls: str | type):
 """
 Methods for managing storage.
 
-While the cache is a general purpose location to leave things for general access
+While the cache is a good location to leave things for general access,
 storage is intended to be used privately between StateDevices. As such, its 
 usage is strictly moderated by the accessors defined here.
 """
 
 
+# TODO: Just use UUID instead of...this.
 def request_storage_key() -> str:
     """
     Reserve a unique key in the storage system.

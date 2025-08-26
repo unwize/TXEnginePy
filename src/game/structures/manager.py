@@ -75,7 +75,7 @@ class Manager(ABC):
 
     def handle_command(self, command: str) -> str:
         """
-        Dispatch the 1th-nth split element down to the appropriate command handler
+        Dispatch the 1st-nth split element down to the appropriate command handler
         """
         parts = command.split(" ")
 
