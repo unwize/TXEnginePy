@@ -10,7 +10,7 @@ This repository houses a Python rewrite and overhaul of the original TXEngine co
 ## What's New?
 TXEngine (Py) features a number of major improvements as compared to TXEngine (Java):
 
-### Microservice Architecture
+### Independent Architecture
 TXEngine (Py) splits the core logic of the engine away from the text rendering logic. This split increases the engine's maintainability, flexibility, and customizability.
 
 TXEngine's backend makes use of FastAPI and comes bundled with a Python-Native text rendering client based on Rich!
@@ -30,21 +30,14 @@ TXEngine (Py) is open to contribution. Open a pull-request, and I'll do my best 
 I recommend using Jetbrains PyCharm as your IDE when developing for TXEngine. As such, these instructions will include PyCharm-specific steps.
 
  - Clone the repository to your PC. Using command-line git: `git clone https://github.com/SlappedWithSilence/TXEnginePy`
- - Set up your virtual environment. We recommend using Poetry, as that's our build system.
-   - Install `pipx`: https://pipx.pypa.io/stable/installation/
-   - Install `poetry`: https://python-poetry.org/docs/#installation
-   - Create a virtual environment and install dependencies: `poetry install`
+ - Set up your virtual environment. We recommend using UV, as that's our build system.
  - (Optional) Install pre-commit and the `ruff` hook
-   - Run `pipx install pre-commit` OR install pre-commit via Poetry: `poetry add pre-commit`
+   - Run `pip install pre-commit`
    - Verify that pre-commit is installed with `pre-commit --version`
    - Ensure you are in the root directory of the repo and run `pre-commit install`
    - Verify that pre-commit ruff is working with `pre-commit run --all-files`
- - [Install PyCharm](https://www.jetbrains.com/pycharm/)
- - Open TXEnginePy in PyCharm
- - Install the [Pydantic PyCharm plugin](https://docs.pydantic.dev/pycharm_plugin/)
  - Run the application:
    - `fastapi dev` or `uvicorn --app-dir=src/ main:tx_engine --reload`
-   - For more info, [see here](https://fastapi.tiangolo.com/tutorial/first-steps/)
 - Run a TXEnginePY Client
   - TXEnginePY comes bundled with a primitive client, suitable only for debugging. It implements the bare minimum features to simulate what a user of a proper client would see.
   - To run, `cd` to the root of the TXEnginePy repo
