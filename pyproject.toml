@@ -1,0 +1,29 @@
+[project]
+name = "TXEnginePy"
+version = "0.1.0"
+description = "A code-free game engine for text-based RPGs."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "loguru>=0.7.3",
+    "omegaconf>=2.3.0",
+    "requests>=2.32.5",
+    "textual>=5.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.1",
+    "pydantic>=2.11.7",
+    "pytest>=8.4.1",
+    "ruff>=0.12.10",
+    "setuptools>=80.9.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+"src/game/engine.py" = ["F403"]
