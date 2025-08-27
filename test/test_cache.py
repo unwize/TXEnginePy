@@ -1,4 +1,14 @@
-from game.cache import from_cache, get_cache, cache_element, delete_element
+import pytest
+
+from game.cache import (
+    from_cache,
+    get_cache,
+    cache_element,
+    delete_element,
+    request_storage_key,
+    from_storage,
+    store_element,
+)
 
 
 def test_get_cache():
@@ -57,3 +67,25 @@ def test_cache_element():
     assert from_cache("root.branch") is None
     cache_element("root.branch", "leaf")
     assert from_cache("root.branch") == "leaf"
+
+
+def test_storage():
+    """
+    Test that `get_storage_key` functions properly
+    """
+    key = request_storage_key()
+    assert isinstance(key, str)
+    store_element(key, 14)
+    assert from_storage(key) == 14
+
+
+def test_storage_delete():
+    """
+    Test that passing `delete = True` to `from_storage` properly removes k:v pairs from storage
+    """
+    key = request_storage_key()
+    store_element(key, 22)
+    assert from_storage(key, True) == 22
+
+    with pytest.raises(KeyError):
+        from_storage(key)

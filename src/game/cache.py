@@ -278,7 +278,6 @@ usage is strictly moderated by the accessors defined here.
 """
 
 
-# TODO: Just use UUID instead of...this.
 def request_storage_key() -> str:
     """
     Reserve a unique key in the storage system.
