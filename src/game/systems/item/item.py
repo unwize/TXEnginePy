@@ -199,7 +199,7 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
         """
 
         # Insert results from resource_mods first
-        results = {k: v for k, v in self.resource_mods}
+        results = {k: v for k, v in self.resource_modifiers}
 
         for key, value in results:
             if type(value) is int:
