@@ -3,16 +3,13 @@ A utility python file that hosts a global cache, global config, and useful
 accessor/setter methods
 """
 
+import uuid
 from typing import Callable
-import string
-import random
-
 from loguru import logger
 
 config: dict[str, any] = None
 cache: dict[str, any] = {}  # For objects that should have common access
 storage: dict[str, any] = {}  # For objects not intended to have general access
-STORE_KEY_LENGTH = 5
 
 
 def decode_path(path: list[str] | str) -> list[str]:
@@ -286,26 +283,17 @@ def request_storage_key() -> str:
     """
     Reserve a unique key in the storage system.
     """
-    global storage, STORE_KEY_LENGTH
+    global storage
 
-    def get_store_key(length: int = 10) -> str:
-        return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
+    current_key: uuid.UUID = uuid.uuid4()
 
-    current_key: str = get_store_key(STORE_KEY_LENGTH)
-    iterations = 0
-    while current_key in storage:
-        iterations += 1
-        current_key = get_store_key()
-
-        # If there are multiple consecutive failed attempts to get a new key
-        if iterations > 3:
-            STORE_KEY_LENGTH += 1  # Increment key length to guarantee a new key
-            logger.warning(f"Extended storage key length to {STORE_KEY_LENGTH}!")
+    while current_key.__str__() in storage:
+        current_key = uuid.uuid4()
 
     # Once a new key is secured, add it to the storage and set it to None.
     # Then, return the key
-    storage[current_key] = None
-    return current_key
+    storage[current_key.__str__()] = None
+    return current_key.__str__()
 
 
 def from_storage(key: str, delete: bool = False) -> any:
