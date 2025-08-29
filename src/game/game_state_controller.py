@@ -7,6 +7,7 @@ devices mid-state does not interrupt the state (states within FiniteStateDevices
 are atomic).
 """
 
+import asyncio
 import dataclasses
 
 from loguru import logger
@@ -42,6 +43,7 @@ class GameStateController:
     def __init__(self):
         self.state_device_stack: list[tuple[sd.StateDevice, StackState]] = []
         self.add_state_device(room.room_manager.get_room(cache.get_cache()["player_location"]))
+        self.input_lock: asyncio.Lock = asyncio.Lock()
 
     # Built-ins
 
@@ -120,6 +122,23 @@ class GameStateController:
             return True
 
         return False
+
+    async def deliver_input_async(self, user_input: any) -> bool:
+        """
+        Deliver the user's input to the top sd.StateDevice. Returns True if the
+        device accepts the input.
+
+        Args:
+            user_input: Input that the user delivers to the service via the API
+
+        Returns: True if the input is accepted, False otherwise.
+        """
+        async with self.input_lock:
+            if self._get_state_device().validate_input(user_input):
+                self._get_state_device().input(user_input)
+                return True
+
+            return False
 
     def add_state_device(self, device: sd.StateDevice) -> None:
         """
