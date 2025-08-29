@@ -98,7 +98,7 @@ class ExitAction(Action):
         self.__on_exit: list[events.Event] = on_exit or []
         self._menu_name = menu_name
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             cache.get_cache()["player_location"] = self.target_room
             room.room_manager.visit_room(self.room.id)  # Inform the room manager that this room has been "visited"
@@ -156,7 +156,7 @@ class WrapperAction(Action):
 
         self.wrapped_device = wrap
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if self.wrapped_device is None:
                 raise TypeError("Cannot launch WrapperAction, wrapped_device is None!")

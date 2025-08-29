@@ -6,7 +6,6 @@ from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
 from game.structures.messages import ComponentFactory, StringContent
-from game.structures.state_device import FiniteStateDevice
 from game.systems import entity
 from game.systems.event import use_item_event as uie
 from game.systems.event.inspect_item_event import InspectItemEvent
@@ -45,7 +44,7 @@ class ManageInventoryAction(Action):
 
         # DEFAULT
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if cache.from_cache("player") is None:
                 raise RuntimeError("Cannot launch ManageInventoryAction without" " a valid Player instance!")
@@ -58,19 +57,17 @@ class ManageInventoryAction(Action):
             else:
                 self.set_state(self.States.DISPLAY_INVENTORY)
 
-        @FiniteStateDevice.state_logic(self, self.States.EMPTY, InputType.ANY)
+        @self.state_logic(self.States.EMPTY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.EMPTY)
+        @self.state_content(self.States.EMPTY)
         def _logic() -> dict:
             return ComponentFactory.get(["Your inventory is empty"])
 
         # DISPLAY_INVENTORY
 
-        @FiniteStateDevice.state_logic(
-            self, self.States.DISPLAY_INVENTORY, InputType.INT, -1, lambda: self.player_ref.inventory.size - 1
-        )
+        @self.state_logic(self.States.DISPLAY_INVENTORY, InputType.INT, -1, lambda: self.player_ref.inventory.size - 1)
         def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -78,16 +75,14 @@ class ManageInventoryAction(Action):
                 self.stack_index = user_input
                 self.set_state(self.States.INSPECT_STACK)
 
-        @FiniteStateDevice.state_content(self, self.States.DISPLAY_INVENTORY)
+        @self.state_content(self.States.DISPLAY_INVENTORY)
         def _content() -> dict:
             return ComponentFactory.get(
                 ["What stack would you like to inspect?"], self.player_ref.inventory.to_options()
             )
 
         # INSPECT STACK
-        @FiniteStateDevice.state_logic(
-            self, self.States.INSPECT_STACK, InputType.INT, -1, len(self.stack_inspect_options) - 1
-        )
+        @self.state_logic(self.States.INSPECT_STACK, InputType.INT, -1, len(self.stack_inspect_options) - 1)
         def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.DISPLAY_INVENTORY)
@@ -95,7 +90,7 @@ class ManageInventoryAction(Action):
                 selected_option = list(self.stack_inspect_options.keys())[user_input]
                 self.set_state(self.stack_inspect_options[selected_option])
 
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_STACK)
+        @self.state_content(self.States.INSPECT_STACK)
         def _content() -> dict:
             c = [
                 "What would you like to do with ",
@@ -108,14 +103,14 @@ class ManageInventoryAction(Action):
 
         # CONFIRM_DROP_STACK
 
-        @FiniteStateDevice.state_logic(self, self.States.CONFIRM_DROP_STACK, InputType.AFFIRMATIVE)
+        @self.state_logic(self.States.CONFIRM_DROP_STACK, InputType.AFFIRMATIVE)
         def _logic(user_input: bool) -> None:
             if user_input:
                 self.set_state(self.States.DROP_STACK)
             else:
                 self.set_state(self.States.INSPECT_STACK)
 
-        @FiniteStateDevice.state_content(self, self.States.CONFIRM_DROP_STACK)
+        @self.state_content(self.States.CONFIRM_DROP_STACK)
         def _content() -> dict:
             stack = self.player_ref.inventory.items[self.stack_index]
             return ComponentFactory.get(
@@ -130,12 +125,12 @@ class ManageInventoryAction(Action):
 
         # DROP_STACK
 
-        @FiniteStateDevice.state_logic(self, self.States.DROP_STACK, InputType.ANY)
+        @self.state_logic(self.States.DROP_STACK, InputType.ANY)
         def _logic(_: any) -> None:
             self.player_ref.inventory.drop_stack(self.stack_index)
             self.set_state(self.States.DISPLAY_INVENTORY)
 
-        @FiniteStateDevice.state_content(self, self.States.DROP_STACK)
+        @self.state_content(self.States.DROP_STACK)
         def _content() -> dict:
             stack = self.player_ref.inventory.items[self.stack_index]
             return ComponentFactory.get(
@@ -148,7 +143,7 @@ class ManageInventoryAction(Action):
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.DESC_ITEM, InputType.SILENT)
+        @self.state_logic(self.States.DESC_ITEM, InputType.SILENT)
         def _logic(_: any) -> None:
             ref = self.player_ref.inventory.items[self.stack_index].ref
 
@@ -157,14 +152,14 @@ class ManageInventoryAction(Action):
 
         # USE_ITEM
 
-        @FiniteStateDevice.state_logic(self, self.States.USE_ITEM, InputType.SILENT)
+        @self.state_logic(self.States.USE_ITEM, InputType.SILENT)
         def _logic(_: any) -> None:
             game.add_state_device(uie.UseItemEvent(self.player_ref.inventory.items[self.stack_index].id))
             self.set_state(self.States.DISPLAY_INVENTORY)
 
         # EQUIP_ITEM
 
-        @FiniteStateDevice.state_logic(self, self.States.EQUIP_ITEM, InputType.ANY)
+        @self.state_logic(self.States.EQUIP_ITEM, InputType.ANY)
         def _logic(_: any) -> None:
             item = self.player_ref.inventory.items[self.stack_index].ref
 
@@ -178,7 +173,7 @@ class ManageInventoryAction(Action):
             self.player_ref.equipment_controller.equip(item.id)
             self.set_state(self.States.DEFAULT)
 
-        @FiniteStateDevice.state_content(self, self.States.EQUIP_ITEM)
+        @self.state_content(self.States.EQUIP_ITEM)
         def _content() -> dict:
             return ComponentFactory.get(
                 [

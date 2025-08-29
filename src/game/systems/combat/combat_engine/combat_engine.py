@@ -439,22 +439,22 @@ class CombatEngine(FiniteStateDevice):
 
     def _build_states(self) -> None:
         """
-        Build the state logic and content providers for the FiniteStateDevice
+        Build the state logic and content providers for the self
         functionality of the CombatEngine.
         """
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.START_TURN_CYCLE)
 
-        @FiniteStateDevice.state_logic(self, self.States.START_TURN_CYCLE, InputType.SILENT)
+        @self.state_logic(self.States.START_TURN_CYCLE, InputType.SILENT)
         def _logic(_: any) -> None:
             self._compute_turn_order()
             self.total_turn_cycles += 1
             self.current_turn = -1
             self.set_state(self.States.START_ENTITY_TURN)
 
-        @FiniteStateDevice.state_logic(self, self.States.START_ENTITY_TURN, InputType.SILENT)
+        @self.state_logic(self.States.START_ENTITY_TURN, InputType.SILENT)
         def _logic(_: any) -> None:
             self.current_turn += 1  # Increment turn index
             self.current_phase_index = 0  # Reset phase index to 0 (Start phase)
@@ -478,7 +478,7 @@ class CombatEngine(FiniteStateDevice):
                 # handle the turn's phase logic
                 self.set_state(self.States.HANDLE_PHASE)
 
-        @FiniteStateDevice.state_logic(self, self.States.HANDLE_PHASE, InputType.SILENT)
+        @self.state_logic(self.States.HANDLE_PHASE, InputType.SILENT)
         def _logic(_: any) -> None:
             # Check if the current phase index is out of bounds. If so, start
             # the next entity's turn and reset phase.
@@ -494,12 +494,12 @@ class CombatEngine(FiniteStateDevice):
             if self.current_phase == CombatPhase.ACTION_PHASE:
                 self.set_state(self.States.EXECUTE_ENTITY_CHOICE)
 
-        @FiniteStateDevice.state_logic(self, self.States.EXECUTE_ENTITY_CHOICE, InputType.SILENT)
+        @self.state_logic(self.States.EXECUTE_ENTITY_CHOICE, InputType.SILENT)
         def _logic(_: any):
             self.handle_turn_action(self.active_entity_choice)
             self.set_state(self.States.DETECT_COMBAT_TERMINATION)
 
-        @FiniteStateDevice.state_logic(self, self.States.DETECT_COMBAT_TERMINATION, InputType.SILENT)
+        @self.state_logic(self.States.DETECT_COMBAT_TERMINATION, InputType.SILENT)
         def _logic(_: any) -> None:
             loss = False
             win = False
@@ -529,7 +529,7 @@ class CombatEngine(FiniteStateDevice):
 
                 self.set_state(self.States.NEXT_PHASE)
 
-        @FiniteStateDevice.state_logic(self, self.States.PLAYER_VICTORY, InputType.ANY)
+        @self.state_logic(self.States.PLAYER_VICTORY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
@@ -550,24 +550,24 @@ class CombatEngine(FiniteStateDevice):
 
             game.add_state_device(TextEvent(f"You looted: \n{loot_preview}"))
 
-        @FiniteStateDevice.state_content(self, self.States.PLAYER_VICTORY)
+        @self.state_content(self.States.PLAYER_VICTORY)
         def _content() -> dict:
             return ComponentFactory.get([get_config()["combat"]["victory_message"]])
 
-        @FiniteStateDevice.state_logic(self, self.States.PLAYER_LOSS, InputType.ANY)
+        @self.state_logic(self.States.PLAYER_LOSS, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.PLAYER_LOSS)
+        @self.state_content(self.States.PLAYER_LOSS)
         def _content() -> dict:
             return ComponentFactory.get([get_config()["combat"]["loss_message"]])
 
-        @FiniteStateDevice.state_logic(self, self.States.NEXT_PHASE, InputType.SILENT)
+        @self.state_logic(self.States.NEXT_PHASE, InputType.SILENT)
         def _logic(_: any):
             self.current_phase_index += 1
             self.set_state(self.States.HANDLE_PHASE)
 
-        @FiniteStateDevice.state_logic(self, self.States.TERMINATE, InputType.SILENT, override=True)
+        @self.state_logic(self.States.TERMINATE, InputType.SILENT, override=True)
         def _logic(_: any) -> None:
             delete_element("combat")  # Kill the global combat reference
             game.state_device_controller.set_dead()

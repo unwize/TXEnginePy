@@ -5,7 +5,6 @@ from game.cache import cached, request_storage_key, store_element
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event import Event
 from game.systems.event.events import EntityTargetMixin
 
@@ -39,12 +38,11 @@ class SelectItemEvent(EntityTargetMixin, Event):
         return self._storage_keys
 
     def _setup_states(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.SHOW_ITEMS)
 
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.SHOW_ITEMS,
             InputType.INT,
             -1,
@@ -64,7 +62,7 @@ class SelectItemEvent(EntityTargetMixin, Event):
             store_element(self._storage_keys["selected_item_id"], selected_item_id)
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.SHOW_ITEMS)
+        @self.state_content(self.States.SHOW_ITEMS)
         def _content():
             return ComponentFactory.get(["Choose an item:"], self.target.inventory.to_options(self._inventory_filter))
 

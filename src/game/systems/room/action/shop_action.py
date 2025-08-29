@@ -8,7 +8,6 @@ from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
 from game.structures.messages import StringContent, ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event.add_item_event import AddItemEvent
 from game.systems.event.inspect_item_event import InspectItemEvent
 from game.systems.item.item import Item
@@ -70,7 +69,7 @@ class ShopAction(Action):
         self._ware_of_interest: Item = None  # The tuple of the ware last selected by the user
         self.default_currency: int = default_currency
 
-        @FiniteStateDevice.state_logic(self, self.States.DISPLAY_WARES, InputType.INT, -1, len(self.wares) - 1)
+        @self.state_logic(self.States.DISPLAY_WARES, InputType.INT, -1, len(self.wares) - 1)
         def _logic(user_input: int) -> None:
             if user_input == -1:  # Chose to exit
                 self.set_state(self.States.TERMINATE)
@@ -78,13 +77,11 @@ class ShopAction(Action):
                 self.ware_of_interest = self.wares[user_input]
                 self.set_state(self.States.WARE_SELECTED)
 
-        @FiniteStateDevice.state_content(self, self.States.DISPLAY_WARES)
+        @self.state_content(self.States.DISPLAY_WARES)
         def _content():
             return ComponentFactory.get([self.get_text_header(), self.activation_text], self._ware_to_option())
 
-        @FiniteStateDevice.state_logic(
-            self, self.States.WARE_SELECTED, InputType.INT, -1, lambda: len(self._get_ware_options()) - 1
-        )
+        @self.state_logic(self.States.WARE_SELECTED, InputType.INT, -1, lambda: len(self._get_ware_options()) - 1)
         def _logic(user_input: int) -> None:
             # TODO: Handle input dispatching better. Remove hardcoded state transitions
             if user_input == -1:
@@ -94,7 +91,7 @@ class ShopAction(Action):
             elif user_input == 1:
                 self.set_state(self.States.INSPECT_WARE)
 
-        @FiniteStateDevice.state_content(self, self.States.WARE_SELECTED)
+        @self.state_content(self.States.WARE_SELECTED)
         def _content():
             return ComponentFactory.get(
                 [
@@ -106,12 +103,12 @@ class ShopAction(Action):
                 self._get_ware_options(),
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_WARE, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_WARE, InputType.SILENT)
         def _logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self.ware_of_interest.id))
             self.set_state(self.States.WARE_SELECTED)
 
-        @FiniteStateDevice.state_logic(self, self.States.CONFIRM_WARE_PURCHASE, InputType.AFFIRMATIVE)
+        @self.state_logic(self.States.CONFIRM_WARE_PURCHASE, InputType.AFFIRMATIVE)
         def _logic(user_input: bool) -> None:
             if user_input:
                 player: entities.Player = get_cache()["player"]
@@ -126,7 +123,7 @@ class ShopAction(Action):
             else:
                 self.set_state(self.States.WARE_SELECTED)
 
-        @FiniteStateDevice.state_content(self, self.States.CONFIRM_WARE_PURCHASE)
+        @self.state_content(self.States.CONFIRM_WARE_PURCHASE)
         def _content():
             return ComponentFactory.get(
                 [
@@ -141,11 +138,11 @@ class ShopAction(Action):
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.PURCHASE_FAILURE, InputType.ANY)
+        @self.state_logic(self.States.PURCHASE_FAILURE, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_WARES)
 
-        @FiniteStateDevice.state_content(self, self.States.PURCHASE_FAILURE)
+        @self.state_content(self.States.PURCHASE_FAILURE)
         def _content():
             return ComponentFactory.get(
                 [
@@ -160,7 +157,7 @@ class ShopAction(Action):
                 ]
             )
 
-        @FiniteStateDevice.state_content(self, self.States.TERMINATE, True)
+        @self.state_content(self.States.TERMINATE, True)
         def _content():
             return ComponentFactory.get(["You leave the shop."])
 

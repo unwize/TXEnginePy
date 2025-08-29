@@ -13,7 +13,6 @@ from game.structures.enums import InputType as IT
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
 from game.structures.messages import ComponentFactory, StringContent
-from game.structures.state_device import FiniteStateDevice
 from game.systems import item as item
 from game.systems.entity import entities as entities
 from game.systems.event.events import Event
@@ -69,7 +68,7 @@ class AddItemEvent(Event):
         return self.__copy__()
 
     def _build_states(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, IT.SILENT)
+        @self.state_logic(self.States.DEFAULT, IT.SILENT)
         def _logic(_: any) -> None:
             if self.player_ref is None:
                 logger.debug("Setting player ref...")
@@ -86,14 +85,14 @@ class AddItemEvent(Event):
                 self.set_state(self.States.INSERT_ITEM)  # Insert items
                 logger.debug(f"{self.current_state}: {id(self)}")
 
-        @FiniteStateDevice.state_logic(self, self.States.PROMPT_KEEP_NEW_ITEM, IT.AFFIRMATIVE)
+        @self.state_logic(self.States.PROMPT_KEEP_NEW_ITEM, IT.AFFIRMATIVE)
         def _logic(user_input: bool) -> None:
             if user_input:
                 self.set_state(self.States.INSERT_ITEM)
             else:
                 self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.PROMPT_KEEP_NEW_ITEM)
+        @self.state_content(self.States.PROMPT_KEEP_NEW_ITEM)
         def _content() -> dict:
             c = [
                 "Would you like to make room in your inventory for ",
@@ -103,7 +102,7 @@ class AddItemEvent(Event):
             ]
             return ComponentFactory.get(c)
 
-        @FiniteStateDevice.state_logic(self, self.States.INSERT_ITEM, IT.ANY)
+        @self.state_logic(self.States.INSERT_ITEM, IT.ANY)
         def _logic(_: any) -> None:
             self.remaining_quantity = self.player_ref.inventory.insert_item(self.item_id, self.item_quantity)
 
@@ -112,7 +111,7 @@ class AddItemEvent(Event):
             else:
                 self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.INSERT_ITEM)
+        @self.state_content(self.States.INSERT_ITEM)
         def _content() -> dict:
             return ComponentFactory.get(
                 [

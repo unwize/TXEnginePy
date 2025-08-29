@@ -63,13 +63,11 @@ class Room(LoadableMixin, FiniteStateDevice):
         for action in self.actions:
             action.room = weakref.proxy(self)
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_OPTIONS)
 
-        @FiniteStateDevice.state_logic(
-            self, self.States.DISPLAY_OPTIONS, InputType.INT, 0, lambda: len(self.options) - 1
-        )
+        @self.state_logic(self.States.DISPLAY_OPTIONS, InputType.INT, 0, lambda: len(self.options) - 1)
         def _logic(user_input: int) -> None:
             self._action_index = user_input
 
@@ -80,14 +78,14 @@ class Room(LoadableMixin, FiniteStateDevice):
 
             self.set_state(self.States.REQ_MET)
 
-        @FiniteStateDevice.state_content(self, self.States.DISPLAY_OPTIONS)
+        @self.state_content(self.States.DISPLAY_OPTIONS)
         def _content():
             return ComponentFactory.get(
                 [(self.first_enter_text + "\n" if room.room_manager.is_visited(self.id) else "") + self.enter_text],
                 self.options,
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.REQ_MET, InputType.SILENT)
+        @self.state_logic(self.States.REQ_MET, InputType.SILENT)
         def _logic(_) -> None:
             game.add_state_device(self.visible_actions[self._action_index])
 
@@ -111,21 +109,21 @@ class Room(LoadableMixin, FiniteStateDevice):
                 logger.debug(f"Setting {self.visible_actions[self._action_index]} as hidden...")
                 self.visible_actions[self._action_index].visible = False
 
-        @FiniteStateDevice.state_logic(self, self.States.REQ_NOT_MET, InputType.ANY)
+        @self.state_logic(self.States.REQ_NOT_MET, InputType.ANY)
         def _logic(_) -> None:
             self.set_state(self.States.DISPLAY_OPTIONS)
 
-        @FiniteStateDevice.state_content(self, self.States.REQ_NOT_MET)
+        @self.state_content(self.States.REQ_NOT_MET)
         def _content():
             return ComponentFactory.get(
                 ["You can't do that!"], self.visible_actions[self._action_index].get_requirements_as_options()
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.LEAVE_ROOM, InputType.ANY)
+        @self.state_logic(self.States.LEAVE_ROOM, InputType.ANY)
         def _logic(_) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.LEAVE_ROOM)
+        @self.state_content(self.States.LEAVE_ROOM)
         def _content():
             return ComponentFactory.get([f"You leave {self.name}"])
 

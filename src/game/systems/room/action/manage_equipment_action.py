@@ -52,7 +52,7 @@ class ManageEquipmentAction(Action):
         return self._selected_slot
 
     def _setup_states(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             # Get user-ref
             if not self._player_ref:
@@ -63,8 +63,7 @@ class ManageEquipmentAction(Action):
 
             self.set_state(self.States.DEFAULT)
 
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.LIST_SLOTS,
             InputType.INT,
             input_min=-1,
@@ -78,7 +77,7 @@ class ManageEquipmentAction(Action):
             self._selected_slot = self._player_ref.equipment_controller.enabled_slots[user_input]
             self.set_state(self.States.INSPECT_SLOT)
 
-        @FiniteStateDevice.state_content(self, self.States.LIST_SLOTS)
+        @self.state_content(self.States.LIST_SLOTS)
         def _content() -> dict:
             return ComponentFactory.get(
                 ["Which slot would you like to select?"],
@@ -93,39 +92,39 @@ class ManageEquipmentAction(Action):
             self.States.LIST_SLOTS,
         )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.ANY)
+        @self.state_logic(self.States.INSPECT_EQUIPMENT, InputType.ANY)
         def _logic(_: any) -> None:
             pass
 
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_EQUIPMENT)
+        @self.state_content(self.States.INSPECT_EQUIPMENT)
         def _content() -> dict:
             pass
 
-        @FiniteStateDevice.state_logic(self, self.States.REQUIREMENTS_MET, InputType.ANY)
+        @self.state_logic(self.States.REQUIREMENTS_MET, InputType.ANY)
         def _logic(_: any) -> None:
             pass
 
-        @FiniteStateDevice.state_content(self, self.States.REQUIREMENTS_MET)
+        @self.state_content(self.States.REQUIREMENTS_MET)
         def _content() -> dict:
             pass
 
-        @FiniteStateDevice.state_logic(self, self.States.REQUIREMENTS_NOT_MET, InputType.ANY)
+        @self.state_logic(self.States.REQUIREMENTS_NOT_MET, InputType.ANY)
         def _logic(_: any) -> None:
             pass
 
-        @FiniteStateDevice.state_content(self, self.States.REQUIREMENTS_NOT_MET)
+        @self.state_content(self.States.REQUIREMENTS_NOT_MET)
         def _content() -> dict:
             pass
 
-        @FiniteStateDevice.state_logic(self, self.States.UNEQUIP_ITEM, InputType.AFFIRMATIVE)
+        @self.state_logic(self.States.UNEQUIP_ITEM, InputType.AFFIRMATIVE)
         def _logic(user_input: bool) -> None:
             pass
 
-        @FiniteStateDevice.state_content(self, self.States.UNEQUIP_ITEM)
+        @self.state_content(self.States.UNEQUIP_ITEM)
         def _content() -> dict:
             pass
 
-        @FiniteStateDevice.state_logic(self, self.States.VIEW_AVAILABLE_EQUIPMENT_FOR_SLOT, InputType.SILENT)
+        @self.state_logic(self.States.VIEW_AVAILABLE_EQUIPMENT_FOR_SLOT, InputType.SILENT)
         def _logic(_: any) -> None:
             """
             Spawn a pre-configured event to handle the selection process. Retrieve the results via storage and manage
@@ -133,7 +132,7 @@ class ManageEquipmentAction(Action):
             """
             pass
 
-        @FiniteStateDevice.state_content(self, self.States.VIEW_AVAILABLE_EQUIPMENT_FOR_SLOT)
+        @self.state_content(self.States.VIEW_AVAILABLE_EQUIPMENT_FOR_SLOT)
         def _content() -> dict:
             pass
 

@@ -72,7 +72,7 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
         return {text: state for cls, text, state in self.get_item_inspection_options() if isinstance(inst, cls)}
 
     def _setup_states(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any):
             if self.target.inventory.size == 0:
                 self.set_state(self.States.EMPTY)
@@ -80,9 +80,7 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             else:
                 self.set_state(self.States.CHOOSE_ITEM)
 
-        @FiniteStateDevice.state_logic(
-            self, self.States.CHOOSE_ITEM, InputType.INT, -1, lambda: self.target.inventory.size - 1
-        )
+        @self.state_logic(self.States.CHOOSE_ITEM, InputType.INT, -1, lambda: self.target.inventory.size - 1)
         def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -90,11 +88,11 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
                 self.stack_index = user_input
                 self.set_state(self.States.CALCULATE_INSPECTION_OPTIONS)
 
-        @FiniteStateDevice.state_content(self, self.States.CHOOSE_ITEM)
+        @self.state_content(self.States.CHOOSE_ITEM)
         def _content() -> dict:
             return ComponentFactory.get(["What stack would you like to inspect?"], self.target.inventory.to_options())
 
-        @FiniteStateDevice.state_logic(self, self.States.CALCULATE_INSPECTION_OPTIONS, InputType.SILENT)
+        @self.state_logic(self.States.CALCULATE_INSPECTION_OPTIONS, InputType.SILENT)
         def _logic(_: any) -> None:
             # Fetch available inspection options
             opt = self._get_available_inspection_options(self.stack_index)
@@ -105,16 +103,16 @@ class ViewInventoryEvent(EntityTargetMixin, Event):
             )
             self.set_state(self.States.CHOOSE_ITEM_INSPECTION_OPTION)
 
-        @FiniteStateDevice.state_logic(self, self.States.VIEW_DESC, InputType.SILENT)
+        @self.state_logic(self.States.VIEW_DESC, InputType.SILENT)
         def _logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self.target.inventory.items[self.stack_index].id))
             self.set_state(self.States.CHOOSE_ITEM_INSPECTION_OPTION)
 
-        @FiniteStateDevice.state_logic(self, self.States.VIEW_FUNCTIONAL_DESC, InputType.ANY)
+        @self.state_logic(self.States.VIEW_FUNCTIONAL_DESC, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.CHOOSE_ITEM_INSPECTION_OPTION)
 
-        @FiniteStateDevice.state_content(self, self.States.VIEW_FUNCTIONAL_DESC)
+        @self.state_content(self.States.VIEW_FUNCTIONAL_DESC)
         def _content() -> dict:
             """
             Return a content dict displaying the selected-item's name and description

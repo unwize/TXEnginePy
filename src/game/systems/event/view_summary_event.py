@@ -5,7 +5,6 @@ from game.cache import from_cache, cached
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.entity import Entity
 from game.systems.entity.mixins.resource_mixin import ResourceMixin
 from game.systems.entity.mixins.skill_mixin import SkillMixin
@@ -76,7 +75,7 @@ class ViewSummaryEvent(Event):
         self._target = entity
 
     def setup_states(self):
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.INT, -1, lambda: len(self.options))
+        @self.state_logic(self.States.DEFAULT, InputType.INT, -1, lambda: len(self.options))
         def _logic(user_input: int) -> None:
             if user_input == -1:
                 self.set_state(self.States.TERMINATE)
@@ -85,7 +84,7 @@ class ViewSummaryEvent(Event):
             selected_option = self.options[user_input][0]
             game.add_state_device(self._options[selected_option]["class"](self.target))
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content() -> dict:
             return ComponentFactory.get(["What would you like to do?"], self.options)
 

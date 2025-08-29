@@ -29,7 +29,7 @@ class DialogAction(Action):
 
         self.dialog_id = dialog_id
 
-        @self.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_) -> None:
             game.add_state_device(DialogEvent(self.dialog_id))
             self.set_state(self.States.TERMINATE)

@@ -6,7 +6,6 @@ from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.loadable_factory import LoadableFactory
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.dialog.dialog import DialogNode, Dialog
 from game.systems.event import Event
 from game.systems.event.events import TextEvent
@@ -58,7 +57,7 @@ class DialogEvent(Event):
 
         self.dialog: Dialog = None
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.dialog = from_cache("managers.DialogManager")[dialog_id]
             self.set_state(self.States.VISIT_NODE)
@@ -71,8 +70,7 @@ class DialogEvent(Event):
                     f"None!"
                 )
 
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.VISIT_NODE,
             InputType.INT,
             input_min=0,
@@ -97,7 +95,7 @@ class DialogEvent(Event):
                     # before "seeing" the triggered events.
                     game.add_state_device(TextEvent(self.current_node.text))
 
-        @FiniteStateDevice.state_content(self, self.States.VISIT_NODE)
+        @self.state_content(self.States.VISIT_NODE)
         def _content() -> dict:
             return ComponentFactory.get([self.current_node.text], self.current_node.get_option_text())
 

@@ -106,7 +106,7 @@ class InspectEntityEvent(EntityTargetMixin, Event):
         self._setup_states()
 
     def _setup_states(self):
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.SHOW_OPTIONS)
 
@@ -116,35 +116,35 @@ class InspectEntityEvent(EntityTargetMixin, Event):
         )
 
         # INSPECT_ABILITIES
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ABILITIES, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_ABILITIES, InputType.SILENT)
         def _logic(_: any) -> None:
             event = ViewAbilitiesEvent(target=self.target)
             game.add_state_device(event)
             self.set_state(self.States.SHOW_OPTIONS)
 
         # INSPECT_EQUIPMENT
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_EQUIPMENT, InputType.SILENT)
         def _logic(_: any) -> None:
             event = ViewEquipmentEvent(target=self.target)
             game.add_state_device(event)
             self.set_state(self.States.SHOW_OPTIONS)
 
         # INSPECT_INVENTORY
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_INVENTORY, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_INVENTORY, InputType.SILENT)
         def _logic(_: any) -> None:
             event = ViewInventoryEvent(target=self.target)
             game.add_state_device(event)
             self.set_state(self.States.SHOW_OPTIONS)
 
         # INSPECT_SKILLS
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_RESOURCES, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_RESOURCES, InputType.SILENT)
         def _logic(_: any) -> None:
             event = ViewResourcesEvent(target=self.target)
             game.add_state_device(event)
             self.set_state(self.States.SHOW_OPTIONS)
 
         # INSPECT_RESOURCES
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_SKILLS, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_SKILLS, InputType.SILENT)
         def _logic(_: any) -> None:
             event = ViewSkillsEvent(target=self.target)
             game.add_state_device(event)

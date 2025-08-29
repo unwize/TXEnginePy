@@ -4,7 +4,6 @@ from game.cache import cached, from_cache
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.messages import ComponentFactory, StringContent
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event.events import Event
 
 
@@ -27,7 +26,7 @@ class UseItemEvent(Event):
         self._target = target  # Type Entity
         self._item_instance = None
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self._item_instance = from_cache("managers.ItemManager").get_instance(item_id)
 
@@ -50,11 +49,11 @@ class UseItemEvent(Event):
             else:
                 self.set_state(self.States.NOT_USABLE)
 
-        @FiniteStateDevice.state_logic(self, self.States.NOT_REQUIREMENTS, InputType.ANY)
+        @self.state_logic(self.States.NOT_REQUIREMENTS, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.NOT_REQUIREMENTS)
+        @self.state_content(self.States.NOT_REQUIREMENTS)
         def _content(_: any) -> dict:
             c = [
                 "Failed to use ",
@@ -63,17 +62,17 @@ class UseItemEvent(Event):
             ]
             return ComponentFactory.get(c, self._item_instance.get_requirements_as_options())
 
-        @FiniteStateDevice.state_logic(self, self.States.NOT_USABLE, InputType.ANY)
+        @self.state_logic(self.States.NOT_USABLE, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.NOT_USABLE)
+        @self.state_content(self.States.NOT_USABLE)
         def _content() -> dict:
             return ComponentFactory.get(
                 [StringContent(value=self._item_instance.name, formatting="item_name"), " cannot be used."]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.USE_ITEM, InputType.ANY)
+        @self.state_logic(self.States.USE_ITEM, InputType.ANY)
         def _logic(_: any) -> None:
             self._item_instance.use(self.target)
 
@@ -82,7 +81,7 @@ class UseItemEvent(Event):
 
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.USE_ITEM)
+        @self.state_content(self.States.USE_ITEM)
         def _content() -> dict:
             return ComponentFactory.get(["You used ", self._item_instance.name, "."])
 

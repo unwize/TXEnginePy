@@ -171,12 +171,12 @@ class ResourceEffect(CombatEffect):
         ]
 
     def _setup_states(self):
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY)
+        @self.state_logic(self.States.DEFAULT, InputType.ANY)
         def _logic(_: any) -> None:
             self.perform()
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content():
             """
             This calculation only works because the client must retrieve state_content before executing state_logic!

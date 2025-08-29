@@ -5,7 +5,6 @@ from enum import Enum
 from game.cache import from_cache
 from game.structures.enums import InputType
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event import Event
 
 
@@ -34,11 +33,11 @@ class InspectItemEvent(Event):
         self.item_id = item_id
         self.ref = from_cache("managers.ItemManager").get_instance(self.item_id)
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.CHECK_TYPE)
 
-        @FiniteStateDevice.state_logic(self, self.States.CHECK_TYPE, InputType.SILENT)
+        @self.state_logic(self.States.CHECK_TYPE, InputType.SILENT)
         def _logic(_: any) -> None:
             from game.systems.item.item import Item, Usable, Equipment
 
@@ -51,11 +50,11 @@ class InspectItemEvent(Event):
             else:
                 raise TypeError("ref did not fetch an Item instance!")
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ITEM, InputType.ANY)
+        @self.state_logic(self.States.INSPECT_ITEM, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_ITEM)
+        @self.state_content(self.States.INSPECT_ITEM)
         def _content() -> dict:
             return ComponentFactory.get(
                 [
@@ -70,11 +69,11 @@ class InspectItemEvent(Event):
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_USABLE, InputType.ANY)
+        @self.state_logic(self.States.INSPECT_USABLE, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_USABLE)
+        @self.state_content(self.States.INSPECT_USABLE)
         def _content() -> dict:
             return ComponentFactory.get(
                 [
@@ -91,11 +90,11 @@ class InspectItemEvent(Event):
                 ]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.ANY)
+        @self.state_logic(self.States.INSPECT_EQUIPMENT, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_EQUIPMENT)
+        @self.state_content(self.States.INSPECT_EQUIPMENT)
         def _content() -> dict:
             """
             Print in the following format:

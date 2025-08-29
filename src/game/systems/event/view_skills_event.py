@@ -6,7 +6,6 @@ from game.cache import cached, from_cache
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.messages import ComponentFactory, StringContent
-from game.structures.state_device import FiniteStateDevice
 from game.systems.entity.mixins.skill_mixin import SkillMixin
 from game.systems.event.events import Event
 
@@ -23,13 +22,12 @@ class ViewSkillsEvent(Event):
         self._selected_skill: int | None = None
         self._target: SkillMixin | None = target
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self._selected_skill = None
             self.set_state(self.States.VIEW_SKILLS)
 
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.VIEW_SKILLS,
             InputType.INT,
             -1,
@@ -43,15 +41,15 @@ class ViewSkillsEvent(Event):
             self._selected_skill = list(self.target.skill_controller.skills.keys())[user_input]
             self.set_state(self.States.SKILL_SELECTED)
 
-        @FiniteStateDevice.state_content(self, self.States.VIEW_SKILLS)
+        @self.state_content(self.States.VIEW_SKILLS)
         def _content() -> dict:
             return ComponentFactory.get(["Skills: "], self.target.skill_controller.get_skills_as_options())
 
-        @FiniteStateDevice.state_logic(self, self.States.SKILL_SELECTED, InputType.ANY)
+        @self.state_logic(self.States.SKILL_SELECTED, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.VIEW_SKILLS)
 
-        @FiniteStateDevice.state_content(self, self.States.SKILL_SELECTED)
+        @self.state_content(self.States.SKILL_SELECTED)
         def _content() -> dict:
             return ComponentFactory.get(
                 [

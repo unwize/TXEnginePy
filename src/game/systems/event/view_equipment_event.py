@@ -5,7 +5,6 @@ from enum import Enum
 import game
 from game.structures.enums import InputType
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.entity.entities import CombatEntity
 from game.systems.event import Event
 from game.systems.event.events import EntityTargetMixin
@@ -40,15 +39,14 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
         self._setup_states()
 
     def _setup_states(self):
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if self._inspect_item_id:
                 self.set_state(self.States.INSPECT_EQUIPMENT)
             else:
                 self.set_state(self.States.DISPLAY_EQUIPMENT)
 
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.DISPLAY_EQUIPMENT,
             InputType.INT,
             input_min=-1,
@@ -67,21 +65,21 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
             self._inspect_item_id = self.target.equipment_controller[slot].item_id
             self.set_state(self.States.INSPECT_EQUIPMENT)
 
-        @FiniteStateDevice.state_content(self, self.States.DISPLAY_EQUIPMENT)
+        @self.state_content(self.States.DISPLAY_EQUIPMENT)
         def _content() -> dict:
             return ComponentFactory.get(
                 [self.target.name, "'s Equipment:"], self.target.equipment_controller.get_equipment_as_options()
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.SLOT_IS_EMPTY, InputType.ANY)
+        @self.state_logic(self.States.SLOT_IS_EMPTY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.DISPLAY_EQUIPMENT)
 
-        @FiniteStateDevice.state_content(self, self.States.SLOT_IS_EMPTY)
+        @self.state_content(self.States.SLOT_IS_EMPTY)
         def _content() -> dict:
             return ComponentFactory.get(["This equipment slot is empty."])
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_EQUIPMENT, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_EQUIPMENT, InputType.SILENT)
         def _logic(_: any) -> None:
             game.add_state_device(InspectItemEvent(self._inspect_item_id))
             self.set_state(self.States.DISPLAY_EQUIPMENT)

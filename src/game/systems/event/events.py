@@ -90,7 +90,7 @@ class FlagEvent(Event):
         super().__init__(InputType.SILENT, self.States, self.States.DEFAULT)
         self._flags = flags  # The flags to set and their corresponding values
 
-        @FiniteStateDevice.state_logic(input_type=InputType.SILENT, instance=self, state=self.States.DEFAULT)
+        @self.state_logic(input_type=InputType.SILENT, state=self.States.DEFAULT)
         def _logic(_: any) -> None:
             """
             Perform some logic for setting flags
@@ -152,7 +152,7 @@ class LearnAbilityEvent(Event):
         self.target_ability: str = ability_name
         self.player_ref = None
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if not self.player_ref:
                 self.player_ref = from_cache("player")
@@ -162,7 +162,7 @@ class LearnAbilityEvent(Event):
             else:
                 self.set_state(self.States.NOT_ALREADY_LEARNED)
 
-        @FiniteStateDevice.state_logic(self, self.States.NOT_ALREADY_LEARNED, InputType.SILENT)
+        @self.state_logic(self.States.NOT_ALREADY_LEARNED, InputType.SILENT)
         def _logic(_: any) -> None:
             if self.player_ref.ability_controller.is_learnable(ability_name):
                 self.set_state(self.States.REQUIREMENTS_MET)
@@ -170,11 +170,11 @@ class LearnAbilityEvent(Event):
             else:
                 self.set_state(self.States.REQUIREMENTS_NOT_MET)
 
-        @FiniteStateDevice.state_logic(self, self.States.ALREADY_LEARNED, input_type=InputType.ANY)
+        @self.state_logic(self.States.ALREADY_LEARNED, input_type=InputType.ANY)
         def _logic(_: any):
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.ALREADY_LEARNED)
+        @self.state_content(self.States.ALREADY_LEARNED)
         def _content() -> dict:
             already_learned_message = [
                 StringContent(value="You already learned "),
@@ -182,12 +182,12 @@ class LearnAbilityEvent(Event):
             ]
             return ComponentFactory.get(already_learned_message)
 
-        @FiniteStateDevice.state_logic(self, self.States.REQUIREMENTS_MET, InputType.ANY)
+        @self.state_logic(self.States.REQUIREMENTS_MET, InputType.ANY)
         def _logic(_: any) -> None:
             self.player_ref.ability_controller.learn(ability_name)
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.REQUIREMENTS_MET)
+        @self.state_content(self.States.REQUIREMENTS_MET)
         def _content() -> dict:
             learn_message = [
                 StringContent(value="You learned a new ability!\n"),
@@ -195,11 +195,11 @@ class LearnAbilityEvent(Event):
             ]
             return ComponentFactory.get(learn_message)
 
-        @FiniteStateDevice.state_logic(self, self.States.REQUIREMENTS_NOT_MET, InputType.ANY)
+        @self.state_logic(self.States.REQUIREMENTS_NOT_MET, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.REQUIREMENTS_NOT_MET)
+        @self.state_content(self.States.REQUIREMENTS_NOT_MET)
         def _content():
             return ComponentFactory.get(
                 [
@@ -259,12 +259,12 @@ class CurrencyEvent(Event):
 
         self._message = get_message()
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY if not silent else InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.ANY if not silent else InputType.SILENT)
         def _logic(_: any) -> None:
             self._player_ref.coin_purse.adjust(self._currency_id, self._quantity)
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content():
             return ComponentFactory.get(self._message)
 
@@ -326,29 +326,29 @@ class LearnRecipeEvent(Event):
         self.recipe_id = recipe_id
         self._player_ref = from_cache("player")
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any):
             if self._player_ref.crafting_controller.can_learn_recipe(self.recipe_id):
                 self.set_state(self.States.CAN_LEARN)
             else:
                 self.set_state(self.States.CANNOT_LEARN)
 
-        @FiniteStateDevice.state_logic(self, self.States.CAN_LEARN, InputType.ANY)
+        @self.state_logic(self.States.CAN_LEARN, InputType.ANY)
         def _logic(_: any) -> None:
             self._player_ref.crafting_controller.learn_recipe(recipe_id)
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.CAN_LEARN)
+        @self.state_content(self.States.CAN_LEARN)
         def _content():
             return ComponentFactory.get(
                 [f"{self._player_ref.name} learned a recipe!\n" f"{recipe_manager[recipe_id].name}"]
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.CANNOT_LEARN, InputType.ANY)
+        @self.state_logic(self.States.CANNOT_LEARN, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.CANNOT_LEARN)
+        @self.state_content(self.States.CANNOT_LEARN)
         def _content():
             return ComponentFactory.get(
                 [f"{self._player_ref.name} cannot learn " f"{recipe_manager[recipe_id].name}!"],
@@ -398,13 +398,13 @@ class ReputationEvent(Event):
             StringContent(value=f" by {reputation_change}"),
         ]
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY)
+        @self.state_logic(self.States.DEFAULT, InputType.ANY)
         def _logic(_: any) -> None:
             from_cache("managers.FactionManager").adjust_affinity(self.faction_id, self.reputation_change)
 
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content() -> dict:
             return ComponentFactory.get(self.message)
 
@@ -478,7 +478,7 @@ class ResourceEvent(EntityTargetMixin, Event):
         self._summary: list[str | StringContent] = None
         self._silent = silent
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_):
             from game.systems.entity.entities import Entity  # Import locally to prevent circular import issues
 
@@ -487,7 +487,7 @@ class ResourceEvent(EntityTargetMixin, Event):
 
             self.set_state(self.States.APPLY)
 
-        @FiniteStateDevice.state_logic(self, self.States.APPLY, InputType.SILENT)
+        @self.state_logic(self.States.APPLY, InputType.SILENT)
         def _logic(_: any):
             resource_controller: ResourceController = self.target.resource_controller
             self._build_summary(
@@ -497,11 +497,11 @@ class ResourceEvent(EntityTargetMixin, Event):
             )  # Post-adjust value
             self.set_state(self.States.SUMMARY)
 
-        @FiniteStateDevice.state_logic(self, self.States.SUMMARY, InputType.SILENT if self._silent else InputType.ANY)
+        @self.state_logic(self.States.SUMMARY, InputType.SILENT if self._silent else InputType.ANY)
         def _logic(_: any):
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.SUMMARY)
+        @self.state_content(self.States.SUMMARY)
         def _content():
             return ComponentFactory.get(self._summary)
 
@@ -558,11 +558,11 @@ class TextEvent(Event):
         super().__init__(InputType.ANY, self.States, self.States.DEFAULT)
         self.text: str | list[str | StringContent] = text
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY)
+        @self.state_logic(self.States.DEFAULT, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content() -> dict:
             return ComponentFactory.get(self.text if type(text) is list else [self.text])
 
@@ -615,19 +615,19 @@ class SkillXPEvent(EntityTargetMixin, Event):
         self._skill_id = skill_id
         self._xp_gained = xp_gain
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if self._target is None:
                 self._target = from_cache("player")
 
             self.set_state(self.States.GAIN_MESSAGE)
 
-        @FiniteStateDevice.state_logic(self, self.States.GAIN_MESSAGE, InputType.ANY)
+        @self.state_logic(self.States.GAIN_MESSAGE, InputType.ANY)
         def _logic(_: any) -> None:
             self._target.skill_controller[self._skill_id].gain_xp(self._xp_gained)
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.GAIN_MESSAGE)
+        @self.state_content(self.States.GAIN_MESSAGE)
         def _content() -> dict:
             return ComponentFactory.get(
                 [
@@ -671,11 +671,11 @@ class ViewResourcesEvent(EntityTargetMixin, Event):
         )
         self._target = target  # The entity to read Resource values from
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.ANY)
+        @self.state_logic(self.States.DEFAULT, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content() -> dict:
             return ComponentFactory.get(
                 [f"{self.target.name}'s resources:"], self.target.resource_controller.get_resources_as_options()
@@ -731,11 +731,11 @@ class CombatEvent(Event):
         self._setup_states()
 
     def _setup_states(self):
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.LAUNCH_COMBAT_ENGINE)
 
-        @FiniteStateDevice.state_logic(self, self.States.LAUNCH_COMBAT_ENGINE, InputType.SILENT)
+        @self.state_logic(self.States.LAUNCH_COMBAT_ENGINE, InputType.SILENT)
         def _logic(_: any) -> None:
             combat = CombatEngine(self._allies, self._enemies, self._termination_conditions)
             game.add_state_device(combat)

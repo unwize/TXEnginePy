@@ -6,7 +6,6 @@ from typing import Callable, Iterable
 from game.cache import request_storage_key, store_element, from_cache, loader
 from game.structures.enums import InputType
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event import Event
 
 
@@ -84,7 +83,7 @@ class SelectElementEvent(Event):
 
     def _setup_states(self) -> None:
         # DEFAULT
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             # Check for a filter and use it if available
             if self._element_filter is not None:
@@ -101,8 +100,7 @@ class SelectElementEvent(Event):
             self.set_state(self.States.SHOW_ELEMENTS)
 
         # SHOW_ELEMENTS
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.SHOW_ELEMENTS,
             InputType.INT,
             input_min=0 if self._must_select else -1,
@@ -121,7 +119,7 @@ class SelectElementEvent(Event):
 
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.SHOW_ELEMENTS)
+        @self.state_content(self.States.SHOW_ELEMENTS)
         def _content():
             return ComponentFactory.get([self._prompt], [self._to_listing(e) for e in self.__filtered_collection])
 

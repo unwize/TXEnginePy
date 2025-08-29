@@ -4,7 +4,6 @@ from game.cache import cached, from_cache
 from game.structures.enums import InputType
 from game.structures.loadable import LoadableMixin
 from game.structures.messages import ComponentFactory
-from game.structures.state_device import FiniteStateDevice
 from game.systems.event import Event
 
 
@@ -38,7 +37,7 @@ class ViewAbilitiesEvent(Event):
         self.selected_ability: str | None = None
         self._selected_instance = None
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self._selected_instance = None
             self.selected_ability = None
@@ -58,8 +57,7 @@ class ViewAbilitiesEvent(Event):
             self.set_state(self.States.VIEW_ABILITIES)
 
         # This state is highly inefficient. TODO: Improve
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.VIEW_ABILITIES,
             InputType.INT,
             -1,
@@ -73,18 +71,18 @@ class ViewAbilitiesEvent(Event):
             self.selected_ability = list(self.target.ability_controller.abilities)[user_input]
             self.set_state(self.States.INSPECT_ABILITY)
 
-        @FiniteStateDevice.state_content(self, self.States.VIEW_ABILITIES)
+        @self.state_content(self.States.VIEW_ABILITIES)
         def _content() -> dict:
             return ComponentFactory.get(
                 [f"{self.target.name}'s abilities: "], self.target.ability_controller.get_abilities_as_options()
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ABILITY, InputType.ANY)
+        @self.state_logic(self.States.INSPECT_ABILITY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.DEFAULT)
 
         # TODO: Improve state to account for zero tags
-        @FiniteStateDevice.state_content(self, self.States.INSPECT_ABILITY)
+        @self.state_content(self.States.INSPECT_ABILITY)
         def _content() -> dict:
             return ComponentFactory.get(
                 [
@@ -96,11 +94,11 @@ class ViewAbilitiesEvent(Event):
                 self.selected_ability_instance.get_requirements_as_options(),
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.EMPTY, InputType.ANY)
+        @self.state_logic(self.States.EMPTY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.EMPTY)
+        @self.state_content(self.States.EMPTY)
         def _content() -> dict:
             return ComponentFactory.get(["No learned abilities!"])
 

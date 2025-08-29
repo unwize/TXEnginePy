@@ -64,7 +64,7 @@ class PlayerCombatChoiceEvent(Event):
         self._setup_states()
 
     def _setup_states(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.CHOOSE_TURN_OPTION)
 
@@ -74,7 +74,7 @@ class PlayerCombatChoiceEvent(Event):
         )
 
         # CHOOSE_AN_ABILITY
-        @FiniteStateDevice.state_logic(self, self.States.CHOOSE_AN_ABILITY, InputType.SILENT)
+        @self.state_logic(self.States.CHOOSE_AN_ABILITY, InputType.SILENT)
         def _logic(_: any) -> None:
             choose_ability_event = SelectElementEventFactory.get_select_ability_event(self._entity, False, False)
             self._links["CHOOSE_AN_ABILITY"] = choose_ability_event.link()
@@ -82,7 +82,7 @@ class PlayerCombatChoiceEvent(Event):
             self.set_state(self.States.CHECK_ABILITY_USABLE)
 
         # CHECK_ABILITY_USABLE
-        @FiniteStateDevice.state_logic(self, self.States.CHECK_ABILITY_USABLE, InputType.SILENT)
+        @self.state_logic(self.States.CHECK_ABILITY_USABLE, InputType.SILENT)
         def _logic(_: any) -> None:
             selected_ability = from_storage(self._links["CHOOSE_AN_ABILITY"]["selected_element"])
 
@@ -107,8 +107,7 @@ class PlayerCombatChoiceEvent(Event):
                 self.set_state(self.States.CHOOSE_SINGLE_ABILITY_TARGET)
 
         # CHOOSE_ABILITY_TARGET
-        @FiniteStateDevice.state_logic(
-            self,
+        @self.state_logic(
             self.States.CHOOSE_SINGLE_ABILITY_TARGET,
             InputType.INT,
             input_min=-1,
@@ -134,7 +133,7 @@ class PlayerCombatChoiceEvent(Event):
             )
             self.set_state(self.States.SUBMIT_CHOICE)
 
-        @FiniteStateDevice.state_content(self, self.States.CHOOSE_SINGLE_ABILITY_TARGET)
+        @self.state_content(self.States.CHOOSE_SINGLE_ABILITY_TARGET)
         def _content() -> dict:
             chosen_ability = from_storage(self._links["CHOOSE_AN_ABILITY"]["selected_element"])
             targets = from_cache("combat").get_valid_ability_targets(self._entity, chosen_ability)
@@ -145,7 +144,7 @@ class PlayerCombatChoiceEvent(Event):
                 [[f"{target.name} ({'ENEMY' if target in ci.enemies else 'ALLY'})" for target in targets]],
             )
 
-        @FiniteStateDevice.state_logic(self, self.States.CONFIRM_GROUP_ABILITY_TARGET, InputType.AFFIRMATIVE)
+        @self.state_logic(self.States.CONFIRM_GROUP_ABILITY_TARGET, InputType.AFFIRMATIVE)
         def _logic(user_input: bool) -> None:
             chosen_ability = from_storage(self._links["CHOOSE_AN_ABILITY"]["selected_element"])
             targets = from_cache("combat").get_valid_ability_targets(self._entity, chosen_ability)
@@ -158,7 +157,7 @@ class PlayerCombatChoiceEvent(Event):
             else:
                 self.set_state(self.States.CHOOSE_AN_ABILITY)
 
-        @FiniteStateDevice.state_content(self, self.States.CONFIRM_GROUP_ABILITY_TARGET)
+        @self.state_content(self.States.CONFIRM_GROUP_ABILITY_TARGET)
         def _content() -> dict:
             ci = from_cache("combat")
             chosen_ability = from_storage(self._links["CHOOSE_AN_ABILITY"]["selected_element"])
@@ -170,16 +169,16 @@ class PlayerCombatChoiceEvent(Event):
             )
 
         # CANNOT_USE_ABILITY
-        @FiniteStateDevice.state_logic(self, self.States.CANNOT_USE_ABILITY, InputType.ANY)
+        @self.state_logic(self.States.CANNOT_USE_ABILITY, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.CHOOSE_TURN_OPTION)
 
-        @FiniteStateDevice.state_content(self, self.States.CANNOT_USE_ABILITY)
+        @self.state_content(self.States.CANNOT_USE_ABILITY)
         def _content() -> dict:
             return ComponentFactory.get(["You cannot use that Ability."])
 
         # CHOOSE_AN_ITEM
-        @FiniteStateDevice.state_logic(self, self.States.CHOOSE_AN_ITEM, InputType.SILENT)
+        @self.state_logic(self.States.CHOOSE_AN_ITEM, InputType.SILENT)
         def _logic(_: any) -> None:
             from game.systems.item.item import Usable
 
@@ -196,7 +195,7 @@ class PlayerCombatChoiceEvent(Event):
             self.set_state(self.States.DETECT_ITEM_USABLE)
 
         # DETECT_ITEM_USABLE
-        @FiniteStateDevice.state_logic(self, self.States.DETECT_ITEM_USABLE, InputType.SILENT)
+        @self.state_logic(self.States.DETECT_ITEM_USABLE, InputType.SILENT)
         def _logic(_: any) -> None:
             from game.systems.item.item import Usable
 
@@ -225,11 +224,11 @@ class PlayerCombatChoiceEvent(Event):
                 raise RuntimeError("Something went wrong with PlayerCombatChoiceEvent")
 
         # CANNOT_USE_ITEM
-        @FiniteStateDevice.state_logic(self, self.States.CANNOT_USE_ITEM, InputType.ANY)
+        @self.state_logic(self.States.CANNOT_USE_ITEM, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.CHOOSE_AN_ITEM)
 
-        @FiniteStateDevice.state_content(self, self.States.CANNOT_USE_ITEM)
+        @self.state_content(self.States.CANNOT_USE_ITEM)
         def _content() -> dict:
             item_instance = from_cache("managers.ItemManager").get_instance(self._choice_data.item_id)
 
@@ -239,25 +238,25 @@ class PlayerCombatChoiceEvent(Event):
             )
 
         # SUBMIT_CHOICE
-        @FiniteStateDevice.state_logic(self, self.States.SUBMIT_CHOICE, InputType.SILENT)
+        @self.state_logic(self.States.SUBMIT_CHOICE, InputType.SILENT)
         def _logic(_: any) -> None:
             from_cache("combat").submit_entity_choice(self._entity, self._choice_data)
             self.set_state(self.States.TERMINATE)
 
         # PASS_TURN
-        @FiniteStateDevice.state_logic(self, self.States.PASS_TURN, InputType.ANY)
+        @self.state_logic(self.States.PASS_TURN, InputType.ANY)
         def _logic(_: any) -> None:
             self._choice_data = ChoiceData(ChoiceData.ChoiceType.PASS)
             self.set_state(self.States.SUBMIT_CHOICE)
 
-        @FiniteStateDevice.state_content(self, self.States.PASS_TURN)
+        @self.state_content(self.States.PASS_TURN)
         def _content() -> dict:
             return ComponentFactory.get(
                 [StringContent(value=self._entity.name, formatting="entity_name"), " chose not to act."]
             )
 
         # INSPECT_ALLIES
-        @FiniteStateDevice.state_logic(self, self.States.LIST_ALLIES, InputType.SILENT)
+        @self.state_logic(self.States.LIST_ALLIES, InputType.SILENT)
         def _logic(_: any) -> None:
             event = SelectElementEventFactory.get_select_entity_event(from_cache("combat").allies)
             self._links["INSPECT_ENTITY"] = event.link()
@@ -266,7 +265,7 @@ class PlayerCombatChoiceEvent(Event):
             self.set_state(self.States.INSPECT_ENTITY)
 
         # INSPECT_ENEMIES
-        @FiniteStateDevice.state_logic(self, self.States.LIST_ENEMIES, InputType.SILENT)
+        @self.state_logic(self.States.LIST_ENEMIES, InputType.SILENT)
         def _logic(_: any) -> None:
             event = SelectElementEventFactory.get_select_entity_event(from_cache("combat").enemies)
             self._links["INSPECT_ENTITY"] = event.link()
@@ -274,7 +273,7 @@ class PlayerCombatChoiceEvent(Event):
             self.set_state(self.States.INSPECT_ENTITY)
 
         # INSPECT_ENTITY
-        @FiniteStateDevice.state_logic(self, self.States.INSPECT_ENTITY, InputType.SILENT)
+        @self.state_logic(self.States.INSPECT_ENTITY, InputType.SILENT)
         def _logic(_: any) -> None:
             entity = from_storage(self._links["INSPECT_ENTITY"]["selected_element"], delete=True)
 

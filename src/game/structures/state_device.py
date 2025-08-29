@@ -404,9 +404,8 @@ class FiniteStateDevice(StateDevice, ABC):
         self.state_history.append(next_state)
 
     # Custom Decorators
-    @staticmethod
     def state_logic(
-        instance,
+        self,
         state,
         input_type: enums.InputType,
         input_min: int | Callable = None,
@@ -420,7 +419,6 @@ class FiniteStateDevice(StateDevice, ABC):
         such as input type and input range.
 
         Args:
-            instance: an instance of a FiniteStateDevice to operate on
             state: The state to map 'func' to
             input_type: The input type for this state
             input_min:
@@ -439,16 +437,10 @@ class FiniteStateDevice(StateDevice, ABC):
 
         """
 
-        # Type and value checking
-        if not isinstance(instance, FiniteStateDevice):
-            raise StateDeviceInternalError(
-                f"Can only wrap instances of FiniteStateDevice! " f"Type {type(instance)} is not supported."
-            )
-
-        if state not in instance.state_data and state.value not in instance.state_data:
+        if state not in self.state_data and state.value not in self.state_data:
             raise StateDeviceInternalError(f"Unknown state {state}:{state.value}!")
 
-        if not override and instance.state_data[state.value]["logic"]:
+        if not override and self.state_data[state.value]["logic"]:
             raise StateDeviceInternalError(
                 f"State.logic collision! {state} already has a logic function " f"registered."
             )
@@ -481,18 +473,17 @@ class FiniteStateDevice(StateDevice, ABC):
                     argument, not {len(spec.args)}!"""
                 )
 
-            instance.state_data[state.value]["input_type"] = input_type
-            instance.state_data[state.value]["min"] = input_min
-            instance.state_data[state.value]["max"] = input_max
-            instance.state_data[state.value]["len"] = input_len
-            instance.state_data[state.value]["logic"] = fn
+            self.state_data[state.value]["input_type"] = input_type
+            self.state_data[state.value]["min"] = input_min
+            self.state_data[state.value]["max"] = input_max
+            self.state_data[state.value]["len"] = input_len
+            self.state_data[state.value]["logic"] = fn
 
             return fn
 
         return decorate
 
-    @staticmethod
-    def state_content(instance, state, override: bool = False):
+    def state_content(self, state, override: bool = False):
         """
         A decorator factory that returns a factory that registers the wrapped
         function as the content provider for state 'state'.
@@ -507,14 +498,9 @@ class FiniteStateDevice(StateDevice, ABC):
             content provider for a given state
         """
 
-        # Check argument types and values
-        if not isinstance(instance, FiniteStateDevice):
-            raise StateDeviceInternalError(
-                f"Can only wrap instances of FiniteStateDevice! Type " f"{type(instance)} is not supported."
-            )
-        if state.value not in instance.state_data:
+        if state.value not in self.state_data:
             raise StateDeviceInternalError(f"Unknown state {state}!")
-        if instance.state_data[state.value]["content"] and not override:
+        if self.state_data[state.value]["content"] and not override:
             raise StateDeviceInternalError(
                 f"State.content collision! {state} already has a content " f"function registered."
             )
@@ -525,7 +511,7 @@ class FiniteStateDevice(StateDevice, ABC):
             A simple decorator that registers the wrapped function to the passed
             instance.
             """
-            instance.state_data[state.value]["content"] = fn
+            self.state_data[state.value]["content"] = fn
             return fn
 
         return decorate
@@ -585,11 +571,11 @@ class FiniteStateDevice(StateDevice, ABC):
         self.set_state(self.default_state)
 
     def set_defaults(self) -> None:
-        @FiniteStateDevice.state_logic(self, self.States.TERMINATE, InputType.SILENT)
+        @self.state_logic(self.States.TERMINATE, InputType.SILENT)
         def _logic(_: any):
             game.state_device_controller.set_dead()
 
-        @FiniteStateDevice.state_content(self, self.States.TERMINATE)
+        @self.state_content(self.States.TERMINATE)
         def _content():
             return ComponentFactory.get()
 
@@ -643,8 +629,7 @@ class FiniteStateDevice(StateDevice, ABC):
             if not hasattr(instance, cache_choice_in_attr):
                 raise ValueError(f"instance: {instance.name} has to attr: " f"{cache_choice_in_attr}!")
 
-        @FiniteStateDevice.state_logic(
-            instance,
+        @instance.state_logic(
             state,
             input_type=InputType.INT,
             input_min=-1 if back_out_state is not None else 0,
@@ -670,6 +655,6 @@ class FiniteStateDevice(StateDevice, ABC):
             # Using the converted choice, set the next state via the branch_map
             instance.set_state(branch_map[choice_as_str])
 
-        @FiniteStateDevice.state_content(instance, state)
+        @instance.state_content(state)
         def _content():
             return ComponentFactory.get([prompt], [[s] for s in branch_map.keys()])

@@ -19,43 +19,43 @@ class MockFiniteStateDevice(FiniteStateDevice):
         super().__init__(InputType.SILENT, self.States, self.States.DEFAULT)
         self.counter: int = 0
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             self.set_state(self.States.A)
             self.counter += 1
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content() -> dict:
             return ComponentFactory.get()
 
-        @FiniteStateDevice.state_logic(self, self.States.A, InputType.ANY)
+        @self.state_logic(self.States.A, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.B)
             self.counter += 1
 
-        @FiniteStateDevice.state_content(self, self.States.A)
+        @self.state_content(self.States.A)
         def _content() -> dict:
             return ComponentFactory.get()
 
-        @FiniteStateDevice.state_logic(self, self.States.B, InputType.ANY)
+        @self.state_logic(self.States.B, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.C)
             self.counter += 1
 
-        @FiniteStateDevice.state_content(self, self.States.B)
+        @self.state_content(self.States.B)
         def _content() -> dict:
             return ComponentFactory.get()
 
-        @FiniteStateDevice.state_logic(self, self.States.C, InputType.ANY)
+        @self.state_logic(self.States.C, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
             self.counter += 1
 
-        @FiniteStateDevice.state_content(self, self.States.C)
+        @self.state_content(self.States.C)
         def _content() -> dict:
             return ComponentFactory.get()
 
-        @FiniteStateDevice.state_logic(self, self.States.TERMINATE, InputType.ANY, override=True)
+        @self.state_logic(self.States.TERMINATE, InputType.ANY, override=True)
         def _logic(_: any) -> None:
             self.counter += 1
 
@@ -127,7 +127,7 @@ def test_state_logic_decorator_integration(state, input_type, i_min, i_max, i_le
 
     md = MockFiniteStateDevice()
 
-    @FiniteStateDevice.state_logic(md, state, input_type, i_min, i_max, i_len, True)
+    @md.state_logic(state, input_type, i_min, i_max, i_len, True)
     def _logic(_: any) -> None:
         md.counter += 1
 
@@ -174,29 +174,29 @@ class MockBranchingStateDevice(FiniteStateDevice):
     def __init__(self):
         super().__init__(InputType.SILENT, self.States)
 
-        @FiniteStateDevice.state_logic(self, self.States.DEFAULT, InputType.SILENT)
+        @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any):
             self.set_state(self.States.A)
 
-        @FiniteStateDevice.state_content(self, self.States.DEFAULT)
+        @self.state_content(self.States.DEFAULT)
         def _content():
             return ComponentFactory.get()
 
         FiniteStateDevice.user_branching_state(self, self.States.A, self.state_branch)
 
-        @FiniteStateDevice.state_logic(self, self.States.B, InputType.ANY)
+        @self.state_logic(self.States.B, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.C)
 
-        @FiniteStateDevice.state_content(self, self.States.B)
+        @self.state_content(self.States.B)
         def _content() -> dict:
             return ComponentFactory.get()
 
-        @FiniteStateDevice.state_logic(self, self.States.C, InputType.ANY)
+        @self.state_logic(self.States.C, InputType.ANY)
         def _logic(_: any) -> None:
             self.set_state(self.States.TERMINATE)
 
-        @FiniteStateDevice.state_content(self, self.States.C)
+        @self.state_content(self.States.C)
         def _content() -> dict:
             return ComponentFactory.get()
 
