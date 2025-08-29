@@ -1,6 +1,6 @@
 import game
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from loguru import logger
 
 from timeit import default_timer
@@ -25,6 +25,34 @@ def root_put(user_input: int | str):
     duration = default_timer() - start
     logger.info(f"Completed input submission in {duration}s")
     return r
+
+
+@tx_engine.websocket("/")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    An interactive websocket endpoint. Used to communicate in real time with clients instead of in blocking-series.
+    Functionally equivalent to get/put.
+
+    Args:
+        websocket: The active websocket object used to manage the connection
+
+    Returns: None
+    """
+
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_json()
+        start = default_timer()
+        r = game.state_device_controller.deliver_input(data)
+        duration = default_timer() - start
+        logger.info(f"Completed input submission in {duration}s")
+
+        start = default_timer()
+        r = game.state_device_controller.get_current_frame()
+        duration = default_timer() - start
+        logger.info(f"Completed state retrieval in {duration}s")
+
+        await websocket.send_text(r.model_dump_json())
 
 
 @tx_engine.get("/cache")
