@@ -1,66 +1,40 @@
+import asyncio
+import json
 import os
+from abc import ABC
 
 import requests
 from loguru import logger
 from rich import print
 
-
-def formatting_to_tags(tags: list[str], opening_tag: bool = None, closing_tag: bool = None) -> str:
-    buf = ""
-    if opening_tag:
-        for tag in tags:
-            buf = buf + f"[{tag}]"
-
-    elif closing_tag:
-        for tag in tags:
-            buf = buf + f"[/{tag}]"
-
-    return buf
+from websockets.asyncio.client import connect
 
 
-def format_string(content: str, tags: list[str]) -> str:
-    return formatting_to_tags(tags, opening_tag=True) + content + formatting_to_tags(tags, closing_tag=True)
-
-
-def parse_content(content: list) -> str:
-    buf = ""
-    for element in content:
-        if type(element) is str:
-            buf = buf + element
-        elif type(element) is dict:
-            buf = (
-                buf
-                + formatting_to_tags(element["formatting"], opening_tag=True)
-                + element["value"]
-                + formatting_to_tags(element["formatting"], closing_tag=True)
-            )
-    return buf
-
-
-class Viewer:
+class BaseViewer(ABC):
     """
-    A basic class that visualizes the TXEngine API
+    An abstract viewer class that implements common methods used for displaying content as simple text.
     """
 
-    def __init__(self):
-        u = input("Enter the IP for the TXEngine server: ")
-        self._ip = "http://" + (u if u != "" else "localhost:8000")
-        self._session = requests.Session()
-        self.clear = lambda: os.system("cls")
-
-    def start_session(self):
+    @classmethod
+    def clear(cls) -> None:
         """
-        Start the core loop for getting/put API calls.
+        Clear a terminal's contents
+
+        Returns: None
         """
+        os.system("cls")
 
-        while True:
-            results = self._session.get(self._ip, verify=False)
-            self.display(results.json())
-            user_input = input()
+    @classmethod
+    def get_text_header(cls, tx_engine_response: dict) -> str:
+        """
+        For a given response from TXEngine, pull data regarding the user's response conditions, format it, and return it.
 
-            self._session.put(self._ip, params={"user_input": user_input}, verify=False)
+        Args:
+            tx_engine_response: A JSON-derived dict containing a response from a TXEnginePy instance.
 
-    def get_text_header(self, tx_engine_response: dict) -> str:
+        Returns: Text to be used in the header of the display to the user
+
+        """
         input_type = (
             tx_engine_response["input_type"]
             if type(tx_engine_response["input_type"]) is str
@@ -70,25 +44,56 @@ class Viewer:
 
         formatting = ["italic"]
 
-        if input_type == "int":
-            hdr = f"Enter a number between ({input_range['min']} and {input_range['max']}):"
+        match input_type:
+            case "int":
+                hdr = f"Enter a number between ({input_range['min']} and {input_range['max']}):"
+            case "none":
+                hdr = "Press any key:"
+            case "str":
+                hdr = "Enter a string: "
 
-        elif input_type == "none":
-            hdr = "Press any key:"
+            case "affirmative":
+                hdr = "Enter y, n, yes, or no:"
+            case "any":
+                hdr = "Press any key..."
+            case _:
+                logger.error(f"Unexpected input type: {input_type}")
+                logger.debug(f"Failed frame: {str(tx_engine_response)}")
+                raise ValueError(f"Unexpected input type: {input_type}")
 
-        elif input_type == "str":
-            hdr = "Enter a string: "
+        return cls.format_string(hdr, formatting)
 
-        elif input_type == "affirmative":
-            hdr = "Enter y, n, yes, or no:"
-        elif input_type == "any":
-            hdr = "Press any key..."
-        else:
-            logger.error(f"Unexpected input type: {input_type}")
-            logger.debug(f"Failed frame: {str(tx_engine_response)}")
-            raise ValueError(f"Unexpected input type: {input_type}")
+    @classmethod
+    def formatting_to_tags(cls, tags: list[str], opening_tag: bool = None, closing_tag: bool = None) -> str:
+        buf = ""
+        if opening_tag:
+            for tag in tags:
+                buf = buf + f"[{tag}]"
 
-        return format_string(hdr, formatting)
+        elif closing_tag:
+            for tag in tags:
+                buf = buf + f"[/{tag}]"
+
+        return buf
+
+    @classmethod
+    def format_string(cls, content: str, tags: list[str]) -> str:
+        return cls.formatting_to_tags(tags, opening_tag=True) + content + cls.formatting_to_tags(tags, closing_tag=True)
+
+    @classmethod
+    def parse_content(cls, content: list) -> str:
+        buf = ""
+        for element in content:
+            if type(element) is str:
+                buf = buf + element
+            elif type(element) is dict:
+                buf = (
+                    buf
+                    + cls.formatting_to_tags(element["formatting"], opening_tag=True)
+                    + element["value"]
+                    + cls.formatting_to_tags(element["formatting"], closing_tag=True)
+                )
+        return buf
 
     def display(self, tx_engine_response: dict):
         """
@@ -113,15 +118,70 @@ class Viewer:
             for ally in tx_engine_response["components"]["allies"]:
                 print(entity_to_str(ally))
 
-        print(parse_content(tx_engine_response["components"]["content"]))
+        print(self.parse_content(tx_engine_response["components"]["content"]))
 
         if "options" in tx_engine_response["components"] and type(tx_engine_response["components"]["options"]) is list:
             for idx, opt in enumerate(tx_engine_response["components"]["options"]):
-                print(f"[{idx}] {parse_content(opt)}")
+                print(f"[{idx}] {self.parse_content(opt)}")
 
         print(self.get_text_header(tx_engine_response))
 
 
+class Viewer(BaseViewer):
+    """
+    A basic class that visualizes the TXEngine API
+    """
+
+    def __init__(self):
+        u = input("Enter the IP for the TXEngine server: ")
+        self._ip = "http://" + (u if u != "" else "localhost:8000")
+        self._session = requests.Session()
+        self.clear = lambda: os.system("cls")
+
+    def start_session(self):
+        """
+        Start the core loop for getting/put API calls.
+        """
+
+        while True:
+            results = self._session.get(self._ip, verify=False)
+            self.display(results.json())
+            user_input = input()
+
+            self._session.put(self._ip, params={"user_input": user_input}, verify=False)
+
+
+class WebsocketViewer(BaseViewer):
+    """
+    A primitive TXEngine client built for websocket connections.
+    """
+
+    def __init__(self):
+        self._ip = input("Enter ip address (default: localhost)")
+        if self._ip.strip() == "":
+            self._ip = "localhost"
+
+    async def client(self) -> None:
+        async with connect(f"ws://{self._ip}:8000") as websocket:
+            await websocket.send("{}")  # Ping to get a baseline response
+            response = await websocket.recv()
+            while True:
+                self.clear()
+                self.display(json.loads(response))
+                user_input = input()
+                if user_input.strip() == "":
+                    user_input = "{}"
+                await websocket.send(user_input)
+                response = await websocket.recv()
+
+
 if __name__ == "__main__":
-    viewer = Viewer()
-    viewer.start_session()
+    import sys
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--ws":
+            client = WebsocketViewer()
+            asyncio.run(client.client())
+
+    client = Viewer()
+    client.start_session()
