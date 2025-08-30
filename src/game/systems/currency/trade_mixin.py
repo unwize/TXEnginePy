@@ -50,7 +50,7 @@ class TradeMixin(ABC):
         """
 
         if not self.has_market_value(currency_id):
-            raise RuntimeError(f"{self} has no value in Currency with ID" f" {currency_id}")
+            raise RuntimeError(f"{self} has no value in Currency with ID {currency_id}")
 
         return from_cache("managers.CurrencyManager").to_currency(currency_id, self._market_values[currency_id])
 

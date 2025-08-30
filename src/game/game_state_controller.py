@@ -91,7 +91,7 @@ class GameStateController:
     def _advance_if_silent(self):
         # There has got to be a better way to do this.
         while self._get_state_device().input_type == enums.InputType.SILENT:
-            logger.info(f"Detected silent state in device: " f"{self._get_state_device()}. Skipping...")
+            logger.info(f"Detected silent state in device: {self._get_state_device()}. Skipping...")
             if hasattr(self._get_state_device(), "current_state"):
                 logger.info(f"State: {self._get_state_device().current_state}")
 

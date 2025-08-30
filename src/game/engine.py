@@ -64,7 +64,7 @@ class Engine:
         elif isinstance(manager_cls, type):
             true_cls = manager_cls.__name__
         else:
-            raise TypeError(f"Expect str or type for manager_cls. " f"Got type {type(manager_cls)} instead!")
+            raise TypeError(f"Expect str or type for manager_cls. Got type {type(manager_cls)} instead!")
 
         for priority in cls.manager_load_priority:
             if true_cls in cls.manager_load_priority[priority]:
@@ -88,16 +88,16 @@ class Engine:
 
         # Type checking
         if not isinstance(priority, int):
-            raise TypeError(f"Cannot set priority to type {type(priority)}. " f"Priority must be an int!")
+            raise TypeError(f"Cannot set priority to type {type(priority)}. Priority must be an int!")
         if priority < 0:
-            raise ValueError(f"Invalid priority: {priority}. " f"Priority must be positive or zero!")
+            raise ValueError(f"Invalid priority: {priority}. Priority must be positive or zero!")
 
         if isinstance(manager_cls, str):
             true_cls = manager_cls
         elif isinstance(manager_cls, type):
             true_cls = manager_cls.__name__
         else:
-            raise TypeError(f"Expect str or type for manager_cls. " f"Got type {type(manager_cls)} instead!")
+            raise TypeError(f"Expect str or type for manager_cls. Got type {type(manager_cls)} instead!")
 
         # Check if the manager has already been assigned a priority.
         # If so, remove it from the extant list

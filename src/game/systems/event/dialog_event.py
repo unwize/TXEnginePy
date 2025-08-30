@@ -48,7 +48,7 @@ class DialogEvent(Event):
 
         """
         if not isinstance(value, int):
-            raise ValueError(f"Cannot set current_node to value of type {type(value)}! " f"Expected an int!")
+            raise ValueError(f"Cannot set current_node to value of type {type(value)}! Expected an int!")
 
         self.dialog.current_node = value
 

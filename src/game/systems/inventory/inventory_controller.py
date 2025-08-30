@@ -150,7 +150,7 @@ class InventoryController(LoadableMixin):
         """
         if type(item_id) is not int or type(quantity) is not int:
             raise TypeError(
-                f"item_id and quantity must be of type int! Got type " f"{type(item_id)} and {type(quantity)} instead."
+                f"item_id and quantity must be of type int! Got type {type(item_id)} and {type(quantity)} instead."
             )
 
         if self.total_quantity(item_id) < quantity:
@@ -161,7 +161,7 @@ class InventoryController(LoadableMixin):
             # If the loop is started over a list of zero stacks, raise an error
             # to avoid an infinite loop
             if len(self._all_stack_indexes(item_id)) < 1:
-                raise ValueError(f"Something went wrong while trying to consume" f" item::{item_id}.")
+                raise ValueError(f"Something went wrong while trying to consume item::{item_id}.")
 
             offset = 0
             for stack_index in self._all_stack_indexes(item_id):
@@ -207,7 +207,7 @@ class InventoryController(LoadableMixin):
         from game.systems.item.item import Item
 
         if type(element) is not int and type(element) is not Item:
-            logger.warning(f"Attempted to search inventory for object of type " f"{type(element)}")
+            logger.warning(f"Attempted to search inventory for object of type {type(element)}")
             return False
 
         search_for = element if type(element) is int else element.id
@@ -247,9 +247,7 @@ class InventoryController(LoadableMixin):
         """
 
         if stack_index >= len(self.items):
-            raise ValueError(
-                f"Can't drop stack! {stack_index} is out of range," f" inventory is of size {len(self.items)}"
-            )
+            raise ValueError(f"Can't drop stack! {stack_index} is out of range, inventory is of size {len(self.items)}")
 
         del self.items[stack_index]
 

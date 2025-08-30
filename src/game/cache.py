@@ -18,11 +18,11 @@ def decode_path(path: list[str] | str) -> list[str]:
     """
 
     if type(path) is not list and type(path) is not str:
-        raise TypeError(f"Unexpected cache path type: {type(path)}! " f"Allowed types are list[str] and str!")
+        raise TypeError(f"Unexpected cache path type: {type(path)}! Allowed types are list[str] and str!")
     elif type(path) is list:
         for key in path:
             if type(key) is not str:
-                raise TypeError(f"Unexpected type within a listed cache path: " f"{type(key)}! Allowed types are str")
+                raise TypeError(f"Unexpected type within a listed cache path: {type(key)}! Allowed types are str")
         return path
     elif type(path) is str:
         return path.split(".")
@@ -51,7 +51,7 @@ def from_cache(path: list[str] | str) -> any:
             if key not in depth:
                 raise KeyError(f"Invalid cache path key: {key}")
             if type(depth[key]) is not dict:
-                raise TypeError(f"Expected key {key}'s value to be of type dict! " f"Got {type(depth[key])} instead.")
+                raise TypeError(f"Expected key {key}'s value to be of type dict! Got {type(depth[key])} instead.")
 
             depth = depth[key]
 
@@ -135,7 +135,7 @@ def get_loader(cls: type | str) -> Callable:
             raise ke
     else:
         raise KeyError(
-            f"No loader found for class {key}! Available loaders:" f"\n{' '.join(list(get_cache()['loader'].keys()))}"
+            f"No loader found for class {key}! Available loaders:\n{' '.join(list(get_cache()['loader'].keys()))}"
         )
 
 
@@ -170,7 +170,7 @@ def delete_element(path: str | list[str], delete_branch: bool = False, force: bo
         if key in depth:  # Check that the next sub-dict exists
             depth = depth[key]  # Move to next sub-dict
             if not isinstance(depth, dict):  # Check that it's actually a dict
-                logger.warning(f"Failed to delete {path} from cache! " f"Invalid path. Key {key} is not a dict!")
+                logger.warning(f"Failed to delete {path} from cache! Invalid path. Key {key} is not a dict!")
                 break  # Stop executing logic
 
             # If there's more than one element in the sub-dict, it cannot
@@ -179,7 +179,7 @@ def delete_element(path: str | list[str], delete_branch: bool = False, force: bo
                 is_clean = False
 
         else:
-            logger.warning(f"Failed to delete {path} from cache! Invalid path. " f"Missing key at {key}.")
+            logger.warning(f"Failed to delete {path} from cache! Invalid path. Missing key at {key}.")
             break
 
     # Handle deleting an entire branch of sub-dicts
@@ -190,7 +190,7 @@ def delete_element(path: str | list[str], delete_branch: bool = False, force: bo
             # Delete connection between root of the cache and shallowest leaf
             del depth[true_path[0]]
         else:
-            logger.warning(f"Failed to delete {path} from cache! " f"Path is not clean and Force == False")
+            logger.warning(f"Failed to delete {path} from cache! Path is not clean and Force == False")
 
     # Handle standard deletion logic
     else:
@@ -199,7 +199,7 @@ def delete_element(path: str | list[str], delete_branch: bool = False, force: bo
             # Delete the key-pair value from the sub-dict
             del depth[true_path[-1]]
         else:
-            logger.warning(f"Failed to delete {path} from cache! " f"Invalid path. Missing key at {true_path[-1]}")
+            logger.warning(f"Failed to delete {path} from cache! Invalid path. Missing key at {true_path[-1]}")
 
 
 def cached(path: list[str] | str) -> Callable:

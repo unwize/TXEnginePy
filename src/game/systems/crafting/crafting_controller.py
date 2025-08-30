@@ -144,7 +144,7 @@ class CraftingController:
         """
 
         if num_crafts > self.get_max_crafts(recipe_id):
-            raise ValueError(f"Cannot execute recipe:{recipe_id} {num_crafts} " f"times! Insufficient ingredients!")
+            raise ValueError(f"Cannot execute recipe:{recipe_id} {num_crafts} times! Insufficient ingredients!")
 
         if not recipe_manager.get_recipe(recipe_id).is_requirements_fulfilled(self._owner):
             raise RuntimeError("Cannot perform recipe, requirements not met!")

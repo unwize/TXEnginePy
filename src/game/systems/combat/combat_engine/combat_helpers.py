@@ -39,13 +39,13 @@ def calculate_target_resistance(ability: Ability, target: CombatEntity) -> float
     Returns: A float representing the resistance of the target
     """
     if not isinstance(ability, Ability):
-        raise TypeError(f"Expected ability to be of type Ability, got " f"{type(ability)} instead!")
+        raise TypeError(f"Expected ability to be of type Ability, got {type(ability)} instead!")
 
     if not isinstance(target, CombatEntity):
-        raise TypeError("Expected target to be of type CombatEntity, got " f"{type(target)} instead!")
+        raise TypeError(f"Expected target to be of type CombatEntity, got {type(target)} instead!")
 
     if not isinstance(ability.tags, dict):
-        raise TypeError("ability.tags should be of type dict! Got type" f"{type(ability.tags)} instead!")
+        raise TypeError(f"ability.tags should be of type dict! Got type{type(ability.tags)} instead!")
 
     tag_values: list[float] = [0.0]
     tags_on_target: dict[str, list[float]] = target.equipment_controller.all_tag_resistance
@@ -77,10 +77,10 @@ def calculate_damage_to_entity(ability: Ability, target: CombatEntity) -> int:
     """
 
     if not isinstance(ability, Ability):
-        raise TypeError(f"Expected ability to be of type Ability, got " f"{type(ability)} instead!")
+        raise TypeError(f"Expected ability to be of type Ability, got {type(ability)} instead!")
 
     if not isinstance(target, CombatEntity):
-        raise TypeError("Expected target to be of type CombatEntity, got " f"{type(target)} instead!")
+        raise TypeError(f"Expected target to be of type CombatEntity, got {type(target)} instead!")
 
     target_tag_res = calculate_target_resistance(ability, target)
     target_armor_res = target.equipment_controller.total_dmg_resistance

@@ -186,7 +186,7 @@ class Skill(LoadableMixin, SkillBase):
             for raw_event in json["level_up_events"][str_level]:
                 obj = LoadableFactory.get(raw_event)
                 if not isinstance(obj, Event):
-                    raise TypeError(f"Cannot add object of type {type(obj)} to " f"level_up_event list!")
+                    raise TypeError(f"Cannot add object of type {type(obj)} to level_up_event list!")
                 level_up_events[true_level].append(obj)
 
         # Verify that the optional fields are typed correctly if they're present

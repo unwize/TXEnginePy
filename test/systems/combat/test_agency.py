@@ -56,7 +56,7 @@ def test_restorative_items(inventory_contents: list[int], expected_items: list[i
 
 offensive_ability_cases = [
     # For test abilities 1-6, only 1, 2, 4, 5 should pass as offensive abilities
-    [[f"{TEST_PREFIX}Ability {i+1}" for i in range(6)], [f"{TEST_PREFIX}Ability {i}" for i in [1, 2, 4, 5]]],
+    [[f"{TEST_PREFIX}Ability {i + 1}" for i in range(6)], [f"{TEST_PREFIX}Ability {i}" for i in [1, 2, 4, 5]]],
     [[], []],
 ]
 

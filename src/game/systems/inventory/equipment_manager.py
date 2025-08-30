@@ -54,21 +54,21 @@ class EquipmentManager(Manager):
             self._slots[key].item_id = value
 
         else:
-            raise TypeError(f"Unknown type for value! Expected int, bool, or " f"None. Got {type(value)}!")
+            raise TypeError(f"Unknown type for value! Expected int, bool, or None. Got {type(value)}!")
 
     def register_slot(self, name: str, enabled=True) -> None:
         """
         Registers a new slot with the EquipmentManager.
         """
         if name in self._slots:
-            raise ValueError(f"Cannot register slot with name {name}, slot " f"already exists!")
+            raise ValueError(f"Cannot register slot with name {name}, slot already exists!")
 
         if type(name) is not str or len(name) < 1:
             logger.error(f"Invalid slot name: {name}")
-            raise TypeError("Invalid name! Equipment slot names must be strings" " of length > 1!")
+            raise TypeError("Invalid name! Equipment slot names must be strings of length > 1!")
 
         if type(enabled) is not bool:
-            raise TypeError(f"Enabled must be of type bool! Got {type(enabled)}" f" instead.")
+            raise TypeError(f"Enabled must be of type bool! Got {type(enabled)} instead.")
 
         from game.systems.inventory.structures import EquipSlot
 
@@ -93,7 +93,7 @@ class EquipmentManager(Manager):
         if slot in self._slots:
             return slot
 
-        raise ValueError(f"Slot {slot} does not exist! Possible slots are" f" {','.join(list(self._slots.keys()))}")
+        raise ValueError(f"Slot {slot} does not exist! Possible slots are {','.join(list(self._slots.keys()))}")
 
     def load(self) -> None:
         pass

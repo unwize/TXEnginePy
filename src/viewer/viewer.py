@@ -163,13 +163,13 @@ class WebsocketViewer(BaseViewer):
 
     async def client(self) -> None:
         async with connect(f"ws://{self._ip}:8000") as websocket:
-            await websocket.send("{}")  # Ping to get a baseline response
+            await websocket.send('{"user_input": ""}')  # Ping to get a baseline response
             response = await websocket.recv()
             while True:
                 self.clear()
                 self.display(json.loads(response))
-                payload = '{"user_input": ' + f'"{input()}"' + "}"  # Must follow the valid JSON structure requirements
-                await websocket.send(payload)
+                payload = {"user_input": input()}
+                await websocket.send(json.dumps(payload))
                 response = await websocket.recv()
 
 

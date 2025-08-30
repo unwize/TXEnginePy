@@ -37,7 +37,7 @@ class ItemManager(Manager):
 
         if isinstance(item_object, Item):
             if item_object.id in self._manifest:
-                raise ValueError(f"Item with ID {item_object.id} already " f"registered!")
+                raise ValueError(f"Item with ID {item_object.id} already registered!")
 
             self._manifest[item_object.id] = item_object
 
@@ -45,9 +45,7 @@ class ItemManager(Manager):
             for obj in item_object:
                 self.register_item(obj)
         else:
-            raise TypeError(
-                f"Expected object of type Item or type list[Item]," f" got type {type(item_object)} instead."
-            )
+            raise TypeError(f"Expected object of type Item or type list[Item], got type {type(item_object)} instead.")
 
     def get_name(self, item_id: int) -> str:
         return self._manifest[item_id].name
@@ -95,7 +93,7 @@ class ItemManager(Manager):
         Returns: A deep copy of the requested item
         """
         if type(item_id) is not int:
-            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}" f" instead.")
+            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)} instead.")
 
         if item_id not in self._manifest:
             raise ValueError(f"No such item with ID {item_id}!")
@@ -110,10 +108,10 @@ class ItemManager(Manager):
         Use sparingly.
         """
         if type(item_id) is not int:
-            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)}" f" instead.")
+            raise TypeError(f"Item IDs must be of type int! Got {type(item_id)} instead.")
 
         if item_id not in self._manifest:
-            logger.error(f"ItemManager @ {self.__repr__()} failed to find item " f"with ID {item_id}")
+            logger.error(f"ItemManager @ {self.__repr__()} failed to find item with ID {item_id}")
             logger.error(self._manifest)
             raise ValueError(f"No such item with ID {item_id}!")
 
@@ -130,7 +128,7 @@ class ItemManager(Manager):
             from game.systems.item.item import Item
 
             if not isinstance(item, Item):
-                raise TypeError(f"Expected object of type Ability, got " f"{type(item)} instead!")
+                raise TypeError(f"Expected object of type Ability, got {type(item)} instead!")
 
             self.register_item(item)
 

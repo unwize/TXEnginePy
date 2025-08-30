@@ -85,7 +85,7 @@ class CombatEngine(FiniteStateDevice):
                 loss_con_found = True
         if not (win_con_found and loss_con_found):
             raise ValueError(
-                "CombatEngine must have at least 1 win termination condition " "and 1 loss termination condition!"
+                "CombatEngine must have at least 1 win termination condition and 1 loss termination condition!"
             )
 
         # Validate combat entities
@@ -189,7 +189,7 @@ class CombatEngine(FiniteStateDevice):
 
         if not ability.is_requirements_fulfilled(self.active_entity):
             raise RuntimeError(
-                f"Cannot activate ability '{ability}! Requirements not met for " f"entity: {self.active_entity}"
+                f"Cannot activate ability '{ability}! Requirements not met for entity: {self.active_entity}"
             )
 
         # TODO: Single-target should result in an instance of CombatEntity wrapped in a list by default
@@ -208,7 +208,7 @@ class CombatEngine(FiniteStateDevice):
                     effect_copy = copy.deepcopy(effect)
 
                     # Assign sources and targets from the deepcopy
-                    logger.debug(f"Assigning effect {effect_copy} to entity " f"{target.name} in phase {phase}")
+                    logger.debug(f"Assigning effect {effect_copy} to entity {target.name} in phase {phase}")
                     effect_copy.assign(self.active_entity, target)
                     target.acquire_effect(effect_copy, phase)
 
@@ -298,10 +298,10 @@ class CombatEngine(FiniteStateDevice):
         """
 
         if not isinstance(entity, entities.CombatEntity):
-            raise TypeError(f"argument `entity` is not of type CombatEntity! Got " f"{type(entity)} instead.")
+            raise TypeError(f"argument `entity` is not of type CombatEntity! Got {type(entity)} instead.")
 
         if type(ability_name) is not str:
-            raise TypeError(f"argument `ability_name` is not of type str! Got " f"{type(ability_name)} instead.")
+            raise TypeError(f"argument `ability_name` is not of type str! Got {type(ability_name)} instead.")
 
         target_mode: TargetMode = from_cache("managers.AbilityManager").get_instance(ability_name).target_mode
 
@@ -347,16 +347,14 @@ class CombatEngine(FiniteStateDevice):
         from game.systems.entity.entities import CombatEntity
 
         if not isinstance(entity, CombatEntity):
-            raise TypeError(
-                f"Entity's that submit choices must be of type CombatEntity! " f"Got {type(entity)} instead."
-            )
+            raise TypeError(f"Entity's that submit choices must be of type CombatEntity! Got {type(entity)} instead.")
 
         if entity != self.active_entity:
             raise RuntimeError("An entity that is not the active entity has submitted a choice")
 
         # Type and value checking
         if choice is not None and type(choice) is not ChoiceData:
-            raise TypeError(f"Unknown type for entity choice: {type(choice)}. " f"Expected type ChoiceData!")
+            raise TypeError(f"Unknown type for entity choice: {type(choice)}. Expected type ChoiceData!")
 
         # Store choice for later
         self.active_entity_choice = choice
@@ -365,7 +363,7 @@ class CombatEngine(FiniteStateDevice):
         """
         Perform the logic for executing the choice made by the active entity.
         """
-        logger.debug(f"Now running Action Phase for entity " f"{self.active_entity.name}")
+        logger.debug(f"Now running Action Phase for entity {self.active_entity.name}")
         if choice.choice_type == ChoiceData.ChoiceType.ITEM:
             self._handle_use_item(choice.item_id)
         elif choice.choice_type == ChoiceData.ChoiceType.ABILITY:
@@ -373,7 +371,7 @@ class CombatEngine(FiniteStateDevice):
         elif choice.choice_type.PASS:
             self._handle_pass_turn()
         else:
-            raise TypeError(f"Unexpected type for choice! Expected str, int, None, got " f"{type(choice)} instead!")
+            raise TypeError(f"Unexpected type for choice! Expected str, int, None, got {type(choice)} instead!")
 
     # Properties
 
@@ -470,7 +468,7 @@ class CombatEngine(FiniteStateDevice):
             if self.is_dead(self.active_entity):
                 # Skip this entity's turn and then check if combat should have
                 # ended.
-                logger.debug(f"Detected that {self.active_entity.name} is dead." f" Skipping...")
+                logger.debug(f"Detected that {self.active_entity.name} is dead. Skipping...")
                 self.set_state(self.States.DETECT_COMBAT_TERMINATION)
                 return
 

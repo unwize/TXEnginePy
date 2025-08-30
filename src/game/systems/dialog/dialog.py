@@ -70,10 +70,10 @@ class DialogNodeBase(ABC):
         Returns: True if the option should be displayed
         """
         if not isinstance(option_text, str):
-            raise TypeError(f"option_text must be a str! Got a " f"{type(option_text)} instead!")
+            raise TypeError(f"option_text must be a str! Got a {type(option_text)} instead!")
 
         if self.owner is None:
-            raise RuntimeError("Cannot check if a node is valid when " "`owner` is None!")
+            raise RuntimeError("Cannot check if a node is valid when `owner` is None!")
 
         dialog_option_target: int = self.options[option_text]
 
@@ -103,10 +103,10 @@ class DialogNodeBase(ABC):
         Returns: True if the node can be visited, otherwise False
         """
         if not isinstance(option_text, str):
-            raise TypeError(f"option_text must be a str! Got a " f"{type(option_text)} instead!")
+            raise TypeError(f"option_text must be a str! Got a {type(option_text)} instead!")
 
         if self.owner is None:
-            raise RuntimeError("Cannot check if a node is valid when " "`owner` is None!")
+            raise RuntimeError("Cannot check if a node is valid when `owner` is None!")
 
         dialog_option_target: int = self.options[option_text]
 
@@ -132,7 +132,7 @@ class DialogNodeBase(ABC):
     @owner.setter
     def owner(self, dialog: "Dialog") -> None:
         if not isinstance(dialog, Dialog):
-            raise TypeError("A DialogNode's owner must be of type Dialog! Got" f" type {type(dialog)} instead!")
+            raise TypeError(f"A DialogNode's owner must be of type Dialog! Got type {type(dialog)} instead!")
 
         self.__dialog_ref = dialog
 
@@ -270,7 +270,7 @@ class DialogBase(ABC):
         self._current_node: int = initial_node_id
 
         if initial_node_id not in self.nodes:
-            raise ValueError(f"Invalid starting node id {initial_node_id} " f"for Dialog with id {self.id}")
+            raise ValueError(f"Invalid starting node id {initial_node_id} for Dialog with id {self.id}")
 
         # Ensure all nodes have owner set correctly
         for node in self.nodes.values():
@@ -290,7 +290,7 @@ class DialogBase(ABC):
     @current_node.setter
     def current_node(self, value: int) -> None:
         if not isinstance(value, int):
-            raise TypeError(f"current_node must be of type int! Got object of type  " f"{type(value)} instead.")
+            raise TypeError(f"current_node must be of type int! Got object of type  {type(value)} instead.")
 
         if value not in self.nodes:
             raise ValueError(f"Unknown DialogNode with id {value}!")
@@ -348,7 +348,7 @@ class Dialog(LoadableMixin, DialogBase):
             try:
                 real_nodes.append(LoadableFactory.get(raw_node))
             except Exception as e:
-                logger.error(f"Something went wrong while loading a DialogNode" f"for Dialog with id:{json['id']}!")
+                logger.error(f"Something went wrong while loading a DialogNodefor Dialog with id:{json['id']}!")
                 raise e
 
         return Dialog(dialog_id=json["id"], nodes=real_nodes, **kwargs)

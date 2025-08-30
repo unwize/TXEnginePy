@@ -69,7 +69,7 @@ class EntityTargetMixin(ABC):
         from game.systems.entity.entities import CombatEntity
 
         if not isinstance(entity, CombatEntity):
-            raise TypeError(f"Invalid target entity type! Got type {type(entity)}, " f"expected type Entity")
+            raise TypeError(f"Invalid target entity type! Got type {type(entity)}, expected type Entity")
 
 
 class FlagEvent(Event):
@@ -122,7 +122,7 @@ class FlagEvent(Event):
 
         for flag_bundle in json["flags"]:
             if len(flag_bundle) != 2:
-                raise ValueError(f"Flag data should be of length 2! Got length " f"{len(flag_bundle)} instead.")
+                raise ValueError(f"Flag data should be of length 2! Got length {len(flag_bundle)} instead.")
 
             assert isinstance(flag_bundle[0], str), "Flag data must have a str at pos 0!"
             assert isinstance(flag_bundle[1], bool), "Flag data must have a bool at ps 1!"
@@ -341,7 +341,7 @@ class LearnRecipeEvent(Event):
         @self.state_content(self.States.CAN_LEARN)
         def _content():
             return ComponentFactory.get(
-                [f"{self._player_ref.name} learned a recipe!\n" f"{recipe_manager[recipe_id].name}"]
+                [f"{self._player_ref.name} learned a recipe!\n{recipe_manager[recipe_id].name}"]
             )
 
         @self.state_logic(self.States.CANNOT_LEARN, InputType.ANY)
@@ -351,7 +351,7 @@ class LearnRecipeEvent(Event):
         @self.state_content(self.States.CANNOT_LEARN)
         def _content():
             return ComponentFactory.get(
-                [f"{self._player_ref.name} cannot learn " f"{recipe_manager[recipe_id].name}!"],
+                [f"{self._player_ref.name} cannot learn {recipe_manager[recipe_id].name}!"],
                 recipe_manager[recipe_id].get_requirements_as_options(),
             )
 
@@ -483,7 +483,7 @@ class ResourceEvent(EntityTargetMixin, Event):
             from game.systems.entity.entities import Entity  # Import locally to prevent circular import issues
 
             if not isinstance(self.target, Entity):
-                raise TypeError(f"Cannot apply a ResourceEvent to an object of type " f"{self.target}")
+                raise TypeError(f"Cannot apply a ResourceEvent to an object of type {self.target}")
 
             self.set_state(self.States.APPLY)
 

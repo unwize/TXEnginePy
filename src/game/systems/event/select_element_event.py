@@ -69,7 +69,7 @@ class SelectElementEvent(Event):
         self.__filtered_collection_len: int | None = None
 
         if len(self._collection) < 1:
-            raise RuntimeError("Cannot instantiate a SelectElementEvent with a collection of " "size 0!")
+            raise RuntimeError("Cannot instantiate a SelectElementEvent with a collection of size 0!")
 
         self._setup_states()
 
@@ -96,7 +96,7 @@ class SelectElementEvent(Event):
 
             # Check for broken collections
             if self.__filtered_collection_len < 1:
-                raise RuntimeError("SelectElementEvent cannot have a filtered collection size " "of 0!")
+                raise RuntimeError("SelectElementEvent cannot have a filtered collection size of 0!")
             self.set_state(self.States.SHOW_ELEMENTS)
 
         # SHOW_ELEMENTS
@@ -238,7 +238,7 @@ class SelectElementEventFactory:
                 or not isinstance(collection_override[0][0], int)
                 or not isinstance(collection_override[0][1], int)
             ):
-                raise ValueError("list typed collection overrides must only contain objects " "of type tuple[int, int]")
+                raise ValueError("list typed collection overrides must only contain objects of type tuple[int, int]")
             collection = collection_override
 
         # Define an inner-function to handle translating the tuple to a str
@@ -316,7 +316,7 @@ class SelectElementEventFactory:
         # Define an inner-function to handle translating the entities to strings
         def to_listing(entity: Entity) -> str:
             if not isinstance(entity, Entity):
-                raise TypeError(f"Cannot translate object of type {type(entity)}" f", expecting object of type Entity!")
+                raise TypeError(f"Cannot translate object of type {type(entity)}, expecting object of type Entity!")
 
             field_values = []
 
@@ -388,7 +388,7 @@ class SelectElementEventFactory:
         def to_listing(equipment: Equipment) -> str:
             if not isinstance(equipment, Equipment):
                 raise TypeError(
-                    f"Cannot translate object of type {type(equipment)}" f", expecting object of type Equipment!"
+                    f"Cannot translate object of type {type(equipment)}, expecting object of type Equipment!"
                 )
 
             field_values = []

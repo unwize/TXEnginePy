@@ -127,7 +127,7 @@ class Ability(LoadableMixin, RequirementsMixin, TagMixin, AbilityBase):
                 # Catch broken formatting
                 if type(json["effects"][phase]) is not list:
                     raise TypeError(
-                        f"Expected phase {phase} to map to a list, got " f"{type(json['effects'][phase])} instead!"
+                        f"Expected phase {phase} to map to a list, got {type(json['effects'][phase])} instead!"
                     )
 
                 # If the phase hasn't been observed yet, make a list for it

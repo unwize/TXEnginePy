@@ -199,7 +199,7 @@ class ResourceRequirement(Requirement):
 
         if json["class"] != "ResourceRequirement":
             raise ValueError(
-                f"Invalid class field for ResourceRequirement! Got" f" {json['class']} instead of ResourceRequirement!"
+                f"Invalid class field for ResourceRequirement! Got {json['class']} instead of ResourceRequirement!"
             )
 
         return ResourceRequirement(json["resource_name"], json["adjust_quantity"])

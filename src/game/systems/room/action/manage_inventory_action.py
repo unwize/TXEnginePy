@@ -47,7 +47,7 @@ class ManageInventoryAction(Action):
         @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
             if cache.from_cache("player") is None:
-                raise RuntimeError("Cannot launch ManageInventoryAction without" " a valid Player instance!")
+                raise RuntimeError("Cannot launch ManageInventoryAction without a valid Player instance!")
 
             if self.player_ref is None:
                 self.player_ref = cache.from_cache("player")
@@ -187,6 +187,6 @@ class ManageInventoryAction(Action):
     def from_json(json: dict[str, any]) -> any:
         LoadableFactory.validate_fields([], json)
         if json["class"] != "ManageInventoryAction":
-            raise ValueError(f"Cannot load object of type {json['class']} via " f"ManageInventoryAction.from_json!")
+            raise ValueError(f"Cannot load object of type {json['class']} via ManageInventoryAction.from_json!")
 
         return ManageInventoryAction()

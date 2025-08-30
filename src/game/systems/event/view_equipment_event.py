@@ -32,9 +32,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
         self._one_shot = True if item_id is not None else False
 
         if not isinstance(self.target, CombatEntity):
-            raise TypeError(
-                f"ViewEquipmentEvent.target must be of type " f"CombatEntity! Got {type(self.target)} instead."
-            )
+            raise TypeError(f"ViewEquipmentEvent.target must be of type CombatEntity! Got {type(self.target)} instead.")
 
         self._setup_states()
 

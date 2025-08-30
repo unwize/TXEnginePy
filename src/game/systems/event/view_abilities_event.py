@@ -48,7 +48,7 @@ class ViewAbilitiesEvent(Event):
             from game.systems.entity.mixins.ability_mixin import AbilityMixin
 
             if not isinstance(self.target, AbilityMixin):
-                raise TypeError(f"Cannot view Abilities for non-AbilityMixin " f"entity! ({self.target})")
+                raise TypeError(f"Cannot view Abilities for non-AbilityMixin entity! ({self.target})")
 
             if len(self.target.ability_controller.abilities) < 1:
                 self.set_state(self.States.EMPTY)

@@ -71,7 +71,7 @@ class FlagManager(Manager):
 
                 # If a flag exists in the way of creating a new dict, raise an error
                 elif type(level[parts[i]]) is not dict:
-                    raise KeyError(f'Cannot set flag {key}, a collision with key {".".join(parts[:i])} was found!')
+                    raise KeyError(f"Cannot set flag {key}, a collision with key {'.'.join(parts[:i])} was found!")
 
                 # If the dict already exists, traverse to it
                 else:

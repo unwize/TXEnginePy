@@ -40,19 +40,24 @@ async def websocket_endpoint(websocket: WebSocket):
     """
 
     await websocket.accept()
+    data = await websocket.receive_json()
     while True:
-        data = await websocket.receive_json()
-        start = default_timer()
-        r = game.state_device_controller.deliver_input(data)
-        duration = default_timer() - start
-        logger.info(f"Completed input submission in {duration}s")
+        if isinstance(data, dict):
+            if "user_input" in data:
+                # Attempt to coerce into an int
+                try:
+                    payload: int = int(data["user_input"])
+                    game.state_device_controller.deliver_input(payload)
+                except RuntimeError:
+                    game.state_device_controller.deliver_input(data["user_input"])
+            else:
+                raise ValueError("Invalid JSON structure! Expected field 'user_input'")
+        else:
+            raise TypeError("Expected a JSON dict!")
 
-        start = default_timer()
         r = game.state_device_controller.get_current_frame()
-        duration = default_timer() - start
-        logger.info(f"Completed state retrieval in {duration}s")
-
         await websocket.send_text(r.model_dump_json())
+        data = await websocket.receive_json()
 
 
 @tx_engine.get("/cache")

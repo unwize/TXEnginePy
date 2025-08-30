@@ -86,7 +86,7 @@ class CombatEffect(LoadableMixin, FiniteStateDevice, TagMixin, ABC):
         """
         if not isinstance(self._target_entity, CombatEntity):
             raise TypeError(
-                f"Cannot perform an effect on object of type " f"{type(self._target_entity)}! Expected type Entity"
+                f"Cannot perform an effect on object of type {type(self._target_entity)}! Expected type Entity"
             )
 
         self._perform(self._target_entity)  # Execute Effect logic

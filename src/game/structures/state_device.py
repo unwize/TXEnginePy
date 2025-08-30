@@ -113,7 +113,7 @@ class StateDevice(ABC):
         if is_valid_range(self.input_type, val, self.domain_max, self.domain_length):
             self._input_range["min"] = val
         else:
-            raise ValueError(f"Tried to set lower limit of " f"{self.input_type} to value of type {type(val)}!")
+            raise ValueError(f"Tried to set lower limit of {self.input_type} to value of type {type(val)}!")
 
     @property
     def domain_max(self) -> int | None:
@@ -129,7 +129,7 @@ class StateDevice(ABC):
         if is_valid_range(self.input_type, self.domain_min, val, self.domain_length):
             self._input_range["max"] = val
         else:
-            raise ValueError(f"Tried to set lower limit of " f"{self.input_type} to value of type {type(val)}!")
+            raise ValueError(f"Tried to set lower limit of {self.input_type} to value of type {type(val)}!")
 
     @property
     def domain_length(self) -> int | None:
@@ -146,7 +146,7 @@ class StateDevice(ABC):
         if is_valid_range(self.input_type, self.domain_min, self.domain_max, val):
             self._input_range["len"] = val
         else:
-            raise ValueError(f"Tried to set lower limit of " f"{self.input_type} to value of type {type(val)}!")
+            raise ValueError(f"Tried to set lower limit of {self.input_type} to value of type {type(val)}!")
 
     @property
     def input_domain(self) -> dict[str, any]:
@@ -163,9 +163,9 @@ class StateDevice(ABC):
         else:
             raise ValueError(
                 f"""Invalid input domain values for type {self.input_type}:\n
-                    min: {range_dict['min']}\n
-                    max: {range_dict['max']}\n
-                    length: {range_dict['max']}
+                    min: {range_dict["min"]}\n
+                    max: {range_dict["max"]}\n
+                    length: {range_dict["max"]}
                 """
             )
 
@@ -223,7 +223,7 @@ class StateDevice(ABC):
             if type(input_value) is str and str.lower(input_value) in affirmative_range:
                 return True
             else:
-                logger.warning(f"[{self}]: Failed to validate input! " f"{input_value} must be in {affirmative_range}")
+                logger.warning(f"[{self}]: Failed to validate input! {input_value} must be in {affirmative_range}")
                 return False
 
         # Input must be an int that is below the maximum and above the minimum
@@ -233,20 +233,20 @@ class StateDevice(ABC):
 
                 if self.domain_min is not None and true_input < self.domain_min:
                     logger.warning(
-                        f"[{self}]: Failed to validate input! " f"{true_input} must be >= {self._input_range['min']}"
+                        f"[{self}]: Failed to validate input! {true_input} must be >= {self._input_range['min']}"
                     )
                     return False
 
                 if self.domain_max is not None and (true_input > self.domain_max):
                     logger.warning(
-                        f"[{self}]: Failed to validate input! " f"{true_input} must be <= {self._input_range['max']}"
+                        f"[{self}]: Failed to validate input! {true_input} must be <= {self._input_range['max']}"
                     )
                     return False
 
                 return True
 
             except (ValueError, TypeError):
-                logger.warning(f"input_type.INT requires int not type: " f"{type(input_value)}!")
+                logger.warning(f"input_type.INT requires int not type: {type(input_value)}!")
                 return False
 
         # Input must be a str shorter than length
@@ -262,9 +262,7 @@ class StateDevice(ABC):
                 else:
                     return True
             logger.warning(
-                f"[{self}]: "
-                f"Failed to validate input! {input_value} "
-                f"is not a str of len <= {self._input_range['len']}"
+                f"[{self}]: Failed to validate input! {input_value} is not a str of len <= {self._input_range['len']}"
             )
             return False
         else:
@@ -441,24 +439,16 @@ class FiniteStateDevice(StateDevice, ABC):
             raise StateDeviceInternalError(f"Unknown state {state}:{state.value}!")
 
         if not override and self.state_data[state.value]["logic"]:
-            raise StateDeviceInternalError(
-                f"State.logic collision! {state} already has a logic function " f"registered."
-            )
+            raise StateDeviceInternalError(f"State.logic collision! {state} already has a logic function registered.")
 
         if input_min is not None and (not callable(input_min) and type(input_min) is not int):
-            raise StateDeviceInternalError(
-                f"input_min must be an int or a callable! Got {type(input_min)}" f" instead."
-            )
+            raise StateDeviceInternalError(f"input_min must be an int or a callable! Got {type(input_min)} instead.")
 
         if input_max is not None and (not callable(input_max) and type(input_max) is not int):
-            raise StateDeviceInternalError(
-                f"input_max must be an int or a callable! Got {type(input_max)}" f" instead."
-            )
+            raise StateDeviceInternalError(f"input_max must be an int or a callable! Got {type(input_max)} instead.")
 
         if input_len is not None and (not callable(input_len) and type(input_len) is not int):
-            raise StateDeviceInternalError(
-                f"input_len must be an int or a callable! Got {type(input_len)}" f" instead."
-            )
+            raise StateDeviceInternalError(f"input_len must be an int or a callable! Got {type(input_len)} instead.")
 
         def decorate(fn):
             """
@@ -502,7 +492,7 @@ class FiniteStateDevice(StateDevice, ABC):
             raise StateDeviceInternalError(f"Unknown state {state}!")
         if self.state_data[state.value]["content"] and not override:
             raise StateDeviceInternalError(
-                f"State.content collision! {state} already has a content " f"function registered."
+                f"State.content collision! {state} already has a content function registered."
             )
 
         # Inner decorator that receives the function
@@ -533,14 +523,14 @@ class FiniteStateDevice(StateDevice, ABC):
 
         # Check for bad state data
         if self.current_state.value not in self.state_data:
-            raise ValueError(f"State {self.current_state} " f"has not been registered with {self.name}!")
+            raise ValueError(f"State {self.current_state} has not been registered with {self.name}!")
 
         if (
             "logic" not in self.state_data[self.current_state.value]
             or not self.state_data[self.current_state.value]["logic"]
         ):
             raise StateDeviceInternalError(
-                f"No logical provider has been registered for state " f"{self.current_state}!", {KeyError: ""}
+                f"No logical provider has been registered for state {self.current_state}!", {KeyError: ""}
             )
         self.state_data[self.current_state.value]["logic"](user_input)
 
@@ -550,7 +540,7 @@ class FiniteStateDevice(StateDevice, ABC):
 
         # Check for bad state data
         if self.current_state.value not in self.state_data:
-            raise ValueError(f"State {self.current_state} " f"has not been registered with {self.name}!")
+            raise ValueError(f"State {self.current_state} has not been registered with {self.name}!")
 
         # If the state is silent, simply return an empty component dict.
         # This circumvents checks for silent states
@@ -562,7 +552,7 @@ class FiniteStateDevice(StateDevice, ABC):
             or not self.state_data[self.current_state.value]["content"]
         ):
             raise KeyError(
-                f"No content provider has been registered for state " f"{self.current_state} in device {self.name}!"
+                f"No content provider has been registered for state {self.current_state} in device {self.name}!"
             )
 
         return self.state_data[self.current_state.value]["content"]()
@@ -613,7 +603,7 @@ class FiniteStateDevice(StateDevice, ABC):
         """
 
         if instance is None:
-            raise TypeError("Expected type of argument: instance to be FiniteStateDevice. " "Got None instead.")
+            raise TypeError("Expected type of argument: instance to be FiniteStateDevice. Got None instead.")
 
         if state.value not in instance.state_data:
             raise ValueError(f"Unknown state: {state} in FiniteStateDevice: {instance.name}")
@@ -624,10 +614,10 @@ class FiniteStateDevice(StateDevice, ABC):
         if cache_choice_in_attr is not None:
             if type(cache_choice_in_attr) is not str:
                 raise TypeError(
-                    f"cache_choice_in_attr must be of type str or None! " f"Invalid type: {type(cache_choice_in_attr)}"
+                    f"cache_choice_in_attr must be of type str or None! Invalid type: {type(cache_choice_in_attr)}"
                 )
             if not hasattr(instance, cache_choice_in_attr):
-                raise ValueError(f"instance: {instance.name} has to attr: " f"{cache_choice_in_attr}!")
+                raise ValueError(f"instance: {instance.name} has to attr: {cache_choice_in_attr}!")
 
         @instance.state_logic(
             state,

@@ -33,7 +33,7 @@ class DialogManager(Manager):
         """
 
         if dialog.id in self:
-            raise ValueError(f"Cannot register Dialog {dialog.id}! " f"A Dialog with id {dialog.id} already exists!")
+            raise ValueError(f"Cannot register Dialog {dialog.id}! A Dialog with id {dialog.id} already exists!")
 
         self._manifest[dialog.id] = dialog
 
@@ -42,7 +42,7 @@ class DialogManager(Manager):
         for raw_dialog in raw_asset["content"]:
             dialog = LoadableFactory.get(raw_dialog)
             if not isinstance(dialog, Dialog):
-                raise TypeError(f"Expected object of type Faction, got " f"{type(dialog)} instead!")
+                raise TypeError(f"Expected object of type Faction, got {type(dialog)} instead!")
 
             self.register_dialog(dialog)
 

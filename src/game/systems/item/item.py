@@ -215,7 +215,7 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
                     results[key] = f"-{value}%"
             else:
                 raise TypeError(
-                    f"Unexpected type in resource_mods dict! Expected type int," f" float, got {type(value)} instead!"
+                    f"Unexpected type in resource_mods dict! Expected type int, float, got {type(value)} instead!"
                 )
 
         # Insert secondary stats

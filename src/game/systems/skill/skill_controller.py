@@ -61,9 +61,9 @@ class SkillController:
     def get_skill_as_option(self, skill_id: int) -> list[str | StringContent]:
         return [
             StringContent(value=self.skills[skill_id].name, formatting="skill_name"),
-            f" lvl:{self.skills[skill_id].level} " f" [{self.skills[skill_id].xp}",
+            f" lvl:{self.skills[skill_id].level}  [{self.skills[skill_id].xp}",
             f"/{self.skills[skill_id].level_up_limit}] ",
-            f"({round((self.skills[skill_id].xp/self.skills[skill_id].level_up_limit) * 100)}%)",
+            f"({round((self.skills[skill_id].xp / self.skills[skill_id].level_up_limit) * 100)}%)",
         ]
 
     def get_skills_as_options(self) -> list[list[str | StringContent]]:

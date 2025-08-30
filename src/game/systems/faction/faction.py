@@ -46,7 +46,7 @@ class FactionBase(ABC):
         elif type(quantity) is float:
             self._affinity += self._affinity * quantity
         else:
-            raise TypeError(f"Cannot adjust affinity by type {type(quantity)} " f"Must be an int or float!")
+            raise TypeError(f"Cannot adjust affinity by type {type(quantity)} Must be an int or float!")
 
 
 class Faction(LoadableMixin, FactionBase):

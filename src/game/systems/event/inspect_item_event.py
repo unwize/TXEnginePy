@@ -118,7 +118,7 @@ class InspectItemEvent(Event):
                 ]
                 + (
                     [
-                        "\n\n" "Type Resistances:",
+                        "\n\nType Resistances:",
                         "\n",
                         "\n".join([f" - {t}: {v * 100}%" for t, v in self.ref.tags.items()]),
                     ]

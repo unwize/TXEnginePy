@@ -88,12 +88,10 @@ class EquipmentController(LoadableMixin):
             from game.systems.item.item import Equipment
 
             if not isinstance(ref, Equipment):
-                raise ValueError(
-                    f"Cannot assign item {str(ref)} to slot {key}! Item " f"{str(ref)} is not an Equipment!"
-                )
+                raise ValueError(f"Cannot assign item {str(ref)} to slot {key}! Item {str(ref)} is not an Equipment!")
 
             if ref.slot != key:
-                raise ValueError(f"Cannot assign item {str(ref)} to slot {key}! Wrong slot! " f"{key} != {ref.slot}")
+                raise ValueError(f"Cannot assign item {str(ref)} to slot {key}! Wrong slot! {key} != {ref.slot}")
 
             self._slots[key].item_id = value
 
@@ -103,7 +101,7 @@ class EquipmentController(LoadableMixin):
 
         # That's not right
         else:
-            raise TypeError(f"Unknown type for value! Expected int, bool, or None. Got " f"{type(value)}!")
+            raise TypeError(f"Unknown type for value! Expected int, bool, or None. Got {type(value)}!")
 
     def equip(self, item_id: int) -> bool:
         """
@@ -124,7 +122,7 @@ class EquipmentController(LoadableMixin):
         if isinstance(item_ref, Equipment):
             if not self._slots[item_ref.slot].enabled:
                 raise RuntimeError(
-                    f"Cannot equip {item_ref.name} to slot {item_ref.slot} " f"since slot {item_ref.slot} is disabled."
+                    f"Cannot equip {item_ref.name} to slot {item_ref.slot} since slot {item_ref.slot} is disabled."
                 )
 
             # If operating in player mode, check for quantity and requirements
@@ -143,7 +141,7 @@ class EquipmentController(LoadableMixin):
 
             return True
 
-        raise TypeError(f"Cannot equip item of type {type(item_ref)}! Expected item of type" f" Equipment")
+        raise TypeError(f"Cannot equip item of type {type(item_ref)}! Expected item of type Equipment")
 
     def unequip(self, slot: str) -> bool:
         """
@@ -195,7 +193,7 @@ class EquipmentController(LoadableMixin):
         from game.systems.entity import Entity, Player
 
         if entity is not None and not isinstance(entity, Entity):
-            raise TypeError(f"Cannot assign an owner of type {type(entity)}, owner must of " f"type entities.Entity")
+            raise TypeError(f"Cannot assign an owner of type {type(entity)}, owner must of type entities.Entity")
 
         elif isinstance(entity, Player):
             self._owner = entity
