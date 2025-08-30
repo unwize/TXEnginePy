@@ -168,10 +168,8 @@ class WebsocketViewer(BaseViewer):
             while True:
                 self.clear()
                 self.display(json.loads(response))
-                user_input = input()
-                if user_input.strip() == "":
-                    user_input = "{}"
-                await websocket.send(user_input)
+                payload = '{"user_input": ' + f'"{input()}"' + "}"  # Must follow the valid JSON structure requirements
+                await websocket.send(payload)
                 response = await websocket.recv()
 
 
