@@ -198,10 +198,9 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
         descriptions to their values in str-form
         """
 
-        # Insert results from resource_mods first
-        results = {k: v for k, v in self.resource_modifiers}
+        results = {}
 
-        for key, value in results:
+        for key, value in self.resource_modifiers.items():
             if type(value) is int:
                 if value >= 0:
                     results[key] = f"+{value}"
@@ -210,9 +209,9 @@ class Equipment(req.RequirementsMixin, ResourceModifierMixin, TagMixin, Item):
 
             elif type(value) is float:
                 if value >= 0:
-                    results[key] = f"+{value}%"
+                    results[key] = f"+{value * 100}%"
                 else:
-                    results[key] = f"-{value}%"
+                    results[key] = f"-{value * 100}%"
             else:
                 raise TypeError(
                     f"Unexpected type in resource_mods dict! Expected type int, float, got {type(value)} instead!"

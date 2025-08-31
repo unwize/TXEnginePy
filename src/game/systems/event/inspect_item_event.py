@@ -17,7 +17,7 @@ class InspectItemEvent(Event):
     information accordingly.
      - An Item has its description and values printed.
      - A Usable prints what Item prints and adds its functional description.
-     - An Equipment prints what Item prints and adds tags and stats.
+     - Equipment prints what Item prints and adds tags and stats.
     """
 
     class States(Enum):
