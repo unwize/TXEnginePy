@@ -87,7 +87,7 @@
       "equipment_slot" : "chest",
       "damage_buff" : 0,
       "damage_resist" : 0,
-      "resource_modifiers" : {"Faith" : 0.1,"Mana" : 0.1},
+      "resource_modifiers" : {"Faith" : 0.1, "Mana" : 0.1},
       "tags" : {
         "Faith" : 0.2
       }
