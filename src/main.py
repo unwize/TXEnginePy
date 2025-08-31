@@ -48,7 +48,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 try:
                     payload: int = int(data["user_input"])
                     game.state_device_controller.deliver_input(payload)
-                except RuntimeError:
+                except ValueError:
                     game.state_device_controller.deliver_input(data["user_input"])
             else:
                 raise ValueError("Invalid JSON structure! Expected field 'user_input'")
