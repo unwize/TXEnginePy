@@ -1,12 +1,13 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 import copy
+from typing import TYPE_CHECKING
 
-from game.structures.manager import Manager
 from loguru import logger
 
-from game.structures.enums import EquipmentType
+from game.structures.loadable_factory import LoadableFactory
+from game.structures.manager import Manager
+from game.util.asset_utils import get_asset
 
 if TYPE_CHECKING:
     from game.systems.inventory.structures import EquipSlot
@@ -21,12 +22,11 @@ class EquipmentManager(Manager):
     and can do so through the equipment manager.
     """
 
+    SLOT_ASSET_PATH = "equipment_slots"
+
     def __init__(self):
         super().__init__()
         self._slots: dict[str, EquipSlot] = {}
-
-        for slot_type in EquipmentType.list():
-            self.register_slot(slot_type)
 
     def __contains__(self, item: str) -> bool:
         return self._slots.__contains__(item)
@@ -56,23 +56,38 @@ class EquipmentManager(Manager):
         else:
             raise TypeError(f"Unknown type for value! Expected int, bool, or None. Got {type(value)}!")
 
-    def register_slot(self, name: str, enabled=True) -> None:
+    def register_slot(
+        self, instance: EquipSlot = None, name: str = None, item_id: int | None = None, enabled: bool = True
+    ) -> None:
         """
         Registers a new slot with the EquipmentManager.
+
+        Pass either an instance of EquipSlot or a `name` value. If a `name` value is passed, `item_id` and `enabled` may also
+        be passed.
         """
-        if name in self._slots:
-            raise ValueError(f"Cannot register slot with name {name}, slot already exists!")
-
-        if type(name) is not str or len(name) < 1:
-            logger.error(f"Invalid slot name: {name}")
-            raise TypeError("Invalid name! Equipment slot names must be strings of length > 1!")
-
-        if type(enabled) is not bool:
-            raise TypeError(f"Enabled must be of type bool! Got {type(enabled)} instead.")
 
         from game.systems.inventory.structures import EquipSlot
 
-        self._slots[name] = EquipSlot(name, None, enabled)
+        # Handle registering instance
+        if isinstance(instance, EquipSlot):
+            if instance.name in self._slots:
+                logger.error(f"Failed to register slot {instance.name}: A slot with that name already exists!")
+                raise RuntimeError(f"Failed to register slot {instance.name}!")
+
+            self._slots[instance.name] = instance
+
+        # Handle registering by name
+        else:
+            if not isinstance(name, str):
+                raise TypeError()
+
+            if item_id is not None and not isinstance(item_id, int):
+                raise TypeError()
+
+            if not isinstance(enabled, bool):
+                raise TypeError()
+
+            self._slots[name] = EquipSlot(name, item_id, enabled)
 
     def get_slots(self) -> dict:
         """
@@ -88,7 +103,7 @@ class EquipmentManager(Manager):
         args:
             slot: The slot key to validate
 
-        returns: slot if slot exists, None otherwise
+        returns: `slot` if `slot` exists
         """
         if slot in self._slots:
             return slot
@@ -96,7 +111,19 @@ class EquipmentManager(Manager):
         raise ValueError(f"Slot {slot} does not exist! Possible slots are {','.join(list(self._slots.keys()))}")
 
     def load(self) -> None:
-        pass
+        """
+        Load item game objects from disk.
+        """
+        raw_asset: dict[str, any] = get_asset(self.SLOT_ASSET_PATH)
+        for raw_slot in raw_asset["content"]:
+            slot = LoadableFactory.get(raw_slot)
+
+            from game.systems.inventory.structures import EquipSlot
+
+            if not isinstance(slot, EquipSlot):
+                raise TypeError(f"Expected object of type EquipSlot, got {type(slot)} instead!")
+
+            self.register_slot(slot)
 
     def save(self) -> None:
         pass

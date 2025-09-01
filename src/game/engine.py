@@ -18,6 +18,8 @@ from game.systems.dialog import *
 from game.systems.room.action.shop_action import *
 from game.systems.event.view_summary_event import *
 from game.systems.event.dialog_event import *
+from game.systems.inventory.structures import *
+
 
 from .cache import get_config, set_config, get_cache, from_cache
 from .formatting import register_arguments, register_style

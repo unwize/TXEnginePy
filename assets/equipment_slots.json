@@ -1,0 +1,45 @@
+{
+  "content": [
+    {
+      "__comments__" : "You may allow players to start the game with an item equipped by using a real value in the `item_id` field.",
+      "class": "EquipSlot",
+      "enabled": true,
+      "name": "head"
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "chest",
+      "enabled" : true
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "hands",
+      "enabled" : true
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "legs",
+      "enabled" : true
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "feet",
+      "enabled" : true
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "ring",
+      "enabled" : true
+    },
+    {
+      "class" : "EquipSlot",
+      "name" : "necklace",
+      "enabled" : true
+    },
+    {
+      "class": "EquipSlot",
+      "name": "weapon",
+      "enabled": true
+    }
+  ]
+}
