@@ -128,7 +128,7 @@ class ItemManager(Manager):
             from game.systems.item.item import Item
 
             if not isinstance(item, Item):
-                raise TypeError(f"Expected object of type Ability, got {type(item)} instead!")
+                raise TypeError(f"Expected object of type Item, got {type(item)} instead!")
 
             self.register_item(item)
 
