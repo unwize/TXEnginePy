@@ -34,20 +34,3 @@ class TargetMode(enum.Enum):
     ALL_ENEMY = "all_enemies"  # Targets all enemies simultaneously
     NOT_SELF = "not_self"  # Targets any entity that isn't the caster
     SELF = "self"  # Targets the caster
-
-
-class EquipmentType(enum.Enum):
-    @classmethod
-    def list(cls):
-        return list(map(lambda c: c.value, cls))
-
-    WEAPON = "weapon"
-    # Armor
-    HEAD = "head"
-    CHEST = "chest"
-    HANDS = "hands"
-    LEGS = "legs"
-    FEET = "feet"
-    # Jewelry
-    RING = "ring"
-    NECKLACE = "necklace"
