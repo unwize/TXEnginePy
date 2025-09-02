@@ -8,7 +8,7 @@ from game.structures.messages import ComponentFactory
 from game.systems.entity.entities import CombatEntity
 from game.systems.event import Event
 from game.systems.event.events import EntityTargetMixin
-from game.systems.event.inspect_item_event import InspectItemEvent
+from game.systems.event.manage_equipped_item_event import ManageEquippedItemEvent
 
 
 class ViewEquipmentEvent(EntityTargetMixin, Event):
@@ -19,7 +19,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
         SLOT_IS_EMPTY = 3
         TERMINATE = -1
 
-    def __init__(self, target: CombatEntity, item_id: int = None, **kwargs):
+    def __init__(self, target: CombatEntity, **kwargs):
         super().__init__(
             default_input_type=InputType.SILENT,
             states=self.States,
@@ -28,8 +28,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
             **kwargs,
         )
 
-        self._inspect_item_id: int = item_id
-        self._one_shot = True if item_id is not None else False
+        self._inspect_item_slot: str = None
 
         if not isinstance(self.target, CombatEntity):
             raise TypeError(f"ViewEquipmentEvent.target must be of type CombatEntity! Got {type(self.target)} instead.")
@@ -39,10 +38,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
     def _setup_states(self):
         @self.state_logic(self.States.DEFAULT, InputType.SILENT)
         def _logic(_: any) -> None:
-            if self._inspect_item_id:
-                self.set_state(self.States.INSPECT_EQUIPMENT)
-            else:
-                self.set_state(self.States.DISPLAY_EQUIPMENT)
+            self.set_state(self.States.DISPLAY_EQUIPMENT)
 
         @self.state_logic(
             self.States.DISPLAY_EQUIPMENT,
@@ -60,7 +56,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
                 self.set_state(self.States.SLOT_IS_EMPTY)
                 return
 
-            self._inspect_item_id = self.target.equipment_controller[slot].item_id
+            self._inspect_item_slot = slot
             self.set_state(self.States.INSPECT_EQUIPMENT)
 
         @self.state_content(self.States.DISPLAY_EQUIPMENT)
@@ -79,7 +75,7 @@ class ViewEquipmentEvent(EntityTargetMixin, Event):
 
         @self.state_logic(self.States.INSPECT_EQUIPMENT, InputType.SILENT)
         def _logic(_: any) -> None:
-            game.add_state_device(InspectItemEvent(self._inspect_item_id))
+            game.add_state_device(ManageEquippedItemEvent(self._inspect_item_slot))
             self.set_state(self.States.DISPLAY_EQUIPMENT)
 
     @staticmethod
